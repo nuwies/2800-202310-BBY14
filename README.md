@@ -1,9 +1,7 @@
 # AISleep
 
 ## 1. Project Description
-State your app in a nutshell, or one-sentence pitch. Give some elaboration on what the core features are.  
-This browser based web application to ...
-* ...
+Our team, Burnaby 14, is developing AISleep to help tired workers and students get better quality sleep with an AI driven sleep score, with personalized advice based on the score.
 
 ## 2. Names of Contributors
 List team members and/or short bio's here... 
