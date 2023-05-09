@@ -46,3 +46,29 @@ app.use(
   })
 );
 
+function isValidSession(req) {
+  return req.session.authenticated;
+}
+
+function sessionValidation(req, res, next) {
+  if (isValidSession(req)) {
+    next();
+  } else {
+    res.redirect("/index");
+  }
+}
+
+function isAdmin(req) {
+  return req.session.user_type === "admin";
+}
+
+function adminValidation(req, res, next) {
+  if (isAdmin(req)) {
+    next();
+  } else {
+    res.status(403);
+    res.render("403");
+  }
+}
+
+
