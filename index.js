@@ -46,24 +46,16 @@ app.use(
   })
 );
 
-function isValidSession(req) {
-  return req.session.authenticated;
-}
-
 function sessionValidation(req, res, next) {
-  if (isValidSession(req)) {
+  if (req.session.authenticated) {
     next();
   } else {
-    res.redirect("/index");
+    res.render("index");
   }
 }
 
-function isAdmin(req) {
-  return req.session.user_type === "admin";
-}
-
 function adminValidation(req, res, next) {
-  if (isAdmin(req)) {
+  if (req.session.user_type === "admin") {
     next();
   } else {
     res.status(403);
@@ -71,15 +63,139 @@ function adminValidation(req, res, next) {
   }
 }
 
+app.get("/", sessionValidation, (req, res) => {
+  var name = req.session.name;
+  res.render("index_user", { name: name });
+});
 
+app.get("/signup", (req, res) => {
+  res.render("signup");
+});
 
+app.post("/submitUser", async (req, res) => {
+  var name = req.body.name;
+  var email = req.body.email;
+  var password = req.body.password;
+
+  /* Password match check - WIP - not working
+  var confirmPassword = req.body.confirmPassword;
+
+  if (password !== confirmPassword) {
+    res.render("signup_error", { error: "Passwords do not match" });
+    return;
+  }
+  */
+
+  const schema = Joi.object({
+    name: Joi.string().alphanum().max(20).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().max(20).required(),
+  }).options({ abortEarly: false }); // make it check all fields before returning
+
+  const validationResult = schema.validate({ name, email, password });
+
+  if (validationResult.error != null) {
+    var errors = validationResult.error.details; // array of error objects from Joi validation
+    var errorMessages = []; // array for error messages
+    for (var i = 0; i < errors.length; i++) {
+      errorMessages.push(errors[i].message);
+    }
+    var errorMessage = errorMessages.join(", ");
+    res.render("signup_error", { error: errorMessage });
+    return;
+  }
+
+  // check if email is already in use
+  const result = await userCollection
+    .find({ email: email })
+    .project({ email: email })
+    .toArray();
+
+  if (result.length > 0) {
+    res.render("signup_error", { error: "Email already in use (｡•́︿•̀｡)" });
+    return;
+  }
+
+  // hash password
+  var hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  // insert user into database
+  await userCollection.insertOne({
+    name: name,
+    email: email,
+    password: hashedPassword,
+  });
+
+  // successful signup - log in user and redirect to main page
+  req.session.authenticated = true;
+  req.session.name = name;
+  res.redirect("/main");
+});
+
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+app.post("/loggingin", async (req, res) => {
+  var email = req.body.email;
+  var password = req.body.password;
+
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().max(20).required(),
+  }).options({ abortEarly: false });
+
+  const validationResult = schema.validate({ email, password });
+
+  if (validationResult.error != null) {
+    var errors = validationResult.error.details;
+    var errorMessages = [];
+    for (var i = 0; i < errors.length; i++) {
+      errorMessages.push(errors[i].message);
+    }
+    var errorMessage = errorMessages.join(", ");
+    res.render("login-error", { error: errorMessage });
+    return;
+  }
+
+  const result = await userCollection
+    .find({ email: email })
+    .project({ name: 1, email: 1, password: 1, _id: 1, user_type: 1 })
+    .toArray();
+
+  if (result.length != 1) {
+    res.render("login-error", { error: "User not found (｡•́︿•̀｡)" });
+    return;
+  }
+
+  if (await bcrypt.compare(password, result[0].password)) {
+    req.session.authenticated = true;
+    req.session.name = result[0].name;
+    req.session.email = email;
+    req.session.cookie.maxAge = expireTime;
+    res.redirect("/loggedin");
+    return;
+  } else {
+    res.render("login-error", { error: "Incorrect password (｡•́︿•̀｡)" });
+    return;
+  }
+});
+
+// Redirect to main page if user is logged in
+app.get("/loggedin", sessionValidation, (req, res) => {
+  res.redirect("/main");
+});
+
+// End session and redirect to login/signup page
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
+});
 
 app.get("*", (req, res) => {
   res.status(404);
   res.render("404");
 })
-
-
 
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
