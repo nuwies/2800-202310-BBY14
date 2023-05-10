@@ -71,7 +71,10 @@ function adminValidation(req, res, next) {
   }
 }
 
-
+app.get("/settings", (req, res) => {
+ 
+  res.render("settings");
+})
 
 
 app.get("*", (req, res) => {
