@@ -70,9 +70,12 @@ function adminValidation(req, res, next) {
     res.render("403",{error: "Not Authorized"});
   }
 }
+app.get("/profile", (req, res) => {
+  
+  res.render("profile");
+})
 
-
-
+app.use(express.static(__dirname + "/public"));
 
 app.get("*", (req, res) => {
   res.status(404);
