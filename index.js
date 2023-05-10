@@ -76,6 +76,7 @@ app.post("/submitUser", async (req, res) => {
   var name = req.body.name;
   var email = req.body.email;
   var password = req.body.password;
+  var birthday = req.body.birthday;
 
   /* Password match check - WIP - not working
   var confirmPassword = req.body.confirmPassword;
@@ -90,9 +91,10 @@ app.post("/submitUser", async (req, res) => {
     name: Joi.string().alphanum().max(20).required(),
     email: Joi.string().email().required(),
     password: Joi.string().max(20).required(),
+    birthday: Joi.date().required(),
   }).options({ abortEarly: false }); // make it check all fields before returning
 
-  const validationResult = schema.validate({ name, email, password });
+  const validationResult = schema.validate({ name, email, password, birthday });
 
   if (validationResult.error != null) {
     var errors = validationResult.error.details; // array of error objects from Joi validation
@@ -124,6 +126,7 @@ app.post("/submitUser", async (req, res) => {
     name: name,
     email: email,
     password: hashedPassword,
+    birthday: birthday,
   });
 
   // successful signup - log in user and redirect to main page
