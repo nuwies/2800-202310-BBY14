@@ -201,6 +201,9 @@ app.get("/createreport", sessionValidation, (req, res) => {
   res.render("createreport");
 });
 
+//define it as a global var so multiple pages can display it
+let sleepScore = 100;
+
 app.post("/submitreport", sessionValidation, async (req, res) => {
   const userName = req.session.name;
  // const userId = req.session.userId; // assuming you have stored the user ID in the session (we havent yet)
@@ -235,6 +238,11 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
   const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
 
+  // Calculate sleep score  NEEDS MORE WORK, JUST A DEMONSTRATION
+  if (wakeupCountInt > 0) {
+    sleepScore = sleepScore - 30;
+  }
+
   // Create a new report object
   const report = {
     userName,
@@ -244,6 +252,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     wakeupCount: wakeupCountInt,
     alcohol,
     alcoholCount,
+    sleepScore
   };
 
 
@@ -260,7 +269,9 @@ try {
 });
 
 app.get("/main", sessionValidation, (req, res) => {
-  res.render("main"); // maybe want to use req.session.name
+  res.render("main", {
+    sleepScore: sleepScore
+  }); // maybe want to use req.session.name
 });
 
 app.get("/about", (req, res) => {
