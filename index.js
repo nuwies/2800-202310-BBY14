@@ -196,11 +196,6 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/createreport", sessionValidation, (req, res) => {
-  if (!isValidSession(req)) {
-      res.redirect("/signup");
-      return;
-  }
-
   res.render("createreport");
 });
 
