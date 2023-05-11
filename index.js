@@ -203,6 +203,14 @@ app.get("/main", sessionValidation, (req, res) => {
   res.render("main"); // maybe want to use req.session.name
 });
 
+app.get("/about", (req, res) => {
+  res.render("about");
+});
+
+app.get("/tips", sessionValidation, (req, res) => {
+  res.render("tips");
+});
+
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
 
