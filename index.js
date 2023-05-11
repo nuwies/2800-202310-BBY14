@@ -270,12 +270,33 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   try {
     const result = await reportCollection.insertOne(report);
     console.log(`Inserted report with ID ${result.insertedId}`);
-    res.redirect('/main');
+       // Redirect the user to the newreport route with the report data in the query parameters
+       res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}`);
   } catch (error) {
     console.error(error);
     res.status(500).send('Error submitting report');
   }
 });
+
+app.get('/newreport', sessionValidation, (req, res) => {
+  const sleepScore = req.query.sleepScore;
+  const bedtime = req.query.bedtime;
+  const wakeup = req.query.wakeup;
+  const wakeupCount = req.query.wakeupCount;
+  const alcohol = req.query.alcohol;
+  const alcoholCount = req.query.alcoholCount;
+
+  // Render a new view with the report data
+  res.render('newreport', { 
+    sleepScore, 
+    bedtime, 
+    wakeup, 
+    wakeupCount, 
+    alcohol, 
+    alcoholCount 
+  });
+});
+
 
 
 app.get("/main", sessionValidation, (req, res) => {
