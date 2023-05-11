@@ -195,6 +195,9 @@ app.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
+//The route for public folder
+app.use(express.static(__dirname + "/public"));
+
 app.get("*", (req, res) => {
   res.status(404);
   res.render("404");
