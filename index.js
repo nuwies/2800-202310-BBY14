@@ -287,12 +287,20 @@ app.get("/about", (req, res) => {
   res.render("about");
 });
 
+
 app.get("/tips", sessionValidation, (req, res) => {
   res.render("tips");
 });
 
+app.get('/tips-data', function(req, res) {
+  const tipsData = require('./app/data/tips.json');
+  res.json(tipsData);
+});
+
+
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
+
 
 app.get("*", (req, res) => {
   res.status(404);
