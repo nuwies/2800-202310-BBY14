@@ -26,6 +26,8 @@ var { database } = include("databaseConnection");
 
 const userCollection = database.db(mongodb_database).collection("users");
 
+const reportCollection = database.db(mongodb_database).collection("reports");
+
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: false }));
@@ -193,6 +195,91 @@ app.get("/loggedin", sessionValidation, (req, res) => {
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
+});
+
+app.get("/createreport", sessionValidation, (req, res) => {
+  res.render("createreport");
+});
+
+//define it as a global var so multiple pages can display it
+let sleepScore = 100;
+
+app.post("/submitreport", sessionValidation, async (req, res) => {
+  const userName = req.session.name;
+ // const userId = req.session.userId; // assuming you have stored the user ID in the session (we havent yet)
+  const bedtimeHour = req.body.bedtimeHour;
+  const bedtimeMinute = req.body.bedtimeMinute;
+  const bedtimeAmPm = req.body.bedtimeAmPm;
+  const wakeupHour = req.body.wakeupHour;
+  const wakeupMinute = req.body.wakeupMinute;
+  const wakeupAmPm = req.body.wakeupAmPm;
+  const wakeupCount = req.body.wakeupcount;
+  const alcohol = req.body.alcohol;
+  
+  let alcoholCount, wakeupCountInt;
+
+  if (alcohol === "No") {
+    alcoholCount = 0;
+  } else if (req.body.alcohol === "10+ oz") {
+    alcoholCount = 10;
+  } else {
+    alcoholCount = parseInt(req.body.alcoholcount);
+  }
+  
+  if (wakeupCount === "10+ times") {
+    wakeupCountInt = 10;
+  } else {
+    wakeupCountInt = parseInt(wakeupCount);
+  }
+
+  // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
+  const bedtime = `${bedtimeHour}:${bedtimeMinute} ${bedtimeAmPm}`;
+
+  // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
+  const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
+
+  // Calculate sleep score  NEEDS MORE WORK, JUST A DEMONSTRATION
+  if (wakeupCountInt > 0) {
+    sleepScore = sleepScore - 30;
+  }
+
+  // Create a new report object
+  const report = {
+    userName,
+    //userId, commented out until we store userID since username can change
+    bedtime,
+    wakeup,
+    wakeupCount: wakeupCountInt,
+    alcohol,
+    alcoholCount,
+    sleepScore
+  };
+
+
+// Save the report to the database
+try {
+  const result = await reportCollection.insertOne(report);
+  console.log(`Inserted report with ID ${result.insertedId}`);
+  res.redirect('/main');
+} catch (error) {
+  console.error(error);
+  res.status(500).send('Error submitting report');
+}
+
+});
+
+app.get("/main", sessionValidation, (req, res) => {
+  res.render("main", {
+    sleepScore: sleepScore
+  }); // maybe want to use req.session.name
+});
+
+app.get("/about", (req, res) => {
+  res.render("about");
+});
+
+app.get("/tips", sessionValidation, (req, res) => {
+  res.render("tips");
 });
 
 //The route for public folder

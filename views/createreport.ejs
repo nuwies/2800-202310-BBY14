@@ -1,0 +1,132 @@
+<%- include("templates/header_goback") %>
+<form action="/submitreport" method="post">
+    <div class="form-group">
+      <label for="bedtime">What time did you go to bed?</label>
+      <div class="row">
+        <div class="col">
+            <select class="form-control" id="bedtimeHour" name="bedtimeHour">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+            <option>11</option>
+            <option>12</option>
+          </select>
+        </div>
+        <div class="col">
+            <select class="form-control" id="bedtimeMinute" name="bedtimeMinute">
+            <option>00</option>
+            <option>10</option>
+            <option>20</option>
+            <option>30</option>
+            <option>40</option>
+            <option>50</option>
+          </select>
+        </div>
+        <div class="col">
+            <select class="form-control" id="bedtimeAmPm" name="bedtimeAmPm">
+            <option>AM</option>
+            <option>PM</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="wakeup">What time did you wake up?</label>
+      <div class="row">
+        <div class="col">
+            <select class="form-control" id="wakeupHour" name="wakeupHour">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+            <option>11</option>
+            <option>12</option>
+          </select>
+        </div>
+        <div class="col">
+            <select class="form-control" id="wakeupMinute" name="wakeupMinute">
+            <option>00</option>
+            <option>10</option>
+            <option>20</option>
+            <option>30</option>
+            <option>40</option>
+            <option>50</option>
+          </select>
+        </div>
+        <div class="col">
+            <select class="form-control" id="wakeupAmPm" name="wakeupAmPm">
+            <option>AM</option>
+            <option>PM</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="wakeupcount">How many times did you wake up during the night?</label>
+      <select class="form-control" id="wakeupcount" name="wakeupcount">
+        <option>0 times</option>
+        <option>1 time</option>
+        <option>2 times</option>
+        <option>3 times</option>
+        <option>4 times</option>
+        <option>5 times</option>
+        <option>6 times</option>
+        <option>7 times</option>
+        <option>8 times</option>
+        <option>9 times</option>
+        <option>10+ times</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="alcohol">Did you drink alcohol 24 hours before your bedtime?</label>
+      <select class="form-control" id="alcohol" name="alcohol">
+        <option>No</option>
+        <option>Yes</option>
+      </select>
+    </div>
+    <div class="form-group" id="alcoholamount" style="display:none;">
+      <label for="alcoholcount">Approximately many ounces of alcohol did you drink?</label>
+      <select class="form-control" id="alcoholcount" name="alcoholcount">
+        <option>1 oz</option>
+        <option>2 oz</option>
+        <option>3 oz</option>
+        <option>4 oz</option>
+        <option>5 oz</option>
+        <option>6 oz</option>
+        <option>7 oz</option>
+        <option>8 oz</option>
+        <option>9 oz</option>
+        <option>10+ oz</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+
+  <script>
+    // Get references to the "Did you drink alcohol 24 hours before your bedtime?" and "Approximately how many ounces of alcohol did you drink?" dropdowns
+    const alcoholDropdown = document.getElementById('alcohol');
+    const alcoholAmountDiv = document.getElementById('alcoholamount');
+  
+    // Add an event listener to the "Did you drink alcohol 24 hours before your bedtime?" dropdown to toggle the display of the "Approximately how many ounces of alcohol did you drink?" dropdown
+    alcoholDropdown.addEventListener('change', () => {
+      if (alcoholDropdown.value === 'Yes') {
+        alcoholAmountDiv.style.display = 'block';
+      } else {
+        alcoholAmountDiv.style.display = 'none';
+      }
+    });
+  </script>
+<%- include('templates/footer') %>
