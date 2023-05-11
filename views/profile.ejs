@@ -25,7 +25,7 @@
                     </div>
                     <hr class="border-light m-0">
                     <!-- <fieldset class="mb-3" id="personalInfoFields" disabled> -->
-                    <form>
+                    <form id="profileForm" method="POST" action="/profile">
 
 
 
@@ -33,23 +33,33 @@
 
                             <div class="form-group">
                                 <label class="form-label">Name</label>
-                                <input id="nameInput" type="text" class="form-control" placeholder="enter your name" >
+                                <input id="nameInput" type="text" class="form-control" placeholder="enter your name" name="name" value="<%= name%>" <% if (!isEditing) { %>disabled<% } %>>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Email</label>
-                                <input id="bioInput" type="text" class="form-control mb-1" placeholder="enter email">
+                                <input id="bioInput" type="text" class="form-control mb-1" placeholder="enter email" value="<%= email%>" disabled>
 
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Date of Birth</label>
-                                <input id="dateInput" type="date" class="form-control" placeholder="enter DOB">
+                                <input id="dateInput" type="date" class="form-control" placeholder="enter DOB" value="<%= birthday%>" disabled>
                             </div>
                             <br>
                             <!-- </fieldset> -->
+                            <% if (!isEditing) { %>
+                                <!-- <button type="submit" class="btn btn-primary">Save Profile</button>&nbsp; -->
+                                <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/profile?edit=true'">Edit profile</button>
+                                <% } else { %>
+                                <button type="submit" class="btn btn-primary">Update Profile</button>&nbsp;
+                                <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/profile'">Cancel</button>
+                                <% } %>
 
 
-                            <button type="button" class="btn btn-primary">Save Profile</button>&nbsp;
-                            <button type="button" class="btn btn-outline-primary ">Edit profile </button>
+
+
+
+                            <!-- <button type="submit" class="btn btn-primary">Save Profile</button>&nbsp;
+                            <button type="button" class="btn btn-outline-primary ">Edit profile </button> -->
                             <div class="form-group">
                                 <br>
                                 <label class="d-block text-danger">Delete Account</label>
