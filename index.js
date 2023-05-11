@@ -270,9 +270,8 @@ try {
 });
 
 app.get("/main", sessionValidation, (req, res) => {
-  res.render("main", {
-    sleepScore: sleepScore
-  }); // maybe want to use req.session.name
+  var name = req.session.name;
+  res.render("main", { name: name, sleepScore: sleepScore });
 });
 
 app.get("/about", (req, res) => {
