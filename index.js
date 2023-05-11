@@ -195,6 +195,15 @@ app.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
+app.get("/createreport", sessionValidation, (req, res) => {
+  if (!isValidSession(req)) {
+      res.redirect("/signup");
+      return;
+  }
+
+  res.render("createreport");
+});
+
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
 
