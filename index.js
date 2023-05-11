@@ -7,9 +7,15 @@ const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
 
+const flash = require('connect-flash');
+
+
+
+
 const port = process.env.PORT || 3080;
 
 const app = express();
+
 const Joi = require("joi");
 const expireTime = 1000 * 60 * 60 * 24; // expires after 24 hours
 
@@ -46,6 +52,7 @@ app.use(
   })
 );
 
+
 function sessionValidation(req, res, next) {
   if (req.session.authenticated) {
     next();
@@ -62,6 +69,9 @@ function adminValidation(req, res, next) {
     res.render("403",{error: "Not Authorized"});
   }
 }
+
+
+app.use(flash());
 
 app.get("/", sessionValidation, (req, res) => {
   var name = req.session.name;
@@ -194,6 +204,55 @@ app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
+
+app.get("/security", sessionValidation,(req, res) => {
+ res.render("security", { messages: req.flash() });
+});
+
+
+
+app.post('/change-password', sessionValidation, async (req, res) => {
+  const currentPassword = req.body.currentPassword;
+  const newPassword = req.body.newPassword;
+  const confirmNewPassword = req.body.confirmNewPassword;
+
+  // Validate the input
+  if (!currentPassword || !newPassword || !confirmNewPassword) {
+    
+    req.flash('error', 'All fields are required');
+    return res.redirect('/security');
+  }
+  if (newPassword !== confirmNewPassword) {
+    req.flash('error', 'New password and confirm password must match');
+    return res.redirect('/security');
+    }
+
+
+
+  // Check if the current password is correct
+  const email = req.session.email;
+  const result = await userCollection
+    .find({ email: email })
+    .project({ name: 1, email: 1, password: 1, _id: 1, user_type: 1 })
+    .toArray();
+  if (!result) {
+    req.flash('error', 'User not found');
+    return res.redirect('/security');
+  }
+  const isMatch = await bcrypt.compare(currentPassword, result[0].password);
+  if (!isMatch) {
+    req.flash('error', 'Current password is incorrect');
+    return res.redirect('/security');
+    }
+
+  // Update the password in the database
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await userCollection.updateOne({ email: email }, { $set: { password: hashedPassword } });
+  req.flash('success', 'Password changed successfully!');
+return res.redirect('/security');
+ 
+});
+
 
 app.get("*", (req, res) => {
   res.status(404);
