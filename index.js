@@ -199,6 +199,10 @@ app.get("/createreport", sessionValidation, (req, res) => {
   res.render("createreport");
 });
 
+app.get("/main", sessionValidation, (req, res) => {
+  res.render("main"); // maybe want to use req.session.name
+});
+
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
 
