@@ -202,12 +202,12 @@ app.get("/createreport", sessionValidation, (req, res) => {
   res.render("createreport");
 });
 
-//define it as a global var so multiple pages can display it
-let sleepScore = 100;
-
 app.post("/submitreport", sessionValidation, async (req, res) => {
+
+  let sleepScore = 100; // set the sleepScore to 100 at the beginning so that it resets back to 100 everytime a new report submits
+
   const userName = req.session.name;
- // const userId = req.session.userId; // assuming you have stored the user ID in the session (we havent yet)
+  const email = req.session.email;
   const bedtimeHour = req.body.bedtimeHour;
   const bedtimeMinute = req.body.bedtimeMinute;
   const bedtimeAmPm = req.body.bedtimeAmPm;
@@ -244,29 +244,38 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     sleepScore = sleepScore - 30;
   }
 
-  // Create a new report object
+  // Create a new report object with the current date and time
+  const currentDate = new Date();
+  const options = { 
+    year: 'numeric', 
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric', 
+    minute: 'numeric', 
+    hour12: true 
+  };
+  const formattedDate = currentDate.toLocaleString('en-US', options);
   const report = {
     userName,
-    //userId, commented out until we store userID since username can change
+    email,
     bedtime,
     wakeup,
     wakeupCount: wakeupCountInt,
     alcohol,
     alcoholCount,
-    sleepScore
+    sleepScore,
+    date: formattedDate // use the formatted date and time
   };
 
-
-// Save the report to the database
-try {
-  const result = await reportCollection.insertOne(report);
-  console.log(`Inserted report with ID ${result.insertedId}`);
-  res.redirect('/main');
-} catch (error) {
-  console.error(error);
-  res.status(500).send('Error submitting report');
-}
-
+  // Save the report to the database
+  try {
+    const result = await reportCollection.insertOne(report);
+    console.log(`Inserted report with ID ${result.insertedId}`);
+    res.redirect('/main');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error submitting report');
+  }
 });
 
 app.get("/main", sessionValidation, (req, res) => {
