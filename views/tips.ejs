@@ -1,16 +1,16 @@
 <%- include("templates/header_goback") %>
 
+    <!-- tips section -->
     <div class="px-4 mb-4 text-center">
         <h1 class="display-5 fw-bold text-body-emphasis text-center">Today Tip</h1>
-        <div class="px-2 pt-5 pb-4 mx-auto" style="background-color: #f1f1f19b;">
-            <p class="lead">
-                Make sure your bedroom is quiet, dark, relaxing, and at a comfortable temperature.
-            </p>
-                <button type="button" class="mt-2 btn btn-outline-secondary justify-content-sm-center">Next One</button>
+        <div class="col-lg-6 px-2 pt-5 pb-4 mx-auto" style="background-color: #f1f1f19b;">
+            <p class="lead" id="tip-text"></p>
+            <button type="button" class="mt-2 btn btn-outline-secondary justify-content-sm-center"
+                onclick="getRandomTip()">Next One</button>
         </div>
     </div>
 
-
+    <!-- music section -->
     <div class="px-4 mb-4 text-center">
         <div class="col-lg-6 px-2 py-3 mx-auto" style="background-color: #f1f1f19b;">
             <p class="lead mb-4">
