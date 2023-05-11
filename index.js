@@ -78,23 +78,18 @@ app.post("/submitUser", async (req, res) => {
   var name = req.body.name;
   var email = req.body.email;
   var password = req.body.password;
+  var confirm_password = req.body.confirm_password;
   var birthday = req.body.birthday;
 
-  /* Password match check - WIP - not working
-  var confirmPassword = req.body.confirmPassword;
-
-  if (password !== confirmPassword) {
-    res.render("signup_error", { error: "Passwords do not match" });
-    return;
-  }
-  */
+  /* Password match check */
 
   const schema = Joi.object({
     name: Joi.string().alphanum().max(20).required(),
     email: Joi.string().email().required(),
     password: Joi.string().max(20).required(),
+    confirm_password: Joi.string().max(20),
     birthday: Joi.date().required(),
-  }).options({ abortEarly: false }); // make it check all fields before returning
+  }).options({ abortEarly: false }); // check all fields before returning
 
   const validationResult = schema.validate({ name, email, password, birthday });
 
@@ -106,6 +101,12 @@ app.post("/submitUser", async (req, res) => {
     }
     var errorMessage = errorMessages.join(", ");
     res.render("signup_error", { error: errorMessage });
+    return;
+  }
+
+  // check if password matches confirm_password
+  if (password !== confirm_password) {
+    res.render("signup_error", { error: "Passwords do not match (｡•́︿•̀｡)" }); // change to display error message under field later
     return;
   }
 
@@ -336,21 +337,28 @@ const tips = tipsString.split(/\.|\?|!/);
 });
 
 app.get("/main", sessionValidation, (req, res) => {
-  res.render("main", {
-   
-  }); // maybe want to use req.session.name
+  var name = req.session.name;
+  res.render("main", { name: name, sleepScore: sleepScore });
 });
 
 app.get("/about", (req, res) => {
   res.render("about");
 });
 
+
 app.get("/tips", sessionValidation, (req, res) => {
   res.render("tips");
 });
 
+app.get('/tips-data', function(req, res) {
+  const tipsData = require('./app/data/tips.json');
+  res.json(tipsData);
+});
+
+
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
+
 
 app.get("*", (req, res) => {
   res.status(404);
