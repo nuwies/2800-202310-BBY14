@@ -236,31 +236,46 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
    // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
   const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
 
-  // Create an empty array to store the tips
-  const tips = [];
-
-  // Check the wakeup count and add tips to the array based on the condition
-  if (wakeupCountInt === 1) {
-    tips.push('You are doing great with waking up only once!');
-  } else if (wakeupCountInt === 2) {
-    tips.push('Try to reduce the number of times you wake up during the night.');
-  } else if (wakeupCountInt >= 3) {
-    tips.push('You should consider seeing a sleep specialist if you are waking up three or more times during the night.');
-  }
-
-  // Check the alcohol count and add tips to the array based on the condition
-  if (alcoholCount === 0) {
-    tips.push('Great job not drinking any alcohol before bed!');
-  } else if (alcoholCount === 1) {
-    tips.push('Drinking a small amount of alcohol before bed is generally okay, but try not to make it a habit.');
-  } else if (alcoholCount > 1 && alcoholCount <= 5) {
-    tips.push('Drinking more than 1 oz of alcohol before bed can disrupt your sleep.');
-  } else if (alcoholCount > 5) {
-    tips.push('Stop drinking! Drinking more than 5 oz of alcohol before bed can significantly disrupt your sleep.');
-  }
-
-  // Combine the tips into a single string
-  const tipsString = tips.join(' ');
+  const tips = [
+    {
+      sentence: 'You are doing great with waking up only once!',
+      applies: wakeupCountInt === 1
+    },
+    {
+      sentence: 'Try to reduce the number of times you wake up during the night.',
+      applies: wakeupCountInt === 2
+    },
+    {
+      sentence: 'You should consider seeing a sleep specialist if you are waking up three or more times during the night.',
+      applies: wakeupCountInt >= 3
+    },
+    {
+      sentence: 'Great job not drinking any alcohol before bed!',
+      applies: alcoholCount === 0
+    },
+    {
+      sentence: 'Drinking a small amount of alcohol before bed is generally okay, but try not to make it a habit.',
+      applies: alcoholCount === 1
+    },
+    {
+      sentence: 'Drinking more than 1 oz of alcohol before bed can disrupt your sleep.',
+      applies: alcoholCount > 1 && alcoholCount <= 5
+    },
+    {
+      sentence: 'Stop drinking! Drinking more than 5 oz of alcohol before bed can significantly disrupt your sleep.',
+      applies: alcoholCount > 5
+    }
+  ];
+  
+  // Filter the applicable tips based on the "applies" condition
+  const applicableTips = tips.filter(tip => tip.applies);
+  
+  // Extract only the tip sentences into an array
+  const tipsArray = applicableTips.map(tip => tip.sentence);
+  
+  // Join the tip sentences into a single string with a separator
+  const tipsString = tipsArray.join(' ');
+  
 
   // Calculate sleep score (this is just an example and NEEDS MORE WORK)
   if (wakeupCountInt > 0) {
@@ -296,7 +311,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     const result = await reportCollection.insertOne(report);
     console.log(`Inserted report with ID ${result.insertedId}`);
        // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
-res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}`);
+       res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}`);
   } catch (error) {
     console.error(error);
     res.status(500).send('Error submitting report');
@@ -310,29 +325,15 @@ app.get('/newreport', sessionValidation, (req, res) => {
   const wakeupCount = req.query.wakeupCount;
   const alcohol = req.query.alcohol;
   const alcoholCount = req.query.alcoholCount;
+  const tipsString = req.query.tips;
+
+  // Split the tips string into an array of tips
+const tips = tipsString.split(/\.|\?|!/);
+
 
   // Render a new view with the report data
-  res.render('newreport', { 
-    sleepScore, 
-    bedtime, 
-    wakeup, 
-    wakeupCount, 
-    alcohol, 
-    alcoholCount 
-  });
+  res.render('newreport', { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips });
 });
-
-app.get('/reportslist', sessionValidation, async (req, res) => {
-  const userName = req.session.name;
-  try {
-    const reports = await reportCollection.find({ userName }).toArray();
-    res.render('reportslist', { reports });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error retrieving reports');
-  }
-});
-
 
 app.get("/main", sessionValidation, (req, res) => {
   res.render("main", {
