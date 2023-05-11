@@ -13,6 +13,12 @@ const app = express();
 const Joi = require("joi");
 const expireTime = 1000 * 60 * 60 * 24; // expires after 24 hours
 
+//The route for public
+//e.g. src="./img/logo2.png"
+app.use("/js", express.static("./public/js"));
+app.use("/css", express.static("./public/css"));
+app.use("/img", express.static("./public/img"));
+
 /* --- SECRETS --- */
 const mongodb_host = process.env.MONGODB_HOST;
 const mongodb_user = process.env.MONGODB_USER;
@@ -288,12 +294,20 @@ app.get("/about", (req, res) => {
   res.render("about");
 });
 
+
 app.get("/tips", sessionValidation, (req, res) => {
   res.render("tips");
 });
 
+app.get('/tips-data', function(req, res) {
+  const tipsData = require('./app/data/tips.json');
+  res.json(tipsData);
+});
+
+
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
+
 
 app.get("*", (req, res) => {
   res.status(404);
