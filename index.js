@@ -203,8 +203,7 @@ app.get("/createreport", sessionValidation, (req, res) => {
 
 app.post("/submitreport", sessionValidation, async (req, res) => {
 
-  let sleepScore = 100; // set the sleepScore to 100 at the beginning so that it resets back to 100 everytime a new report submits
-
+  let sleepScore = 100;
   const userName = req.session.name;
   const email = req.session.email;
   const bedtimeHour = req.body.bedtimeHour;
@@ -232,13 +231,38 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     wakeupCountInt = parseInt(wakeupCount);
   }
 
-  // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
+   // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
   const bedtime = `${bedtimeHour}:${bedtimeMinute} ${bedtimeAmPm}`;
-
-  // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
+   // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
   const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
 
-  // Calculate sleep score  NEEDS MORE WORK, JUST A DEMONSTRATION
+  // Create an empty array to store the tips
+  const tips = [];
+
+  // Check the wakeup count and add tips to the array based on the condition
+  if (wakeupCountInt === 1) {
+    tips.push('You are doing great with waking up only once!');
+  } else if (wakeupCountInt === 2) {
+    tips.push('Try to reduce the number of times you wake up during the night.');
+  } else if (wakeupCountInt >= 3) {
+    tips.push('You should consider seeing a sleep specialist if you are waking up three or more times during the night.');
+  }
+
+  // Check the alcohol count and add tips to the array based on the condition
+  if (alcoholCount === 0) {
+    tips.push('Great job not drinking any alcohol before bed!');
+  } else if (alcoholCount === 1) {
+    tips.push('Drinking a small amount of alcohol before bed is generally okay, but try not to make it a habit.');
+  } else if (alcoholCount > 1 && alcoholCount <= 5) {
+    tips.push('Drinking more than 1 oz of alcohol before bed can disrupt your sleep.');
+  } else if (alcoholCount > 5) {
+    tips.push('Stop drinking! Drinking more than 5 oz of alcohol before bed can significantly disrupt your sleep.');
+  }
+
+  // Combine the tips into a single string
+  const tipsString = tips.join(' ');
+
+  // Calculate sleep score (this is just an example and NEEDS MORE WORK)
   if (wakeupCountInt > 0) {
     sleepScore = sleepScore - 30;
   }
@@ -263,15 +287,16 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     alcohol,
     alcoholCount,
     sleepScore,
-    date: formattedDate // use the formatted date and time
+    date: formattedDate, // use formatted date
+    tips: tipsString // add the tips array as a string
   };
 
   // Save the report to the database
   try {
     const result = await reportCollection.insertOne(report);
     console.log(`Inserted report with ID ${result.insertedId}`);
-       // Redirect the user to the newreport route with the report data in the query parameters
-       res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}`);
+       // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
+res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}`);
   } catch (error) {
     console.error(error);
     res.status(500).send('Error submitting report');
@@ -297,6 +322,16 @@ app.get('/newreport', sessionValidation, (req, res) => {
   });
 });
 
+app.get('/reportslist', sessionValidation, async (req, res) => {
+  const userName = req.session.name;
+  try {
+    const reports = await reportCollection.find({ userName }).toArray();
+    res.render('reportslist', { reports });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error retrieving reports');
+  }
+});
 
 
 app.get("/main", sessionValidation, (req, res) => {
