@@ -1,10 +1,17 @@
 require("./utils.js");
 require("dotenv").config();
 
+const uuid = require('uuid').v4;
+
 const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
+
+// SendGrid email service
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 const saltRounds = 12;
 
 const flash = require('connect-flash');
@@ -26,7 +33,9 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 /* ----- END ----- */
 
 var { database } = include("databaseConnection");
- 
+
+const resetTokenCollection = database.db(mongodb_database).collection("resetTokens");
+
 const userCollection = database.db(mongodb_database).collection("users");
 
 const reportCollection = database.db(mongodb_database).collection("reports");
@@ -51,10 +60,7 @@ app.use(
   })
 );
 
-
 const { ObjectId } = require('mongodb');
-
-
 
 function sessionValidation(req, res, next) {
   if (req.session.authenticated) {
@@ -64,6 +70,7 @@ function sessionValidation(req, res, next) {
   }
 }
 
+/* --- ADMIN VALIDATION --- 
 function adminValidation(req, res, next) {
   if (req.session.user_type === "admin") {
     next();
@@ -72,11 +79,9 @@ function adminValidation(req, res, next) {
     res.render("403",{error: "Not Authorized"});
   }
 }
-
-
+ --------- END --------- */
 
 app.use(flash());
-
 
 // profile page setup
 app.get("/profile",sessionValidation, (req, res) => {
@@ -87,7 +92,6 @@ app.get("/profile",sessionValidation, (req, res) => {
 
 // }
 console.log(req.session);
-
   
   res.render('profile', {
     name: req.session.name,
@@ -97,7 +101,6 @@ console.log(req.session);
     isEditing: isEditing
   });
 })
-
 
 // POST handler for the /profile route
 app.post('/profile', async (req, res) => {
@@ -112,10 +115,8 @@ app.post('/profile', async (req, res) => {
     }
   );
 
-  
   req.session.name = req.body.name;
   
-
   // Redirect the user back to the profile page, without the "edit" query parameter
   res.redirect('/profile');
 });
@@ -186,6 +187,7 @@ app.post("/submitUser", async (req, res) => {
     email: email,
     password: hashedPassword,
     birthday: birthday,
+    token: "", // empty field for password reset token
   });
 
   // successful signup - log in user and redirect to main page
@@ -247,6 +249,96 @@ app.post("/loggingin", async (req, res) => {
   }
 });
 
+app.get("/forgotpassword", (req, res) => {
+  res.render("forgotpassword");
+});
+
+app.post("/sendresetemail", async (req, res) => {
+  var email = req.body.email;
+
+  // check if the email exists in the database
+  const user = await userCollection.findOne({ email: email });
+  if (user == null) {
+    res.render("login-error", { error: "Email not found (｡•́︿•̀｡)" });
+    return;
+  }
+
+  const token = uuid().replace(/-/g, "");
+  const resetLink = `http://localhost:3080/resetpassword?token=${token}`;
+
+  // update the user's token in the database
+  await resetTokenCollection.insertOne({
+    token,
+    userId: user._id,
+    createdAt: new Date(),
+  });
+
+  // send email with the random number
+  const msg = {
+    to: email,
+    from: "aisleep.bby14@gmail.com",
+    templateId: "d-8165dda8d38d4a059e436d812148a15a",
+    dynamicTemplateData: {
+      subject: "AISleep Password Reset",
+      resetLink: resetLink,
+    },
+  };
+
+  try {
+    await sgMail.send(msg);
+    // res.status(200).send('Email sent');
+    res.render("checkemail");
+    return;
+  }
+  catch (error) {
+    res.status(500).send("Error sending email");
+  }
+});
+
+app.get("/resetpassword", async (req, res) => {
+  // find user with matching decrypted token in the database
+  const token = await resetTokenCollection.findOne({ token: req.query.token });
+
+  if (token === null || new Date() - token.createdAt > (1000 * 60 * 15)) {
+    res.render("login-error", { error: "Invalid or expired token (｡•́︿•̀｡)" });
+    return;
+  }
+
+  res.locals.token = token.token;
+  res.render("resetpassword");
+});
+
+app.post("/resetpassword", async (req, res) => {
+  const token = await resetTokenCollection.findOne({ token: req.body.token });
+  const password = req.body.password;
+  const confirm_password = req.body.confirm_password;
+
+  if (token === null) {
+    res.render("login-error", { error: "Invalid token (｡•́︿•̀｡)" });
+    return;
+  }
+
+  // check if password matches confirm_password
+  if (password !== confirm_password) {
+    res.render("reset-error", { error: "Passwords do not match (｡•́︿•̀｡)", link: `/resetpassword?email=${email}&token=${token}` });
+    return;
+  }
+
+  // hash password
+  var hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  // update the user's password and token in the database
+  await userCollection.updateOne(
+    { _id: token.userId },
+    { $set: { password: hashedPassword, token: "" } }
+  );
+
+  // remove token from resetTokenCollection
+  await resetTokenCollection.deleteOne({ _id: token._id });
+
+  res.redirect("/login");
+});
+
 // Redirect to main page if user is logged in
 app.get("/loggedin", sessionValidation, (req, res) => {
   res.redirect("/main");
@@ -263,8 +355,6 @@ app.get("/security", sessionValidation,(req, res) => {
  res.render("security", { messages: req.flash() });
 });
 
-
-
 app.post('/change-password', sessionValidation, async (req, res) => {
   const currentPassword = req.body.currentPassword;
   const newPassword = req.body.newPassword;
@@ -280,8 +370,6 @@ app.post('/change-password', sessionValidation, async (req, res) => {
     req.flash('error', 'New password and confirm password must match');
     return res.redirect('/security');
     }
-
-
 
   // Check if the current password is correct
   const email = req.session.email;
@@ -458,20 +546,19 @@ app.get('/newreport', sessionValidation, (req, res) => {
   // Split the tips string into an array of tips
 const tips = tipsString.split(/\.|\?|!/);
 
-
   // Render a new view with the report data
   res.render('newreport', { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips });
 });
 
 app.get("/main", sessionValidation, (req, res) => {
   var name = req.session.name;
+  var sleepScore = 100;
   res.render("main", { name: name, sleepScore: sleepScore });
 });
 
 app.get("/about", (req, res) => {
   res.render("about");
 });
-
 
 app.get("/tips", sessionValidation, (req, res) => {
   res.render("tips");
@@ -488,8 +575,6 @@ app.get('/settings', sessionValidation, function(req, res){
 
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
-
-
 
 app.get("*", (req, res) => {
   res.status(404);
