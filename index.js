@@ -84,39 +84,39 @@ function adminValidation(req, res, next) {
 app.use(flash());
 
 // profile page setup
-app.get("/profile",sessionValidation, (req, res) => {
+app.get("/profile", sessionValidation, (req, res) => {
   const isEditing = (req.query.edit === 'true');
-//   if (!req.session.authenticated) {
-//     res.redirect('/login');
-//     return;
+  //   if (!req.session.authenticated) {
+  //     res.redirect('/login');
+  //     return;
 
-// }
-console.log(req.session);
-  
+  // }
+  console.log(req.session);
+
   res.render('profile', {
     name: req.session.name,
     email: req.session.email,
     birthday: req.session.birthday,
-    _id:req.session._id,
+    _id: req.session._id,
     isEditing: isEditing
   });
 })
 
 // POST handler for the /profile route
 app.post('/profile', async (req, res) => {
- 
+
   await userCollection.updateOne(
     { email: req.session.email },
     {
       $set: {
         name: req.body.name,
-        
+
       }
     }
   );
 
   req.session.name = req.body.name;
-  
+
   // Redirect the user back to the profile page, without the "edit" query parameter
   res.redirect('/profile');
 });
@@ -194,7 +194,7 @@ app.post("/submitUser", async (req, res) => {
   req.session.authenticated = true;
   req.session.name = name;
   req.session.email = email;
-  req.session.birthday= birthday;
+  req.session.birthday = birthday;
   res.redirect("/main");
 });
 
@@ -226,7 +226,7 @@ app.post("/loggingin", async (req, res) => {
 
   const result = await userCollection
     .find({ email: email })
-    .project({ name: 1, email: 1, password: 1, _id: 1, user_type: 1,birthday: 1 })
+    .project({ name: 1, email: 1, password: 1, _id: 1, user_type: 1, birthday: 1 })
     .toArray();
 
   if (result.length != 1) {
@@ -236,7 +236,7 @@ app.post("/loggingin", async (req, res) => {
 
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.authenticated = true;
-    req.session._id= result[0]._id;
+    req.session._id = result[0]._id;
     req.session.name = result[0].name;
     req.session.email = result[0].email;
     req.session.birthday = result[0].birthday;
@@ -351,8 +351,8 @@ app.get("/logout", (req, res) => {
 });
 
 
-app.get("/security", sessionValidation,(req, res) => {
- res.render("security", { messages: req.flash() });
+app.get("/security", sessionValidation, (req, res) => {
+  res.render("security", { messages: req.flash() });
 });
 
 app.post('/change-password', sessionValidation, async (req, res) => {
@@ -362,14 +362,14 @@ app.post('/change-password', sessionValidation, async (req, res) => {
 
   // Validate the input
   if (!currentPassword || !newPassword || !confirmNewPassword) {
-    
+
     req.flash('error', 'All fields are required');
     return res.redirect('/security');
   }
   if (newPassword !== confirmNewPassword) {
     req.flash('error', 'New password and confirm password must match');
     return res.redirect('/security');
-    }
+  }
 
   // Check if the current password is correct
   const email = req.session.email;
@@ -385,14 +385,14 @@ app.post('/change-password', sessionValidation, async (req, res) => {
   if (!isMatch) {
     req.flash('error', 'Current password is incorrect');
     return res.redirect('/security');
-    }
+  }
 
   // Update the password in the database
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   await userCollection.updateOne({ email: email }, { $set: { password: hashedPassword } });
   req.flash('success', 'Password changed successfully!');
-return res.redirect('/security');
- 
+  return res.redirect('/security');
+
 });
 
 
@@ -401,11 +401,11 @@ app.post('/users/:userId', async (req, res) => {
   const userId = req.params.userId;
 
   try {
-    const user = await userCollection.deleteOne({ _id:  new ObjectId(userId) });
+    const user = await userCollection.deleteOne({ _id: new ObjectId(userId) });
     if (!user) {
       return res.status(404).send('User not found');
     }
-   
+
     res.redirect('/signup');
   } catch (error) {
     console.error(error);
@@ -557,7 +557,13 @@ app.get("/main", sessionValidation, async (req, res) => {
   const latestReport = await reportCollection.findOne({ userName: name }, { sort: { date: -1 } });
   console.log(latestReport);
 
-  const { sleepScore } = latestReport;
+  let sleepScore = "NA";
+  if (latestReport !== null) {
+    const { sleepScore: reportSleepScore } = latestReport;
+    if (reportSleepScore !== null) {
+      sleepScore = reportSleepScore;
+    }
+  }
 
   res.render("main", { name: name, sleepScore: sleepScore });
 });
@@ -567,6 +573,10 @@ app.post("/latestReport", sessionValidation, async (req, res) => {
   const name = req.session.name;
   const latestReport = await reportCollection.findOne({ userName: name }, { sort: { date: -1 } });
   console.log(latestReport);
+
+  if (latestReport === null) {
+    return res.send("<script>alert('You don\\'t have report! Let\\'s get your first report now!');window.location.href='/createreport'</script>");
+  }
 
   const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips } = latestReport;
   const tipsString = encodeURIComponent(tips);
@@ -589,8 +599,8 @@ app.get('/tips-data', sessionValidation, function (req, res) {
   res.json(tipsData);
 });
 
-app.get('/settings', sessionValidation, function(req, res){
-  res.render("settings",{name:req.session.name});
+app.get('/settings', sessionValidation, function (req, res) {
+  res.render("settings", { name: req.session.name });
 })
 
 //get currentuser reports from mongodb
@@ -637,6 +647,6 @@ app.get("*", (req, res) => {
 
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
-}); 
+});
 
 
