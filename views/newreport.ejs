@@ -1,0 +1,35 @@
+<%- include("templates/header_goback") %>
+
+<div class="container">
+  <h1 class="my-4">New Report</h1>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      Sleep Information
+    </div>
+    <div class="card-body">
+      <p class="card-text">Sleep Score: <%= sleepScore %></p>
+      <p class="card-text">Bedtime: <%= bedtime %></p>
+      <p class="card-text">Wakeup Time: <%= wakeup %></p>
+      <p class="card-text">Number of Wakeups: <%= wakeupCount %></p>
+      <p class="card-text">Alcohol Consumption: <%= alcohol %> (<%= alcoholCount %> oz)</p>
+    </div>
+  </div>
+
+  <% if (tips.length > 0) { %>
+    <div class="card mb-4">
+      <div class="card-header">
+        Tips
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          <% tips.forEach(function(tip) { %>
+            <li class="list-group-item"><%= tip.trim() %></li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+  <% } %>  
+</div>
+
+<%- include("templates/footer") %>
