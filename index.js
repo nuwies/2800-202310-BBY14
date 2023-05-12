@@ -482,6 +482,9 @@ app.get('/tips-data', function(req, res) {
   res.json(tipsData);
 });
 
+app.get('/settings', sessionValidation, function(req, res){
+  res.render("settings",{name:req.session.name});
+})
 
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
