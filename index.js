@@ -23,7 +23,7 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 /* ----- END ----- */
 
 var { database } = include("databaseConnection");
-
+ 
 const userCollection = database.db(mongodb_database).collection("users");
 
 app.set("view engine", "ejs");
@@ -45,6 +45,9 @@ app.use(
     resave: true,
   })
 );
+
+const { ObjectId } = require('mongodb');
+
 
 function sessionValidation(req, res, next) {
   if (req.session.authenticated) {
@@ -73,11 +76,13 @@ app.get("/profile", (req, res) => {
 
 }
 console.log(req.session);
+
   // res.render("profile",{name : req.session.name, email :req.session.email, birthday : req.session.birthday});
   res.render('profile', {
     name: req.session.name,
     email: req.session.email,
     birthday: req.session.birthday,
+    _id:req.session._id,
     isEditing: isEditing
   });
 })
@@ -221,6 +226,7 @@ app.post("/loggingin", async (req, res) => {
 
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.authenticated = true;
+    req.session._id= result[0]._id;
     req.session.name = result[0].name;
     req.session.email = result[0].email;
     req.session.birthday = result[0].birthday;
@@ -243,6 +249,31 @@ app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
+
+
+app.post('/users/:userId', async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const user = await userCollection.deleteOne({ _id:  new ObjectId(userId) });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+    // optional: also delete any related data associated with the user
+    // e.g. posts, comments, etc.
+    // await Post.deleteMany({ author: userId });
+    // await Comment.deleteMany({ author: userId });
+    res.redirect('/signup');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
+
+
 
 
 app.get("*", (req, res) => {

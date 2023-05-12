@@ -5,7 +5,7 @@
                 <div class="tab-pane fade active show" id="account-general">
 
                     <div class="card-body media align-items-center">
-                        <img id="mypic-goes-here" src="profile_dummy.png" width="100" height="100"/>
+                        <img id="mypic-goes-here" src="profile_dummy.png" width="100" height="100" />
                         <br><br>
 
                         <div class="media-body ml-4">
@@ -33,50 +33,109 @@
 
                             <div class="form-group">
                                 <label class="form-label">Name</label>
-                                <input id="nameInput" type="text" class="form-control" placeholder="enter your name" name="name" value="<%= name%>" <% if (!isEditing) { %>disabled<% } %>>
+                                <input id="nameInput" type="text" class="form-control" placeholder="enter your name"
+                                    name="name" value="<%= name%>" <% if (!isEditing) { %>disabled<% } %>>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Email</label>
-                                <input id="bioInput" type="text" class="form-control mb-1" placeholder="enter email" value="<%= email%>" disabled>
+                                <input id="bioInput" type="text" class="form-control mb-1" placeholder="enter email"
+                                    value="<%= email%>" disabled>
 
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Date of Birth</label>
-                                <input id="dateInput" type="date" class="form-control" placeholder="enter DOB" value="<%= birthday%>" disabled>
+                                <input id="dateInput" type="date" class="form-control" placeholder="enter DOB"
+                                    value="<%= birthday%>" disabled>
                             </div>
                             <br>
-                            <!-- </fieldset> -->
+
                             <% if (!isEditing) { %>
                                 <!-- <button type="submit" class="btn btn-primary">Save Profile</button>&nbsp; -->
-                                <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/profile?edit=true'">Edit profile</button>
+                                <button type="button" class="btn btn-outline-primary"
+                                    onclick="window.location.href='/profile?edit=true'">Edit profile</button>
                                 <% } else { %>
-                                <button type="submit" class="btn btn-primary">Update Profile</button>&nbsp;
-                                <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/profile'">Cancel</button>
-                                <% } %>
+                                    <button type="submit" class="btn btn-primary">Update Profile</button>&nbsp;
+                                    <button type="button" class="btn btn-outline-primary"
+                                        onclick="window.location.href='/profile'">Cancel</button>
+                                    <% } %>
 
-
-
-
-
-                            <!-- <button type="submit" class="btn btn-primary">Save Profile</button>&nbsp;
-                            <button type="button" class="btn btn-outline-primary ">Edit profile </button> -->
-                            <div class="form-group">
-                                <br>
-                                <label class="d-block text-danger">Delete Account</label>
-                                <p class="text-muted font-size-sm">Once you delete your account, there is no going back.
-                                    Please be certain.
-                                </p>
-                            </div>
-                            <button class="btn btn-danger" type="button">Delete Account</button>
                         </div>
 
                 </div>
                 </form>
             </div>
+        </div>
+
+
+
+
+
+        <!-- <button type="submit" class="btn btn-primary">Save Profile</button>&nbsp; -->
+        <form id="delete-form" action="/users/<%= _id %>?_method=DELETE" method="post">
+            <!-- form fields  -->
+            <div class="form-group">
+                <br>
+                <label class="d-block text-danger">Delete Account</label>
+                <p class="text-muted font-size-sm">Once you delete your account, there is no going back. Please be
+                    certain.
+                </p>
+            </div>
+            <button id="delete-btn" type="button" class="btn btn-danger" data-toggle="modal"
+                data-target="#confirm-delete">Delete Account</button>
+        </form>
+
+        <!-- Confirmation modal -->
+        <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="deleteModal"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModal">Confirm Account Deletion</h5>
+                        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button> -->
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete your account? This action cannot be undone.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                            id="cancel-delete">Cancel</button>
+                        <button id="confirm-delete-btn" type="submit" form="delete-form" class="btn btn-danger">Delete
+                            Account</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JavaScript code -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+        <script>
+            $(function () {
+                $('#delete-btn').click(function () {
+                    $('#confirm-delete').modal('show');
+                });
+
+                $('#confirm-delete-btn').click(function () {
+                    $('#delete-form').submit();
+                });
+                $('#cancel-delete').click(function () {
+                    $('#confirm-delete').modal('hide');
+                });
+                $('#confirm-delete').on('hidden.bs.modal', function () {
+                    // Clear the form data when the modal is closed
+                    $('#delete-form')[0].reset();
+                });
+            });
+        </script>
+
+        <!-- <button class="btn btn-danger" type="button">Delete Account</button> -->
 
 
 
 
 
 
-            <%- include("templates/footer") %>
+
+        <%- include("templates/footer") %>
