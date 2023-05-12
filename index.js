@@ -165,7 +165,7 @@ app.post("/submitUser", async (req, res) => {
 
   // check if password matches confirm_password
   if (password !== confirm_password) {
-    res.render("signup_error", { error: "Passwords do not match (｡•́︿•̀｡)" }); // change to display error message under field later
+    res.render("signup_error", { error: "Passwords do not match" }); // change to display error message under field later
     return;
   }
 
@@ -176,7 +176,7 @@ app.post("/submitUser", async (req, res) => {
     .toArray();
 
   if (result.length > 0) {
-    res.render("signup_error", { error: "Email already in use (｡•́︿•̀｡)" });
+    res.render("signup_error", { error: "Email already in use" });
     return;
   }
 
@@ -232,7 +232,7 @@ app.post("/loggingin", async (req, res) => {
     .toArray();
 
   if (result.length != 1) {
-    res.render("login-error", { error: "User not found (｡•́︿•̀｡)" });
+    res.render("login-error", { error: "User not found" });
     return;
   }
 
@@ -246,7 +246,7 @@ app.post("/loggingin", async (req, res) => {
     res.redirect("/loggedin");
     return;
   } else {
-    res.render("login-error", { error: "Incorrect password (｡•́︿•̀｡)" });
+    res.render("login-error", { error: "Incorrect password" });
     return;
   }
 });
@@ -261,7 +261,7 @@ app.post("/sendresetemail", async (req, res) => {
   // check if the email exists in the database
   const user = await userCollection.findOne({ email: email });
   if (user == null) {
-    res.render("login-error", { error: "Email not found (｡•́︿•̀｡)" });
+    res.render("login-error", { error: "Email not found" });
     return;
   }
 
@@ -302,7 +302,7 @@ app.get("/resetpassword", async (req, res) => {
   const token = await resetTokenCollection.findOne({ token: req.query.token });
 
   if (token === null || new Date() - token.createdAt > (1000 * 60 * 15)) {
-    res.render("login-error", { error: "Invalid or expired token (｡•́︿•̀｡)" });
+    res.render("login-error", { error: "Invalid or expired token" });
     return;
   }
 
@@ -316,13 +316,13 @@ app.post("/resetpassword", async (req, res) => {
   const confirm_password = req.body.confirm_password;
 
   if (token === null) {
-    res.render("login-error", { error: "Invalid token (｡•́︿•̀｡)" });
+    res.render("login-error", { error: "Invalid token" });
     return;
   }
 
   // check if password matches confirm_password
   if (password !== confirm_password) {
-    res.render("reset-error", { error: "Passwords do not match (｡•́︿•̀｡)", link: `/resetpassword?email=${email}&token=${token}` });
+    res.render("reset-error", { error: "Passwords do not match", link: `/resetpassword?email=${email}&token=${token}` });
     return;
   }
 
@@ -351,7 +351,6 @@ app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
-
 
 app.get("/security", sessionValidation, (req, res) => {
   res.render("security", { messages: req.flash() });
@@ -642,8 +641,6 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
   res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}`);
 });
 
-
-
 app.get("/problem",sessionValidation,(req, res) => {
   res.render("problem");
 });
@@ -671,7 +668,6 @@ app.post('/reportProblem',sessionValidation, async(req, res) => {
   }
 });
 
-
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
 
@@ -683,5 +679,3 @@ app.get("*", (req, res) => {
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
 });
-
-
