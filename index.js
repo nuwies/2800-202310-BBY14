@@ -486,6 +486,10 @@ app.get('/settings', sessionValidation, function(req, res){
   res.render("settings",{name:req.session.name});
 })
 
+app.get('/preferences', sessionValidation, function(req, res){
+  res.render("preferences");
+})
+
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
 
