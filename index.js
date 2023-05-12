@@ -620,7 +620,7 @@ app.get('/report_list', sessionValidation, async (req, res) => {
 //to see the specific report by doc id 
 app.post('/report_list/:id', sessionValidation, async (req, res) => {
   const reportId = req.params.id;
-  const report = await reportCollection.findOne({ _id: ObjectId(reportId) }, {
+  const report = await reportCollection.findOne({ _id: new ObjectId(reportId) }, {
     projection: {
       bedtime: 1,
       wakeup: 1,
