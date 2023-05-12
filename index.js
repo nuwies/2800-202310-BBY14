@@ -266,7 +266,7 @@ app.post("/sendresetemail", async (req, res) => {
   }
 
   const token = uuid().replace(/-/g, "");
-  const resetLink = `http://localhost:3080/resetpassword?token=${token}`;
+  const resetLink = `https://panicky-lamb-kilt.cyclic.app/resetpassword?token=${token}`;
 
   // update the user's token in the database
   await resetTokenCollection.insertOne({
