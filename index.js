@@ -338,7 +338,9 @@ const tips = tipsString.split(/\.|\?|!/);
 
 app.get("/main", sessionValidation, (req, res) => {
   var name = req.session.name;
-  res.render("main", { name: name, sleepScore: sleepScore });
+  res.render("main", { name: name});
+  // res.render("main", { name: name, sleepScore: sleepScore });
+
 });
 
 app.get("/about", (req, res) => {
@@ -350,11 +352,44 @@ app.get("/tips", sessionValidation, (req, res) => {
   res.render("tips");
 });
 
-app.get('/tips-data', function(req, res) {
+app.get('/tips-data', sessionValidation, function(req, res) {
   const tipsData = require('./app/data/tips.json');
   res.json(tipsData);
 });
 
+
+app.get('/report_list', sessionValidation, async (req, res) => {
+  const currentUser = req.session.name;
+  const result = await reportCollection.find({ userName: currentUser }).project({ userName: 1, date: 1, sleepScore: 1, _id: 1 }).toArray();
+  console.log(result);
+  res.render("report_list", { reports: result });
+});
+
+const { ObjectId } = require('mongodb');
+
+app.post('/report_list/:id', sessionValidation, async (req, res) => {
+  const reportId = req.params.id;
+  const report = await reportCollection.findOne({ _id: ObjectId(reportId) }, {
+    projection: {
+      bedtime: 1,
+      wakeup: 1,
+      wakeupCount: 1,
+      alcohol: 1,
+      alcoholCount: 1,
+      tips: 1,
+      userName: 1,
+      date: 1,
+      sleepScore: 1
+    }
+  });
+
+  console.log(report);
+
+  const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips } = report;
+  const tipsString = encodeURIComponent(tips);
+
+  res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}`);
+});
 
 //The route for public folder
 app.use(express.static(__dirname + "/public"));

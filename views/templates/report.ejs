@@ -1,0 +1,12 @@
+<li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+    <div>
+        <form id="report-form" method="post" action="/report_list/<%= report._id %>">
+            <a href="#" style="text-decoration: none;" onclick="document.getElementById('report-form').submit(); return false;">
+                <h5>
+                    <%= report.date %>
+                </h5>
+            </a>
+        </form>
+    </div>
+    <span style="background-color: grey; width: 90px;" class="badge badge-primary badge-pill">Score <%= report.sleepScore %></span>
+</li>
