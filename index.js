@@ -1,15 +1,25 @@
 require("./utils.js");
 require("dotenv").config();
 
+const uuid = require('uuid').v4;
+
 const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
+
+// SendGrid email service
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 const saltRounds = 12;
+
+const flash = require('connect-flash');
 
 const port = process.env.PORT || 3080;
 
 const app = express();
+
 const Joi = require("joi");
 const expireTime = 1000 * 60 * 60 * 24; // expires after 24 hours
 
@@ -25,6 +35,8 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 /* ----- END ----- */
 
 var { database } = include("databaseConnection");
+
+const resetTokenCollection = database.db(mongodb_database).collection("resetTokens");
 
 const userCollection = database.db(mongodb_database).collection("users");
 
@@ -50,6 +62,8 @@ app.use(
   })
 );
 
+const { ObjectId } = require('mongodb');
+
 function sessionValidation(req, res, next) {
   if (req.session.authenticated) {
     next();
@@ -58,6 +72,7 @@ function sessionValidation(req, res, next) {
   }
 }
 
+/* --- ADMIN VALIDATION --- 
 function adminValidation(req, res, next) {
   if (req.session.user_type === "admin") {
     next();
@@ -66,6 +81,50 @@ function adminValidation(req, res, next) {
     res.render("403", { error: "Not Authorized" });
   }
 }
+ --------- END --------- */
+
+app.use(flash());
+
+// profile page setup
+app.get("/profile",sessionValidation, (req, res) => {
+  const isEditing = (req.query.edit === 'true');
+//   if (!req.session.authenticated) {
+//     res.redirect('/login');
+//     return;
+
+// }
+console.log(req.session);
+  
+  res.render('profile', {
+    name: req.session.name,
+    email: req.session.email,
+    birthday: req.session.birthday,
+    _id:req.session._id,
+    isEditing: isEditing
+  });
+})
+
+// POST handler for the /profile route
+app.post('/profile', async (req, res) => {
+ 
+  await userCollection.updateOne(
+    { email: req.session.email },
+    {
+      $set: {
+        name: req.body.name,
+        
+      }
+    }
+  );
+
+  req.session.name = req.body.name;
+  
+  // Redirect the user back to the profile page, without the "edit" query parameter
+  res.redirect('/profile');
+});
+
+
+app.use(express.static(__dirname + "/public"));
 
 app.get("/", sessionValidation, (req, res) => {
   var name = req.session.name;
@@ -82,8 +141,6 @@ app.post("/submitUser", async (req, res) => {
   var password = req.body.password;
   var confirm_password = req.body.confirm_password;
   var birthday = req.body.birthday;
-
-  /* Password match check */
 
   const schema = Joi.object({
     name: Joi.string().alphanum().max(20).required(),
@@ -132,11 +189,14 @@ app.post("/submitUser", async (req, res) => {
     email: email,
     password: hashedPassword,
     birthday: birthday,
+    token: "", // empty field for password reset token
   });
 
   // successful signup - log in user and redirect to main page
   req.session.authenticated = true;
   req.session.name = name;
+  req.session.email = email;
+  req.session.birthday= birthday;
   res.redirect("/main");
 });
 
@@ -168,7 +228,7 @@ app.post("/loggingin", async (req, res) => {
 
   const result = await userCollection
     .find({ email: email })
-    .project({ name: 1, email: 1, password: 1, _id: 1, user_type: 1 })
+    .project({ name: 1, email: 1, password: 1, _id: 1, user_type: 1,birthday: 1 })
     .toArray();
 
   if (result.length != 1) {
@@ -178,8 +238,10 @@ app.post("/loggingin", async (req, res) => {
 
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.authenticated = true;
+    req.session._id= result[0]._id;
     req.session.name = result[0].name;
-    req.session.email = email;
+    req.session.email = result[0].email;
+    req.session.birthday = result[0].birthday;
     req.session.cookie.maxAge = expireTime;
     res.redirect("/loggedin");
     return;
@@ -187,6 +249,96 @@ app.post("/loggingin", async (req, res) => {
     res.render("login-error", { error: "Incorrect password (｡•́︿•̀｡)" });
     return;
   }
+});
+
+app.get("/forgotpassword", (req, res) => {
+  res.render("forgotpassword");
+});
+
+app.post("/sendresetemail", async (req, res) => {
+  var email = req.body.email;
+
+  // check if the email exists in the database
+  const user = await userCollection.findOne({ email: email });
+  if (user == null) {
+    res.render("login-error", { error: "Email not found (｡•́︿•̀｡)" });
+    return;
+  }
+
+  const token = uuid().replace(/-/g, "");
+  const resetLink = `http://localhost:3080/resetpassword?token=${token}`;
+
+  // update the user's token in the database
+  await resetTokenCollection.insertOne({
+    token,
+    userId: user._id,
+    createdAt: new Date(),
+  });
+
+  // send email with the random number
+  const msg = {
+    to: email,
+    from: "aisleep.bby14@gmail.com",
+    templateId: "d-8165dda8d38d4a059e436d812148a15a",
+    dynamicTemplateData: {
+      subject: "AISleep Password Reset",
+      resetLink: resetLink,
+    },
+  };
+
+  try {
+    await sgMail.send(msg);
+    // res.status(200).send('Email sent');
+    res.render("checkemail");
+    return;
+  }
+  catch (error) {
+    res.status(500).send("Error sending email");
+  }
+});
+
+app.get("/resetpassword", async (req, res) => {
+  // find user with matching decrypted token in the database
+  const token = await resetTokenCollection.findOne({ token: req.query.token });
+
+  if (token === null || new Date() - token.createdAt > (1000 * 60 * 15)) {
+    res.render("login-error", { error: "Invalid or expired token (｡•́︿•̀｡)" });
+    return;
+  }
+
+  res.locals.token = token.token;
+  res.render("resetpassword");
+});
+
+app.post("/resetpassword", async (req, res) => {
+  const token = await resetTokenCollection.findOne({ token: req.body.token });
+  const password = req.body.password;
+  const confirm_password = req.body.confirm_password;
+
+  if (token === null) {
+    res.render("login-error", { error: "Invalid token (｡•́︿•̀｡)" });
+    return;
+  }
+
+  // check if password matches confirm_password
+  if (password !== confirm_password) {
+    res.render("reset-error", { error: "Passwords do not match (｡•́︿•̀｡)", link: `/resetpassword?email=${email}&token=${token}` });
+    return;
+  }
+
+  // hash password
+  var hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  // update the user's password and token in the database
+  await userCollection.updateOne(
+    { _id: token.userId },
+    { $set: { password: hashedPassword, token: "" } }
+  );
+
+  // remove token from resetTokenCollection
+  await resetTokenCollection.deleteOne({ _id: token._id });
+
+  res.redirect("/login");
 });
 
 // Redirect to main page if user is logged in
@@ -198,6 +350,69 @@ app.get("/loggedin", sessionValidation, (req, res) => {
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
+});
+
+
+app.get("/security", sessionValidation,(req, res) => {
+ res.render("security", { messages: req.flash() });
+});
+
+app.post('/change-password', sessionValidation, async (req, res) => {
+  const currentPassword = req.body.currentPassword;
+  const newPassword = req.body.newPassword;
+  const confirmNewPassword = req.body.confirmNewPassword;
+
+  // Validate the input
+  if (!currentPassword || !newPassword || !confirmNewPassword) {
+    
+    req.flash('error', 'All fields are required');
+    return res.redirect('/security');
+  }
+  if (newPassword !== confirmNewPassword) {
+    req.flash('error', 'New password and confirm password must match');
+    return res.redirect('/security');
+    }
+
+  // Check if the current password is correct
+  const email = req.session.email;
+  const result = await userCollection
+    .find({ email: email })
+    .project({ name: 1, email: 1, password: 1, _id: 1, user_type: 1 })
+    .toArray();
+  if (!result) {
+    req.flash('error', 'User not found');
+    return res.redirect('/security');
+  }
+  const isMatch = await bcrypt.compare(currentPassword, result[0].password);
+  if (!isMatch) {
+    req.flash('error', 'Current password is incorrect');
+    return res.redirect('/security');
+    }
+
+  // Update the password in the database
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await userCollection.updateOne({ email: email }, { $set: { password: hashedPassword } });
+  req.flash('success', 'Password changed successfully!');
+return res.redirect('/security');
+ 
+});
+
+
+// deleting the user from the database.
+app.post('/users/:userId', async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const user = await userCollection.deleteOne({ _id:  new ObjectId(userId) });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+   
+    res.redirect('/signup');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
 });
 
 app.get("/createreport", sessionValidation, (req, res) => {
@@ -333,7 +548,6 @@ app.get('/newreport', sessionValidation, (req, res) => {
   // Split the tips string into an array of tips
   const tips = tipsString.split(/\.|\?|!/);
 
-
   // Render a new view with the report data
   res.render('newreport', { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips });
 });
@@ -365,7 +579,6 @@ app.get("/about", (req, res) => {
   res.render("about");
 });
 
-
 app.get("/tips", sessionValidation, (req, res) => {
   res.render("tips");
 });
@@ -375,6 +588,9 @@ app.get('/tips-data', sessionValidation, function (req, res) {
   res.json(tipsData);
 });
 
+app.get('/settings', sessionValidation, function(req, res){
+  res.render("settings",{name:req.session.name});
+})
 
 app.get('/report_list', sessionValidation, async (req, res) => {
   const name = req.session.name;
@@ -411,7 +627,6 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
 
-
 app.get("*", (req, res) => {
   res.status(404);
   res.render("404");
@@ -420,3 +635,5 @@ app.get("*", (req, res) => {
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
 }); 
+
+
