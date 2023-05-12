@@ -1,7 +1,7 @@
 <%- include("templates/header_goback") %>
 
 <div class="container">
-  <h1 class="my-4">New Report</h1>
+  <h1 class="my-4">My Report for <%= date %> </h1>
 
   <div class="card mb-4">
     <div class="card-header">
@@ -30,6 +30,8 @@
       </div>
     </div>
   <% } %>  
+
+  <a href="/main" class="btn btn-primary">Go back to Home</a>
 </div>
 
 <%- include("templates/footer") %>
