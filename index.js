@@ -62,8 +62,6 @@ app.use(
   })
 );
 
-const { ObjectId } = require('mongodb');
-
 function sessionValidation(req, res, next) {
   if (req.session.authenticated) {
     next();
@@ -552,19 +550,20 @@ app.get('/newreport', sessionValidation, (req, res) => {
   res.render('newreport', { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips });
 });
 
+//display sleepscore in main page
 app.get("/main", sessionValidation, async (req, res) => {
   const name = req.session.name;
 
   const latestReport = await reportCollection.findOne({ userName: name }, { sort: { date: -1 } });
   console.log(latestReport);
 
-  const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips } = latestReport;
-  const tipsString = encodeURIComponent(tips);
+  const { sleepScore } = latestReport;
 
-  res.render("main", { name: name, sleepScore: sleepScore, bedtime: bedtime, wakeup: wakeup, wakeupCount: wakeupCount, alcohol: alcohol, alcoholCount: alcoholCount, tipsString: tipsString });
+  res.render("main", { name: name, sleepScore: sleepScore });
 });
 
-app.post("/main", sessionValidation, async (req, res) => {
+//for clicking on the button to see the latest report
+app.post("/latestReport", sessionValidation, async (req, res) => {
   const name = req.session.name;
   const latestReport = await reportCollection.findOne({ userName: name }, { sort: { date: -1 } });
   console.log(latestReport);
@@ -575,6 +574,7 @@ app.post("/main", sessionValidation, async (req, res) => {
   res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}`);
 });
 
+
 app.get("/about", (req, res) => {
   res.render("about");
 });
@@ -583,6 +583,7 @@ app.get("/tips", sessionValidation, (req, res) => {
   res.render("tips");
 });
 
+//read the tips data
 app.get('/tips-data', sessionValidation, function (req, res) {
   const tipsData = require('./app/data/tips.json');
   res.json(tipsData);
@@ -592,6 +593,7 @@ app.get('/settings', sessionValidation, function(req, res){
   res.render("settings",{name:req.session.name});
 })
 
+//get currentuser reports from mongodb
 app.get('/report_list', sessionValidation, async (req, res) => {
   const name = req.session.name;
   const result = await reportCollection.find({ userName: name }).project({ userName: 1, date: 1, sleepScore: 1, _id: 1 }).toArray();
@@ -599,6 +601,7 @@ app.get('/report_list', sessionValidation, async (req, res) => {
   res.render("report_list", { reports: result });
 });
 
+//to see the specific report by doc id 
 app.post('/report_list/:id', sessionValidation, async (req, res) => {
   const reportId = req.params.id;
   const report = await reportCollection.findOne({ _id: ObjectId(reportId) }, {
