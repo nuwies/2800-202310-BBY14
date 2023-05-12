@@ -26,6 +26,8 @@ var { database } = include("databaseConnection");
  
 const userCollection = database.db(mongodb_database).collection("users");
 
+const reportCollection = database.db(mongodb_database).collection("reports");
+
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: false }));
@@ -124,25 +126,16 @@ app.post("/submitUser", async (req, res) => {
   var name = req.body.name;
   var email = req.body.email;
   var password = req.body.password;
+  var confirm_password = req.body.confirm_password;
   var birthday = req.body.birthday;
-
-  console.log("birthday value:", birthday);
-
-  /* Password match check - WIP - not working
-  var confirmPassword = req.body.confirmPassword;
-
-  if (password !== confirmPassword) {
-    res.render("signup_error", { error: "Passwords do not match" });
-    return;
-  }
-  */
 
   const schema = Joi.object({
     name: Joi.string().alphanum().max(20).required(),
     email: Joi.string().email().required(),
     password: Joi.string().max(20).required(),
+    confirm_password: Joi.string().max(20),
     birthday: Joi.date().required(),
-  }).options({ abortEarly: false }); // make it check all fields before returning
+  }).options({ abortEarly: false }); // check all fields before returning
 
   const validationResult = schema.validate({ name, email, password, birthday });
 
@@ -154,6 +147,12 @@ app.post("/submitUser", async (req, res) => {
     }
     var errorMessage = errorMessages.join(", ");
     res.render("signup_error", { error: errorMessage });
+    return;
+  }
+
+  // check if password matches confirm_password
+  if (password !== confirm_password) {
+    res.render("signup_error", { error: "Passwords do not match (｡•́︿•̀｡)" }); // change to display error message under field later
     return;
   }
 
@@ -249,7 +248,6 @@ app.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
-
 // deleting the user from the database.
 app.post('/users/:userId', async (req, res) => {
   const userId = req.params.userId;
@@ -267,10 +265,166 @@ app.post('/users/:userId', async (req, res) => {
   }
 });
 
+app.get("/createreport", sessionValidation, (req, res) => {
+  res.render("createreport");
+});
+
+app.post("/submitreport", sessionValidation, async (req, res) => {
+
+  let sleepScore = 100;
+  const userName = req.session.name;
+  const email = req.session.email;
+  const bedtimeHour = req.body.bedtimeHour;
+  const bedtimeMinute = req.body.bedtimeMinute;
+  const bedtimeAmPm = req.body.bedtimeAmPm;
+  const wakeupHour = req.body.wakeupHour;
+  const wakeupMinute = req.body.wakeupMinute;
+  const wakeupAmPm = req.body.wakeupAmPm;
+  const wakeupCount = req.body.wakeupcount;
+  const alcohol = req.body.alcohol;
+  
+  let alcoholCount, wakeupCountInt;
+
+  if (alcohol === "No") {
+    alcoholCount = 0;
+  } else if (req.body.alcohol === "10+ oz") {
+    alcoholCount = 10;
+  } else {
+    alcoholCount = parseInt(req.body.alcoholcount);
+  }
+  
+  if (wakeupCount === "10+ times") {
+    wakeupCountInt = 10;
+  } else {
+    wakeupCountInt = parseInt(wakeupCount);
+  }
+
+   // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
+  const bedtime = `${bedtimeHour}:${bedtimeMinute} ${bedtimeAmPm}`;
+   // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
+  const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
+
+  const tips = [
+    {
+      sentence: 'You are doing great with waking up only once!',
+      applies: wakeupCountInt === 1
+    },
+    {
+      sentence: 'Try to reduce the number of times you wake up during the night.',
+      applies: wakeupCountInt === 2
+    },
+    {
+      sentence: 'You should consider seeing a sleep specialist if you are waking up three or more times during the night.',
+      applies: wakeupCountInt >= 3
+    },
+    {
+      sentence: 'Great job not drinking any alcohol before bed!',
+      applies: alcoholCount === 0
+    },
+    {
+      sentence: 'Drinking a small amount of alcohol before bed is generally okay, but try not to make it a habit.',
+      applies: alcoholCount === 1
+    },
+    {
+      sentence: 'Drinking more than 1 oz of alcohol before bed can disrupt your sleep.',
+      applies: alcoholCount > 1 && alcoholCount <= 5
+    },
+    {
+      sentence: 'Stop drinking! Drinking more than 5 oz of alcohol before bed can significantly disrupt your sleep.',
+      applies: alcoholCount > 5
+    }
+  ];
+  
+  // Filter the applicable tips based on the "applies" condition
+  const applicableTips = tips.filter(tip => tip.applies);
+  
+  // Extract only the tip sentences into an array
+  const tipsArray = applicableTips.map(tip => tip.sentence);
+  
+  // Join the tip sentences into a single string with a separator
+  const tipsString = tipsArray.join(' ');
+  
+
+  // Calculate sleep score (this is just an example and NEEDS MORE WORK)
+  if (wakeupCountInt > 0) {
+    sleepScore = sleepScore - 30;
+  }
+
+  // Create a new report object with the current date and time
+  const currentDate = new Date();
+  const options = { 
+    year: 'numeric', 
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric', 
+    minute: 'numeric', 
+    hour12: true 
+  };
+  const formattedDate = currentDate.toLocaleString('en-US', options);
+  const report = {
+    userName,
+    email,
+    bedtime,
+    wakeup,
+    wakeupCount: wakeupCountInt,
+    alcohol,
+    alcoholCount,
+    sleepScore,
+    date: formattedDate, // use formatted date
+    tips: tipsString // add the tips array as a string
+  };
+
+  // Save the report to the database
+  try {
+    const result = await reportCollection.insertOne(report);
+    console.log(`Inserted report with ID ${result.insertedId}`);
+       // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
+       res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}`);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error submitting report');
+  }
+});
+
+app.get('/newreport', sessionValidation, (req, res) => {
+  const sleepScore = req.query.sleepScore;
+  const bedtime = req.query.bedtime;
+  const wakeup = req.query.wakeup;
+  const wakeupCount = req.query.wakeupCount;
+  const alcohol = req.query.alcohol;
+  const alcoholCount = req.query.alcoholCount;
+  const tipsString = req.query.tips;
+
+  // Split the tips string into an array of tips
+const tips = tipsString.split(/\.|\?|!/);
 
 
+  // Render a new view with the report data
+  res.render('newreport', { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips });
+});
+
+app.get("/main", sessionValidation, (req, res) => {
+  var name = req.session.name;
+  res.render("main", { name: name, sleepScore: sleepScore });
+});
+
+app.get("/about", (req, res) => {
+  res.render("about");
+});
 
 
+app.get("/tips", sessionValidation, (req, res) => {
+  res.render("tips");
+});
+
+app.get('/tips-data', function(req, res) {
+  const tipsData = require('./app/data/tips.json');
+  res.json(tipsData);
+});
+
+
+//The route for public folder
+app.use(express.static(__dirname + "/public"));
 
 
 app.get("*", (req, res) => {
