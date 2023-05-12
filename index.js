@@ -605,6 +605,10 @@ app.get('/settings', sessionValidation, function (req, res) {
   res.render("settings", { name: req.session.name });
 })
 
+app.get('/preferences', sessionValidation, function(req, res){
+  res.render("preferences");
+})
+
 //get currentuser reports from mongodb
 app.get('/report_list', sessionValidation, async (req, res) => {
   const name = req.session.name;
@@ -639,6 +643,7 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
 });
 
 
+
 app.get("/problem",sessionValidation,(req, res) => {
   res.render("problem");
 });
@@ -665,8 +670,6 @@ app.post('/reportProblem',sessionValidation, async(req, res) => {
     res.status(500).send('Error submitting report');
   }
 });
-
-
 
 
 //The route for public folder
