@@ -454,6 +454,10 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
 
   const tips = [
     {
+      sentence: 'You are a deep sleeper- keep up the good work: Deep sleep is the most restorative stage of sleep, and it is important to get enough of it each night.',
+      applies: wakeupCountInt === 0
+    },
+    {
       sentence: 'You are doing great with waking up only once!',
       applies: wakeupCountInt === 1
     },
@@ -478,7 +482,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
       applies: alcoholCount > 1 && alcoholCount <= 5
     },
     {
-      sentence: 'Stop drinking! Drinking more than 5 oz of alcohol before bed can significantly disrupt your sleep.',
+      sentence: 'Stop drinking- drinking more than 5 oz of alcohol before bed can significantly disrupt your sleep.',
       applies: alcoholCount > 5
     }
   ];
@@ -494,9 +498,44 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
 
 
   // Calculate sleep score (this is just an example and NEEDS MORE WORK)
-  if (wakeupCountInt > 0) {
-    sleepScore = sleepScore - 30;
+
+  if (wakeupCountInt === 2) {
+    sleepScore = sleepScore - 10;
   }
+
+  if (wakeupCountInt === 3) {
+    sleepScore = sleepScore - 15;
+  }
+
+  if (wakeupCountInt === 4) {
+    sleepScore = sleepScore - 20;
+  }
+
+  if (wakeupCountInt >= 5) {
+    sleepScore = sleepScore - 25;
+  }
+
+  if (alcoholCount === 1) { 
+    sleepScore = sleepScore - 10 
+  }
+
+  if (alcoholCount === 2) { 
+    sleepScore = sleepScore - 15 
+  }
+
+  if (alcoholCount === 3) { 
+    sleepScore = sleepScore - 20 
+  }
+
+  if (alcoholCount === 4) { 
+    sleepScore = sleepScore - 25 
+  }
+
+  if (alcoholCount >= 5) { 
+    sleepScore = sleepScore - 30 
+  }
+
+  
 
   // Create a new report object with the current date and time
   const currentDate = new Date();
@@ -527,7 +566,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     const result = await reportCollection.insertOne(report);
     console.log(`Inserted report with ID ${result.insertedId}`);
     // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
-    res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}`);
+    res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}&date=${encodeURIComponent(formattedDate)}`);
   } catch (error) {
     console.error(error);
     res.status(500).send('Error submitting report');
@@ -542,12 +581,13 @@ app.get('/newreport', sessionValidation, (req, res) => {
   const alcohol = req.query.alcohol;
   const alcoholCount = req.query.alcoholCount;
   const tipsString = req.query.tips;
+  const date = req.query.date;
 
   // Split the tips string into an array of tips
   const tips = tipsString.split(/\.|\?|!/);
 
   // Render a new view with the report data
-  res.render('newreport', { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips });
+  res.render('newreport', { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips, date });
 });
 
 //display sleepscore in main page
