@@ -41,6 +41,8 @@ const resetTokenCollection = database.db(mongodb_database).collection("resetToke
 const userCollection = database.db(mongodb_database).collection("users");
 
 const reportCollection = database.db(mongodb_database).collection("reports");
+const reportProblem = database.db(mongodb_database).collection("reportProblem");
+
 
 app.set("view engine", "ejs");
 
@@ -635,6 +637,36 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
 
   res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}`);
 });
+
+
+app.get("/problem",sessionValidation,(req, res) => {
+  res.render("problem");
+});
+
+app.post('/reportProblem',sessionValidation, async(req, res) => {
+  const name = req.session.name;
+  const email = req.session.email;
+  const problemText = req.body.problemText; // extract problem text from request body
+  const date = new Date(); // get current date and time
+  const report = {
+    problemText: problemText,
+    date: date,
+    name:name,
+    email:email
+  };
+
+  try {
+    const result = await reportCollection.insertOne(report);
+    console.log(`Inserted report `);
+    
+    res.send("<script>alert('Problem Reported succesfully');window.location.href='/problem'</script>")
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error submitting report');
+  }
+});
+
+
 
 
 //The route for public folder
