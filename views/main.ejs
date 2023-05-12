@@ -8,10 +8,14 @@
 
             <p class="lead mb-4">Hello, <%- name %>!</p>
             <p class="lead">Your score is</p>
-            <p class="lead mb-4"> / 100</p>
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a href="/report_list" type="button" class="btn btn-outline-secondary btn-lg px-4">See my report</a>
-            </div>
+            <p class="lead mb-4"> <%- sleepScore %> / 100</p>
+
+            <form action="/main" method="post" class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <button type="submit" class="btn btn-outline-secondary btn-lg px-4">
+                    <h5>See my report</h5>
+                </button>
+            </form>
+
         </div>
         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
             <a href="/createreport" type="button" class="btn btn-primary btn-lg px-4 gap-3 my-3">Get Started</a>

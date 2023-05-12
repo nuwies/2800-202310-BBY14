@@ -13,6 +13,8 @@ const app = express();
 const Joi = require("joi");
 const expireTime = 1000 * 60 * 60 * 24; // expires after 24 hours
 
+const { ObjectId } = require('mongodb');
+
 /* --- SECRETS --- */
 const mongodb_host = process.env.MONGODB_HOST;
 const mongodb_user = process.env.MONGODB_USER;
@@ -61,7 +63,7 @@ function adminValidation(req, res, next) {
     next();
   } else {
     res.status(403);
-    res.render("403",{error: "Not Authorized"});
+    res.render("403", { error: "Not Authorized" });
   }
 }
 
@@ -215,7 +217,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   const wakeupAmPm = req.body.wakeupAmPm;
   const wakeupCount = req.body.wakeupcount;
   const alcohol = req.body.alcohol;
-  
+
   let alcoholCount, wakeupCountInt;
 
   if (alcohol === "No") {
@@ -225,16 +227,16 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   } else {
     alcoholCount = parseInt(req.body.alcoholcount);
   }
-  
+
   if (wakeupCount === "10+ times") {
     wakeupCountInt = 10;
   } else {
     wakeupCountInt = parseInt(wakeupCount);
   }
 
-   // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
+  // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
   const bedtime = `${bedtimeHour}:${bedtimeMinute} ${bedtimeAmPm}`;
-   // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
+  // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
   const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
 
   const tips = [
@@ -267,16 +269,16 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
       applies: alcoholCount > 5
     }
   ];
-  
+
   // Filter the applicable tips based on the "applies" condition
   const applicableTips = tips.filter(tip => tip.applies);
-  
+
   // Extract only the tip sentences into an array
   const tipsArray = applicableTips.map(tip => tip.sentence);
-  
+
   // Join the tip sentences into a single string with a separator
   const tipsString = tipsArray.join(' ');
-  
+
 
   // Calculate sleep score (this is just an example and NEEDS MORE WORK)
   if (wakeupCountInt > 0) {
@@ -285,13 +287,13 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
 
   // Create a new report object with the current date and time
   const currentDate = new Date();
-  const options = { 
-    year: 'numeric', 
+  const options = {
+    year: 'numeric',
     month: 'long',
     day: 'numeric',
-    hour: 'numeric', 
-    minute: 'numeric', 
-    hour12: true 
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
   };
   const formattedDate = currentDate.toLocaleString('en-US', options);
   const report = {
@@ -311,8 +313,8 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   try {
     const result = await reportCollection.insertOne(report);
     console.log(`Inserted report with ID ${result.insertedId}`);
-       // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
-       res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}`);
+    // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
+    res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}`);
   } catch (error) {
     console.error(error);
     res.status(500).send('Error submitting report');
@@ -329,18 +331,34 @@ app.get('/newreport', sessionValidation, (req, res) => {
   const tipsString = req.query.tips;
 
   // Split the tips string into an array of tips
-const tips = tipsString.split(/\.|\?|!/);
+  const tips = tipsString.split(/\.|\?|!/);
 
 
   // Render a new view with the report data
   res.render('newreport', { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips });
 });
 
-app.get("/main", sessionValidation, (req, res) => {
-  var name = req.session.name;
-  res.render("main", { name: name});
-  // res.render("main", { name: name, sleepScore: sleepScore });
+app.get("/main", sessionValidation, async (req, res) => {
+  const name = req.session.name;
 
+  const latestReport = await reportCollection.findOne({ userName: name }, { sort: { date: -1 } });
+  console.log(latestReport);
+
+  const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips } = latestReport;
+  const tipsString = encodeURIComponent(tips);
+
+  res.render("main", { name: name, sleepScore: sleepScore, bedtime: bedtime, wakeup: wakeup, wakeupCount: wakeupCount, alcohol: alcohol, alcoholCount: alcoholCount, tipsString: tipsString });
+});
+
+app.post("/main", sessionValidation, async (req, res) => {
+  const name = req.session.name;
+  const latestReport = await reportCollection.findOne({ userName: name }, { sort: { date: -1 } });
+  console.log(latestReport);
+
+  const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips } = latestReport;
+  const tipsString = encodeURIComponent(tips);
+
+  res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}`);
 });
 
 app.get("/about", (req, res) => {
@@ -352,20 +370,18 @@ app.get("/tips", sessionValidation, (req, res) => {
   res.render("tips");
 });
 
-app.get('/tips-data', sessionValidation, function(req, res) {
+app.get('/tips-data', sessionValidation, function (req, res) {
   const tipsData = require('./app/data/tips.json');
   res.json(tipsData);
 });
 
 
 app.get('/report_list', sessionValidation, async (req, res) => {
-  const currentUser = req.session.name;
-  const result = await reportCollection.find({ userName: currentUser }).project({ userName: 1, date: 1, sleepScore: 1, _id: 1 }).toArray();
+  const name = req.session.name;
+  const result = await reportCollection.find({ userName: name }).project({ userName: 1, date: 1, sleepScore: 1, _id: 1 }).toArray();
   console.log(result);
   res.render("report_list", { reports: result });
 });
-
-const { ObjectId } = require('mongodb');
 
 app.post('/report_list/:id', sessionValidation, async (req, res) => {
   const reportId = req.params.id;
@@ -390,6 +406,7 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
 
   res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}`);
 });
+
 
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
