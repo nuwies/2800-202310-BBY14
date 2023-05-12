@@ -709,6 +709,46 @@ app.post('/reportProblem',sessionValidation, async(req, res) => {
   }
 });
 
+app.get("/stats", sessionValidation, async (req, res) => {
+  const name = req.session.name;
+  const reports = await reportCollection.find({ userName: name }).project({ userName: 1, date: 1, sleepScore: 1, _id: 0 }).toArray();
+  const sleepScores = reports.map(report => report.sleepScore);
+  const averageSleepScore = sleepScores.reduce((acc, score) => acc + score, 0) / sleepScores.length;
+
+  // Check if the user has set a sleep score goal
+  let sleepScoreGoal = req.session.sleepScoreGoal;
+  if (!sleepScoreGoal) {
+    sleepScoreGoal = '';
+  }
+
+  res.render("stats", { 
+    name: name, 
+    averageSleepScore: averageSleepScore,
+    sleepScoreGoal: sleepScoreGoal,
+    updatedSleepScoreGoal: req.query.sleepScoreGoal // Add the updated goal as a rendering variable
+  });
+});
+
+// CURRENTLY -- breaks display of average sleep score if no input is provided when updating goal
+app.post("/updateGoal", sessionValidation, (req, res) => {
+  const name = req.session.name;
+  const averageSleepScore = req.body.averageSleepScore;
+  const sleepScoreGoal = req.body.goal; // Use "goal" instead of "sleepScoreGoal"
+
+  // Check if the input is a valid number between 0 and 100 inclusive
+  if (sleepScoreGoal !== '') {
+    const sleepScoreGoalNumber = parseInt(sleepScoreGoal);
+    if (!isNaN(sleepScoreGoalNumber) && sleepScoreGoalNumber >= 0 && sleepScoreGoalNumber <= 100) {
+      req.session.sleepScoreGoal = sleepScoreGoalNumber;
+      res.redirect("/stats?sleepScoreGoal=" + sleepScoreGoalNumber); // Add the updated goal as a query parameter in the URL
+      return; // return early to prevent the subsequent res.render() call from executing
+    }
+  }
+
+  // If the input is invalid or empty, render the stats page with the existing sleepScoreGoal
+  res.render("stats", { name: name, averageSleepScore: averageSleepScore, sleepScoreGoal: req.session.sleepScoreGoal });
+});
+
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
 
