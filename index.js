@@ -68,16 +68,16 @@ function adminValidation(req, res, next) {
 
 
 // profile page setup
-app.get("/profile", (req, res) => {
+app.get("/profile",sessionValidation, (req, res) => {
   const isEditing = (req.query.edit === 'true');
-  if (!req.session.authenticated) {
-    res.redirect('/login');
-    return;
+//   if (!req.session.authenticated) {
+//     res.redirect('/login');
+//     return;
 
-}
+// }
 console.log(req.session);
 
-  // res.render("profile",{name : req.session.name, email :req.session.email, birthday : req.session.birthday});
+  
   res.render('profile', {
     name: req.session.name,
     email: req.session.email,
@@ -90,8 +90,7 @@ console.log(req.session);
 
 // POST handler for the /profile route
 app.post('/profile', async (req, res) => {
-  // Update the user's profile information in the database using the submitted form data
-  // const userCollection = db.collection('users');
+ 
   await userCollection.updateOne(
     { email: req.session.email },
     {
@@ -102,9 +101,9 @@ app.post('/profile', async (req, res) => {
     }
   );
 
-  // Update the user's session with the new profile information
+  
   req.session.name = req.body.name;
-  // req.session.birthday = req.body.birthday;
+  
 
   // Redirect the user back to the profile page, without the "edit" query parameter
   res.redirect('/profile');
@@ -251,6 +250,7 @@ app.get("/logout", (req, res) => {
 });
 
 
+// deleting the user from the database.
 app.post('/users/:userId', async (req, res) => {
   const userId = req.params.userId;
 
@@ -259,10 +259,7 @@ app.post('/users/:userId', async (req, res) => {
     if (!user) {
       return res.status(404).send('User not found');
     }
-    // optional: also delete any related data associated with the user
-    // e.g. posts, comments, etc.
-    // await Post.deleteMany({ author: userId });
-    // await Comment.deleteMany({ author: userId });
+   
     res.redirect('/signup');
   } catch (error) {
     console.error(error);
