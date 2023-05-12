@@ -23,7 +23,7 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 /* ----- END ----- */
 
 var { database } = include("databaseConnection");
-
+ 
 const userCollection = database.db(mongodb_database).collection("users");
 
 const reportCollection = database.db(mongodb_database).collection("reports");
@@ -48,6 +48,9 @@ app.use(
   })
 );
 
+const { ObjectId } = require('mongodb');
+
+
 function sessionValidation(req, res, next) {
   if (req.session.authenticated) {
     next();
@@ -65,6 +68,51 @@ function adminValidation(req, res, next) {
   }
 }
 
+
+// profile page setup
+app.get("/profile",sessionValidation, (req, res) => {
+  const isEditing = (req.query.edit === 'true');
+//   if (!req.session.authenticated) {
+//     res.redirect('/login');
+//     return;
+
+// }
+console.log(req.session);
+
+  
+  res.render('profile', {
+    name: req.session.name,
+    email: req.session.email,
+    birthday: req.session.birthday,
+    _id:req.session._id,
+    isEditing: isEditing
+  });
+})
+
+
+// POST handler for the /profile route
+app.post('/profile', async (req, res) => {
+ 
+  await userCollection.updateOne(
+    { email: req.session.email },
+    {
+      $set: {
+        name: req.body.name,
+        
+      }
+    }
+  );
+
+  
+  req.session.name = req.body.name;
+  
+
+  // Redirect the user back to the profile page, without the "edit" query parameter
+  res.redirect('/profile');
+});
+
+
+app.use(express.static(__dirname + "/public"));
 app.get("/", sessionValidation, (req, res) => {
   var name = req.session.name;
   res.render("index_user", { name: name });
@@ -80,8 +128,6 @@ app.post("/submitUser", async (req, res) => {
   var password = req.body.password;
   var confirm_password = req.body.confirm_password;
   var birthday = req.body.birthday;
-
-  /* Password match check */
 
   const schema = Joi.object({
     name: Joi.string().alphanum().max(20).required(),
@@ -135,6 +181,8 @@ app.post("/submitUser", async (req, res) => {
   // successful signup - log in user and redirect to main page
   req.session.authenticated = true;
   req.session.name = name;
+  req.session.email = email;
+  req.session.birthday= birthday;
   res.redirect("/main");
 });
 
@@ -166,7 +214,7 @@ app.post("/loggingin", async (req, res) => {
 
   const result = await userCollection
     .find({ email: email })
-    .project({ name: 1, email: 1, password: 1, _id: 1, user_type: 1 })
+    .project({ name: 1, email: 1, password: 1, _id: 1, user_type: 1,birthday: 1 })
     .toArray();
 
   if (result.length != 1) {
@@ -176,8 +224,10 @@ app.post("/loggingin", async (req, res) => {
 
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.authenticated = true;
+    req.session._id= result[0]._id;
     req.session.name = result[0].name;
-    req.session.email = email;
+    req.session.email = result[0].email;
+    req.session.birthday = result[0].birthday;
     req.session.cookie.maxAge = expireTime;
     res.redirect("/loggedin");
     return;
@@ -196,6 +246,23 @@ app.get("/loggedin", sessionValidation, (req, res) => {
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
+});
+
+// deleting the user from the database.
+app.post('/users/:userId', async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const user = await userCollection.deleteOne({ _id:  new ObjectId(userId) });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+   
+    res.redirect('/signup');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
 });
 
 app.get("/createreport", sessionValidation, (req, res) => {
@@ -368,3 +435,5 @@ app.get("*", (req, res) => {
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
 }); 
+
+
