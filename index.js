@@ -653,6 +653,25 @@ app.post('/reportProblem',sessionValidation, async(req, res) => {
   const email = req.session.email;
   const problemText = req.body.problemText; // extract problem text from request body
   const date = new Date(); // get current date and time
+
+  const schema = Joi.object({
+    
+    problemText: Joi.string().max(100).required(),
+  }).options({ abortEarly: false });
+
+  const validationResult = schema.validate({ problemText });
+
+  if (validationResult.error != null) {
+    var errors = validationResult.error.details;
+    var errorMessages = [];
+    for (var i = 0; i < errors.length; i++) {
+      errorMessages.push(errors[i].message);
+    }
+    var errorMessage = errorMessages.join(", ");
+    res.render("problem_error", { error: errorMessage });
+    return;
+  }
+
   const report = {
     problemText: problemText,
     date: date,
@@ -661,8 +680,8 @@ app.post('/reportProblem',sessionValidation, async(req, res) => {
   };
 
   try {
-    const result = await reportCollection.insertOne(report);
-    console.log(`Inserted report `);
+    const result = await reportProblem.insertOne(report);
+    console.log(`Inserted problem reported ${result}`);
     
     res.send("<script>alert('Problem Reported succesfully');window.location.href='/problem'</script>")
   } catch (error) {
