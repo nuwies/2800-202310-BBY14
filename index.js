@@ -631,8 +631,15 @@ app.get("/about", (req, res) => {
   res.render("about");
 });
 
-app.get("/tips", sessionValidation, (req, res) => {
-  res.render("tips");
+
+
+
+// app.get("/tips", sessionValidation, (req, res) => {
+//   res.render("tips");
+// });
+
+app.get("/facts", sessionValidation, (req, res) => {
+  res.render("facts");
 });
 
 //read the tips data
@@ -640,6 +647,14 @@ app.get('/tips-data', sessionValidation, function (req, res) {
   const tipsData = require('./app/data/tips.json');
   res.json(tipsData);
 });
+//read the facts data
+app.get('/facts-data', sessionValidation, function (req, res) {
+  const factsData = require('./app/data/facts.json');
+  res.json(factsData);
+});
+
+
+
 
 app.get('/settings', sessionValidation, function (req, res) {
   res.render("settings", { name: req.session.name });
