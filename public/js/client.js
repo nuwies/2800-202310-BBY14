@@ -1,4 +1,4 @@
-// tips
+// facts_page random tips
 function getRandomTip() {
     fetch('/tips-data')
         .then(response => response.json())
@@ -12,7 +12,7 @@ function getRandomTip() {
 getRandomTip();
 
 
-// facts
+// facts_page random facts
 function getRandomFact() {
   fetch('/facts-data')
       .then(response => response.json())
@@ -47,6 +47,36 @@ function getRandomFact() {
 getRandomFact();
 
 
+
+// createreport_page dropdown menus
+const caffeineDropdown = document.getElementById('caffeine');
+const caffeineAmountDiv = document.getElementById('caffeineamount');
+const alcoholDropdown = document.getElementById('alcohol');
+const alcoholAmountDiv = document.getElementById('alcoholamount');
+const exerciseDropdown = document.getElementById('exercise');
+const exerciseAmountDiv = document.getElementById('exerciseamount');
+
+caffeineDropdown.addEventListener('change', () => {
+  if (caffeineDropdown.value === 'Yes') {
+    caffeineAmountDiv.style.display = 'block';
+  } else {
+    caffeineAmountDiv.style.display = 'none';
+  }
+});
+alcoholDropdown.addEventListener('change', () => {
+  if (alcoholDropdown.value === 'Yes') {
+    alcoholAmountDiv.style.display = 'block';
+  } else {
+    alcoholAmountDiv.style.display = 'none';
+  }
+});
+exerciseDropdown.addEventListener('change', () => {
+  if (exerciseDropdown.value === 'Yes') {
+    exerciseAmountDiv.style.display = 'block';
+  } else {
+    exerciseAmountDiv.style.display = 'none';
+  }
+});
 
 
 
