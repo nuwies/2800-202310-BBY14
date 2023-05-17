@@ -1,0 +1,33 @@
+<%- include('templates/header_security') %>
+
+<br><br>
+<h2>Change password</h2>
+<br><br>
+    <div class="card-body pb-2">
+        <form action="/change-password" method="POST">
+        <div class="form-group">
+             <label class="form-label">Current password</label>
+              <input type="password" class="form-control" name="currentPassword"></div>
+        <div class="form-group"> <label class="form-label">New password</label> <input type="password"
+                class="form-control" name="newPassword"></div>
+        <div class="form-group"> <label class="form-label">Confirm password</label> <input type="password"
+                class="form-control" name="confirmNewPassword"></div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+<br><br>
+
+<% if (messages.error) { %>
+    <div class="alert alert-danger" role="alert">
+      <%= messages.error %>
+    </div>
+  <% } %>
+
+  <% if (messages.success) { %>
+    <div class="alert alert-success" role="alert">
+      <%= messages.success %>
+    </div>
+    <% } %>
+</div>
+
+    <%- include('templates/footer') %>

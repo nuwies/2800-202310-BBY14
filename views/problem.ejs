@@ -1,0 +1,23 @@
+<%- include("templates/header_problem") %> 
+
+
+<div id="problem-body" class="mt-2">
+    <h1 class="display-5 fw-bold text-body-emphasis text-center">AISleep</h1>
+    <img class="d-block mx-auto mb-4" src="images/logo3.png" alt="" width="120">
+    
+    <!-- <button id="contactus" class="btn btn-primary md-btn-flat">Contact us </button> -->
+    <br><br>
+    <div class="d-flex justify-content-center">
+    <form id="report-form"  action="/reportProblem" method="post">
+        <div id="reportproblem">Report the problem:</div>
+        <br>
+        <input type="text" id="problemInput" name="problemText" required>
+        <br><br>
+        <button type="submit" id="problem-button" class="btn btn-primary md-btn-flat">SUBMIT</button>
+      </form>
+    </div>
+      
+</div>
+
+
+<%- include("templates/footer") %> 
