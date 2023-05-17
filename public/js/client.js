@@ -20,7 +20,7 @@ function getRandomFact() {
           const factTextElement = document.getElementById('fact-explanation');
           const factReasonElement = document.getElementById('fact-reason');
 
-          const randomCategory = Math.floor(Math.random() * 3);
+          const randomCategory = Math.floor(Math.random() * 4);
 
           let randomindex;
           let randomReason;
@@ -33,10 +33,14 @@ function getRandomFact() {
             randomindex = Math.floor(Math.random() * data.alcohol.length);
             randomReason = data.alcohol[randomindex].reason;
             randomExplanation = data.alcohol[randomindex].explanation;
-          } else {
+          } else if (randomCategory === 2) {
             randomindex = Math.floor(Math.random() * data.exercise.length);
             randomReason = data.exercise[randomindex].reason;
             randomExplanation = data.exercise[randomindex].explanation;
+          } else {
+            randomindex = Math.floor(Math.random() * data.awaking.length);
+            randomReason = data.awaking[randomindex].reason;
+            randomExplanation = data.awaking[randomindex].explanation;
           }
 
           factReasonElement.innerText = randomReason;

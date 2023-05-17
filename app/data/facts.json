@@ -124,5 +124,55 @@
             "reason": "Overall Health Benefits",
             "explanation": "Exercise is associated with numerous health benefits, including weight management, improved cardiovascular health, and reduced risk of chronic diseases. These overall health improvements can indirectly contribute to better sleep."
         }
+    ],
+    "awaking": [
+        {
+            "reason": "Environmental Factors",
+            "explanation": "Noises, temperature fluctuations, or uncomfortable bedding can disturb sleep and cause frequent awakenings."
+        },
+        {
+            "reason": "Stress and Anxiety",
+            "explanation": "High levels of stress or anxiety can lead to restlessness and disrupted sleep patterns."
+        },
+        {
+            "reason": "Poor Sleep Hygiene",
+            "explanation": "Irregular sleep schedules, excessive napping, or engaging in stimulating activities before bed can disrupt sleep continuity."
+        },
+        {
+            "reason": "Medical Conditions",
+            "explanation": "Certain medical conditions like sleep apnea, restless legs syndrome, or urinary issues can cause frequent awakenings during the night."
+        },
+        {
+            "reason": "Medications",
+            "explanation": "Some medications may have side effects that disrupt sleep or increase the need to urinate, causing multiple wake-ups."
+        },
+        {
+            "reason": "Hormonal Changes",
+            "explanation": "Hormonal fluctuations, particularly in women during menstruation or menopause, can disrupt sleep and result in more awakenings."
+        },
+        {
+            "reason": "Nocturia",
+            "explanation": "Having to wake up frequently to urinate, especially in older adults, can interrupt sleep."
+        },
+        {
+            "reason": "Sleep Disorders",
+            "explanation": "Conditions like insomnia or sleepwalking can cause frequent awakenings throughout the night."
+        },
+        {
+            "reason": "Allergies or Respiratory Issues",
+            "explanation": "Nasal congestion, allergies, or asthma can disrupt sleep and lead to multiple wake-ups."
+        },
+        {
+            "reason": "Restless Sleep Partners",
+            "explanation": "Sleeping next to someone who moves a lot or snores loudly can disturb sleep and cause frequent awakenings."
+        },
+        {
+            "reason": "Light Sensitivity",
+            "explanation": "Exposure to excessive light or inadequate light-blocking in the bedroom can disrupt sleep patterns and result in awakenings."
+        },
+        {
+            "reason": "Age-related Factors",
+            "explanation": "Older adults tend to experience lighter and more fragmented sleep, which can contribute to more frequent awakenings."
+        }
     ]
 }
