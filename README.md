@@ -15,6 +15,8 @@ List technologies (with version numbers), API's, icons, fonts, images, media or 
 * Javascript
 * HTML
 * CSS
+* Tips resource1: https://www.cdc.gov/sleep/about_sleep/sleep_hygiene.html
+* Tips resource2: https://www.healthline.com/nutrition/ways-to-fall-asleep#The-bottom-line
 
 ## 4. Complete setup/installion/usage
 State what a user needs to do when they come to your project.  How do others start using your code or application?

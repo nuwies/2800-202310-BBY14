@@ -1,0 +1,32 @@
+<%- include("templates/header_main") %>
+
+    <div class="px-4 mb-4 text-center">
+        
+        <img class="d-block mx-auto mb-4" src="images/logo.png" alt="" width="300">
+
+        <div class="col-lg-6 px-auto py-1 mx-auto" style="background-color: #f1f1f19b;">
+
+            <p class="lead mb-2">Hello, <%- name %>!</p>
+            <p class="lead">Your sleep efficiency: </p>
+            <p class="lead mb-2"> <%- sleepEfficiency %> %</p>
+
+            <form action="/latestReport" method="post" class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <button type="submit" class="btn btn-outline-secondary btn-lg px-4">
+                    <h5>See my report</h5>
+                </button>
+            </form>
+            <form  class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="/report_list" type="button" class="btn btn-outline-secondary btn-lg px-4">
+                    <h5>View reports list</h5>
+                </a>
+            </form>
+
+        </div>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="/createreport" type="button" class="btn btn-primary btn-lg px-4 gap-3 my-3">Get Started</a>
+        </div>
+    </div>
+    <br>
+    <br>
+
+<%- include("templates/footer") %>

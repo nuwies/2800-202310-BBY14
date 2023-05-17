@@ -1,0 +1,15 @@
+<li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+    <div>
+
+        <form method="post" action="/report_list/<%= report._id %>">
+            <button type="submit" style="text-decoration: none; background-color: transparent; border: none;">
+                <h5>
+                    <%= report.date %>
+                </h5>
+            </button>
+        </form>
+
+    </div>
+    <span style="background-color: grey; width: 100px;" class="badge badge-primary badge-pill">S.E. <%=
+            report.sleepEfficiency %> %</span>
+</li>
