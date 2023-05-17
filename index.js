@@ -535,113 +535,39 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   // const sleepEfficiency = HoursAsleepMin / sleepDurationMin;
   const sleepEfficiency = Math.round((HoursAsleepMin / sleepDurationMin) * 10000) / 100;
 
-  function convertTo24HourFormat(hour, amPm) {
+  // function convertTo24HourFormat(hour, amPm) {
+  function convertTo24HourFormat(hour, minute, amPm) {
     if (amPm === "PM" && hour < 12) {
       hour += 12;
     } else if (amPm === "AM" && hour === 12) {
       hour = 0;
     }
-    return hour;
+    // return hour;
+    return { hour, minute };
   }
 
   function calculateSleepDuration(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm, wakeupHourInt, wakeupMinuteInt, wakeupAmPm) {
     // Convert bedtime to 24-hour format
-    const bedtime = convertTo24HourFormat(bedtimeHourInt, bedtimeAmPm);
+    // const bedtime = convertTo24HourFormat(bedtimeHourInt, bedtimeAmPm);
+    const bedtime = convertTo24HourFormat(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm);
 
     // Convert wakeup time to 24-hour format
-    const wakeup = convertTo24HourFormat(wakeupHourInt, wakeupAmPm);
+    // const wakeup = convertTo24HourFormat(wakeupHourInt, wakeupAmPm);
+    const wakeup = convertTo24HourFormat(wakeupHourInt, wakeupMinuteInt, wakeupAmPm);
 
     // Calculate the time difference
-    let sleepDurationMin = (wakeup + 24 - bedtime) * 60;
+    // let sleepDurationMin = (wakeup + 24 - bedtime) * 60;
+    let sleepDurationMin = (wakeup.hour * 60 + wakeup.minute) - (bedtime.hour * 60 + bedtime.minute);
 
-    // Subtract additional minutes
-    sleepDurationMin -= bedtimeMinuteInt;
-    sleepDurationMin += wakeupMinuteInt;
+    // // Subtract additional minutes
+    // sleepDurationMin -= bedtimeMinuteInt;
+    // sleepDurationMin += wakeupMinuteInt;
+    if (sleepDurationMin < 0) {
+      sleepDurationMin += 24 * 60; // Add 24 hours if the wakeup time is before the bedtime
+    }
 
     return sleepDurationMin;
   }
-
-
-  // const tips = [
-  //   {
-  //     sentence: 'You are a deep sleeper- keep up the good work: Deep sleep is the most restorative stage of sleep, and it is important to get enough of it each night.',
-  //     applies: wakeupCountInt === 0
-  //   },
-  //   {
-  //     sentence: 'You are doing great with waking up only once!',
-  //     applies: wakeupCountInt === 1
-  //   },
-  //   {
-  //     sentence: 'Try to reduce the number of times you wake up during the night.',
-  //     applies: wakeupCountInt === 2
-  //   },
-  //   {
-  //     sentence: 'You should consider seeing a sleep specialist if you are waking up three or more times during the night.',
-  //     applies: wakeupCountInt >= 3
-  //   },
-  //   {
-  //     sentence: 'Great job not drinking any alcohol before bed!',
-  //     applies: alcoholCount === 0
-  //   },
-  //   {
-  //     sentence: 'Drinking a small amount of alcohol before bed is generally okay, but try not to make it a habit.',
-  //     applies: alcoholCount === 1
-  //   },
-  //   {
-  //     sentence: 'Drinking more than 1 oz of alcohol before bed can disrupt your sleep.',
-  //     applies: alcoholCount > 1 && alcoholCount <= 5
-  //   },
-  //   {
-  //     sentence: 'Stop drinking- drinking more than 5 oz of alcohol before bed can significantly disrupt your sleep.',
-  //     applies: alcoholCount > 5
-  //   }
-  // ];
-
-  // // Filter the applicable tips based on the "applies" condition
-  // const applicableTips = tips.filter(tip => tip.applies);
-  // // Extract only the tip sentences into an array
-  // const tipsArray = applicableTips.map(tip => tip.sentence);
-  // // Join the tip sentences into a single string with a separator
-  // const tipsString = tipsArray.join(' ');
-
-
-  // // Calculate sleep score (this is just an example and NEEDS MORE WORK)
-  // if (wakeupCountInt === 2) {
-  //   sleepScore = sleepScore - 10;
-  // }
-
-  // if (wakeupCountInt === 3) {
-  //   sleepScore = sleepScore - 15;
-  // }
-
-  // if (wakeupCountInt === 4) {
-  //   sleepScore = sleepScore - 20;
-  // }
-
-  // if (wakeupCountInt >= 5) {
-  //   sleepScore = sleepScore - 25;
-  // }
-
-  // if (alcoholCount === 1) {
-  //   sleepScore = sleepScore - 10
-  // }
-
-  // if (alcoholCount === 2) {
-  //   sleepScore = sleepScore - 15
-  // }
-
-  // if (alcoholCount === 3) {
-  //   sleepScore = sleepScore - 20
-  // }
-
-  // if (alcoholCount === 4) {
-  //   sleepScore = sleepScore - 25
-  // }
-
-  // if (alcoholCount >= 5) {
-  //   sleepScore = sleepScore - 30
-  // }
-
 
 
   // Create a new report object with the current date and time
@@ -828,14 +754,14 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
       sleepDuration: 1,
       HoursAsleep: 1,
       wakeupCount: 1,
-      caffeine: 1, 
-      caffeineCount:1,
+      caffeine: 1,
+      caffeineCount: 1,
       alcohol: 1,
       alcoholCount: 1,
       tips: 1,
       userName: 1,
-      exercise: 1, 
-      exerciseCount: 1, 
+      exercise: 1,
+      exerciseCount: 1,
       sleepEfficiency: 1,
       date: 1,
       // sleepScore: 1
