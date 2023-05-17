@@ -1024,6 +1024,24 @@ analysisCollection.insertMany(data);
 analysisCollection.deleteMany({});
 
 
+app.get('/calculateAge',sessionValidation, (req, res) => {
+  const birthday = new Date(req.session.birthday);
+  const currentDate = new Date();
+  console.log('Birthday:', birthday);
+  console.log('Current Date:', currentDate);
+  if (isNaN(birthday)) {
+    return res.status(400).send('Invalid birthday');
+  }
+  
+  const age = currentDate.getFullYear() - birthday.getFullYear();
+
+  // Display the age
+  console.log("Age:", age);
+
+  // Respond with the age
+  res.send(`Age: ${age}`);
+});
+
 
 
 
