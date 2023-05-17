@@ -107,16 +107,16 @@ app.get("/profile", sessionValidation, (req, res) => {
 // POST handler for the /profile route
 app.post('/profile', async (req, res) => {
 
-  var name= req.body.name;
+  var name = req.body.name;
   var birthday = req.body.birthday;
   const schema = Joi.object({
     name: Joi.string().max(20).required(),
-    
+
     birthday: Joi.date().required(),
-  }).options({ abortEarly: false }); 
+  }).options({ abortEarly: false });
 
 
-  const validationResult = schema.validate({ name,  birthday });
+  const validationResult = schema.validate({ name, birthday });
 
   if (validationResult.error != null) {
     var errors = validationResult.error.details; // array of error objects from Joi validation
@@ -128,7 +128,7 @@ app.post('/profile', async (req, res) => {
     res.render("profile_error", { error: errorMessage });
     return;
   }
- 
+
 
 
 
@@ -138,8 +138,8 @@ app.post('/profile', async (req, res) => {
       $set: {
         name: req.body.name,
 
-        birthday:req.body.birthday,
-        
+        birthday: req.body.birthday,
+
 
       }
     }
@@ -148,9 +148,9 @@ app.post('/profile', async (req, res) => {
   req.session.name = req.body.name;
 
   req.session.birthday = req.body.birthday,
-  
-// Redirect the user back to the profile page, without the "edit" query parameter
-  res.redirect('/profile');
+
+    // Redirect the user back to the profile page, without the "edit" query parameter
+    res.redirect('/profile');
 });
 
 
@@ -470,7 +470,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   var alcohol = req.body.alcohol;
   var exercise = req.body.exercise;
 
-  let sleepScore = 100;
+  // let sleepScore = 100;
 
   // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
   const bedtime = `${bedtimeHour}:${bedtimeMinute} ${bedtimeAmPm}`;
@@ -511,88 +511,85 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     exerciseCount = parseInt(req.body.exercisecount);
   }
 
-  const tips = [
-    {
-      sentence: 'You are a deep sleeper- keep up the good work: Deep sleep is the most restorative stage of sleep, and it is important to get enough of it each night.',
-      applies: wakeupCountInt === 0
-    },
-    {
-      sentence: 'You are doing great with waking up only once!',
-      applies: wakeupCountInt === 1
-    },
-    {
-      sentence: 'Try to reduce the number of times you wake up during the night.',
-      applies: wakeupCountInt === 2
-    },
-    {
-      sentence: 'You should consider seeing a sleep specialist if you are waking up three or more times during the night.',
-      applies: wakeupCountInt >= 3
-    },
-    {
-      sentence: 'Great job not drinking any alcohol before bed!',
-      applies: alcoholCount === 0
-    },
-    {
-      sentence: 'Drinking a small amount of alcohol before bed is generally okay, but try not to make it a habit.',
-      applies: alcoholCount === 1
-    },
-    {
-      sentence: 'Drinking more than 1 oz of alcohol before bed can disrupt your sleep.',
-      applies: alcoholCount > 1 && alcoholCount <= 5
-    },
-    {
-      sentence: 'Stop drinking- drinking more than 5 oz of alcohol before bed can significantly disrupt your sleep.',
-      applies: alcoholCount > 5
-    }
-  ];
+  // const tips = [
+  //   {
+  //     sentence: 'You are a deep sleeper- keep up the good work: Deep sleep is the most restorative stage of sleep, and it is important to get enough of it each night.',
+  //     applies: wakeupCountInt === 0
+  //   },
+  //   {
+  //     sentence: 'You are doing great with waking up only once!',
+  //     applies: wakeupCountInt === 1
+  //   },
+  //   {
+  //     sentence: 'Try to reduce the number of times you wake up during the night.',
+  //     applies: wakeupCountInt === 2
+  //   },
+  //   {
+  //     sentence: 'You should consider seeing a sleep specialist if you are waking up three or more times during the night.',
+  //     applies: wakeupCountInt >= 3
+  //   },
+  //   {
+  //     sentence: 'Great job not drinking any alcohol before bed!',
+  //     applies: alcoholCount === 0
+  //   },
+  //   {
+  //     sentence: 'Drinking a small amount of alcohol before bed is generally okay, but try not to make it a habit.',
+  //     applies: alcoholCount === 1
+  //   },
+  //   {
+  //     sentence: 'Drinking more than 1 oz of alcohol before bed can disrupt your sleep.',
+  //     applies: alcoholCount > 1 && alcoholCount <= 5
+  //   },
+  //   {
+  //     sentence: 'Stop drinking- drinking more than 5 oz of alcohol before bed can significantly disrupt your sleep.',
+  //     applies: alcoholCount > 5
+  //   }
+  // ];
 
-  // Filter the applicable tips based on the "applies" condition
-  const applicableTips = tips.filter(tip => tip.applies);
-
-  // Extract only the tip sentences into an array
-  const tipsArray = applicableTips.map(tip => tip.sentence);
-
-  // Join the tip sentences into a single string with a separator
-  const tipsString = tipsArray.join(' ');
+  // // Filter the applicable tips based on the "applies" condition
+  // const applicableTips = tips.filter(tip => tip.applies);
+  // // Extract only the tip sentences into an array
+  // const tipsArray = applicableTips.map(tip => tip.sentence);
+  // // Join the tip sentences into a single string with a separator
+  // const tipsString = tipsArray.join(' ');
 
 
-  // Calculate sleep score (this is just an example and NEEDS MORE WORK)
+  // // Calculate sleep score (this is just an example and NEEDS MORE WORK)
+  // if (wakeupCountInt === 2) {
+  //   sleepScore = sleepScore - 10;
+  // }
 
-  if (wakeupCountInt === 2) {
-    sleepScore = sleepScore - 10;
-  }
+  // if (wakeupCountInt === 3) {
+  //   sleepScore = sleepScore - 15;
+  // }
 
-  if (wakeupCountInt === 3) {
-    sleepScore = sleepScore - 15;
-  }
+  // if (wakeupCountInt === 4) {
+  //   sleepScore = sleepScore - 20;
+  // }
 
-  if (wakeupCountInt === 4) {
-    sleepScore = sleepScore - 20;
-  }
+  // if (wakeupCountInt >= 5) {
+  //   sleepScore = sleepScore - 25;
+  // }
 
-  if (wakeupCountInt >= 5) {
-    sleepScore = sleepScore - 25;
-  }
+  // if (alcoholCount === 1) {
+  //   sleepScore = sleepScore - 10
+  // }
 
-  if (alcoholCount === 1) {
-    sleepScore = sleepScore - 10
-  }
+  // if (alcoholCount === 2) {
+  //   sleepScore = sleepScore - 15
+  // }
 
-  if (alcoholCount === 2) {
-    sleepScore = sleepScore - 15
-  }
+  // if (alcoholCount === 3) {
+  //   sleepScore = sleepScore - 20
+  // }
 
-  if (alcoholCount === 3) {
-    sleepScore = sleepScore - 20
-  }
+  // if (alcoholCount === 4) {
+  //   sleepScore = sleepScore - 25
+  // }
 
-  if (alcoholCount === 4) {
-    sleepScore = sleepScore - 25
-  }
-
-  if (alcoholCount >= 5) {
-    sleepScore = sleepScore - 30
-  }
+  // if (alcoholCount >= 5) {
+  //   sleepScore = sleepScore - 30
+  // }
 
 
 
@@ -620,9 +617,9 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     alcoholCount,
     exercise, //
     exerciseCount, //
-    sleepScore,
+    // sleepScore,
     date: formattedDate, // use formatted date
-    tips: tipsString // add the tips array as a string
+    // tips: tipsString // add the tips array as a string
   };
 
   // Save the report to the database
@@ -632,7 +629,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
 
     // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}&date=${encodeURIComponent(formattedDate)}`);
-    res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&tips=${encodeURIComponent(tipsString)}&date=${encodeURIComponent(formattedDate)}`);
+    res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&date=${encodeURIComponent(formattedDate)}`);
 
   } catch (error) {
     console.error(error);
@@ -642,7 +639,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
 
 app.get('/newreport', sessionValidation, (req, res) => {
   const date = req.query.date;
-  const sleepScore = req.query.sleepScore;
+  // const sleepScore = req.query.sleepScore;
   const bedtime = req.query.bedtime;
   const wakeup = req.query.wakeup;
   const takeTimeAsleep = req.query.takeTimeAsleep;
@@ -655,30 +652,31 @@ app.get('/newreport', sessionValidation, (req, res) => {
   const alcoholCount = req.query.alcoholCount;
   const exercise = req.query.exercise;
   const exerciseCount = req.query.exerciseCount;
-  const tipsString = req.query.tips;
+  // const tipsString = req.query.tips;
   const sleepEfficiency = req.query.sleepEfficiency; //
 
   // Split the tips string into an array of tips
-  const tips = tipsString.split(/\.|\?|!/);
+  // const tips = tipsString.split(/\.|\?|!/);
 
   // Render a new view with the report data
-  res.render('newreport', { 
-    sleepScore, 
-    bedtime, 
-    wakeup, 
-    takeTimeAsleep, 
-    sleepDuration, 
-    HoursAsleep, 
-    wakeupCount, 
-    caffeine, 
-    caffeineCount, 
-    alcohol, 
-    alcoholCount, 
-    exercise, 
-    exerciseCount, 
-    tips, 
-    date, 
-    sleepEfficiency});
+  res.render('newreport', {
+    // sleepScore, 
+    bedtime,
+    wakeup,
+    takeTimeAsleep,
+    sleepDuration,
+    HoursAsleep,
+    wakeupCount,
+    caffeine,
+    caffeineCount,
+    alcohol,
+    alcoholCount,
+    exercise,
+    exerciseCount,
+    // tips,
+    date,
+    sleepEfficiency
+  });
 });
 
 //display sleepscore in main page
@@ -798,7 +796,7 @@ app.post('/reportProblem', sessionValidation, async (req, res) => {
   const date = new Date(); // get current date and time
 
   const schema = Joi.object({
-    
+
     problemText: Joi.string().max(100).required(),
   }).options({ abortEarly: false });
 
@@ -825,7 +823,7 @@ app.post('/reportProblem', sessionValidation, async (req, res) => {
   try {
     const result = await reportProblem.insertOne(report);
     console.log(`Inserted problem reported ${result}`);
-    
+
     res.send("<script>alert('Problem Reported succesfully');window.location.href='/problem'</script>")
   } catch (error) {
     console.error(error);

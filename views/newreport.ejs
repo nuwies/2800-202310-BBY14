@@ -8,7 +8,7 @@
       Sleep Information
     </div>
     <div class="card-body">
-      <!-- <p class="card-text">Sleep Score: <%= sleepScore %></p> -->
+      <!-- <p class="card-text">Sleep Score: = sleepScore </p> -->
       <p class="card-text">Bed Time: <%= bedtime %></p>
       <p class="card-text">Wake Up Time: <%= wakeup %></p>
 
@@ -23,7 +23,7 @@
     </div>
   </div>
 
-  <% if (tips.length > 0) { %>
+   <!-- if (tips.length > 0) {  -->
     <div class="card mb-4">
       <div class="card-header">
         Analysis
@@ -34,13 +34,13 @@
       <div class="card-body">
         <p>facts: </p>
         <!-- <ul class="list-group list-group-flush">
-          <% tips.forEach(function(tip) { %>
-            <li class="list-group-item"><%= tip.trim() %></li>
-          <% }); %>
+           tips.forEach(function(tip) { 
+            <li class="list-group-item"> = tip.trim() </li>
+           }); 
         </ul> -->
       </div>
     </div>
-  <% } %>  
+   <!-- }   -->
 
   <a href="/main" class="btn btn-primary">Go back to Home</a>
 </div>
