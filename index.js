@@ -641,20 +641,44 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
 });
 
 app.get('/newreport', sessionValidation, (req, res) => {
+  const date = req.query.date;
   const sleepScore = req.query.sleepScore;
   const bedtime = req.query.bedtime;
   const wakeup = req.query.wakeup;
+  const takeTimeAsleep = req.query.takeTimeAsleep;
+  const sleepDuration = req.query.sleepDuration; //
+  const HoursAsleep = req.query.HoursAsleep; //
   const wakeupCount = req.query.wakeupCount;
+  const caffeine = req.query.caffeine;
+  const caffeineCount = req.query.caffeineCount;
   const alcohol = req.query.alcohol;
   const alcoholCount = req.query.alcoholCount;
+  const exercise = req.query.exercise;
+  const exerciseCount = req.query.exerciseCount;
   const tipsString = req.query.tips;
-  const date = req.query.date;
+  const sleepEfficiency = req.query.sleepEfficiency; //
 
   // Split the tips string into an array of tips
   const tips = tipsString.split(/\.|\?|!/);
 
   // Render a new view with the report data
-  res.render('newreport', { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips, date });
+  res.render('newreport', { 
+    sleepScore, 
+    bedtime, 
+    wakeup, 
+    takeTimeAsleep, 
+    sleepDuration, 
+    HoursAsleep, 
+    wakeupCount, 
+    caffeine, 
+    caffeineCount, 
+    alcohol, 
+    alcoholCount, 
+    exercise, 
+    exerciseCount, 
+    tips, 
+    date, 
+    sleepEfficiency});
 });
 
 //display sleepscore in main page

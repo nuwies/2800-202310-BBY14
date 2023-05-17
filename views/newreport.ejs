@@ -12,14 +12,14 @@
       <p class="card-text">Bed Time: <%= bedtime %></p>
       <p class="card-text">Wake Up Time: <%= wakeup %></p>
 
-      <p class="card-text">Take Time Asleep:</p>
-      <p class="card-text">Sleep Duration:</p>
-      <p class="card-text">Hours Asleep:</p>
+      <p class="card-text">Take Time Asleep: <%= takeTimeAsleep %></p>
+      <p class="card-text">Sleep Duration:  <%= sleepDuration %></p>
+      <p class="card-text">Hours Asleep: <%= HoursAsleep %></p>
 
       <p class="card-text">Number of Wakeups: <%= wakeupCount %></p>
-      <p class="card-text">Caffeine Consumption: </p>
+      <p class="card-text">Caffeine Consumption: <%= caffeine %> (<%= caffeineCount %> mg)</p>
       <p class="card-text">Alcohol Consumption: <%= alcohol %> (<%= alcoholCount %> oz)</p>
-      <p class="card-text">Exercise Frequency: </p>
+      <p class="card-text">Exercise Frequency: <%= exercise %> (<%= exerciseCount %> times)</p>
     </div>
   </div>
 
@@ -29,7 +29,7 @@
         Analysis
       </div>
       <div>
-        <p class="card-text">Sleep Efficiency: </p>
+        <p class="card-text">Sleep Efficiency: <%= sleepEfficiency %></p>
       </div>
       <div class="card-body">
         <p>facts: </p>
