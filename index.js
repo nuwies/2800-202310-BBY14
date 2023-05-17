@@ -769,15 +769,17 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
   });
   console.log(report);
 
-  // const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips, date } = report;
-  // const tipsString = encodeURIComponent(tips);
-  // const formattedDate = encodeURIComponent(date);
-  // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}&date=${formattedDate}`);
-
   const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = report;
   const formattedDate = encodeURIComponent(date);
   res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
+});
 
+//delete report
+app.post('/report_list/delete/:id', sessionValidation, async (req, res) => {
+  const reportId = req.params.id;
+  console.log(reportId);
+  await reportCollection.deleteOne({ _id: new ObjectId(reportId) });
+  res.redirect('/report_list');
 });
 
 app.get("/problem", sessionValidation, (req, res) => {
