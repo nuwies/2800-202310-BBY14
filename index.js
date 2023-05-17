@@ -107,11 +107,39 @@ app.get("/profile", sessionValidation, (req, res) => {
 // POST handler for the /profile route
 app.post('/profile', async (req, res) => {
 
+  var name= req.body.name;
+  var birthday = req.body.birthday;
+  const schema = Joi.object({
+    name: Joi.string().max(20).required(),
+    
+    birthday: Joi.date().required(),
+  }).options({ abortEarly: false }); 
+
+
+  const validationResult = schema.validate({ name,  birthday });
+
+  if (validationResult.error != null) {
+    var errors = validationResult.error.details; // array of error objects from Joi validation
+    var errorMessages = []; // array for error messages
+    for (var i = 0; i < errors.length; i++) {
+      errorMessages.push(errors[i].message);
+    }
+    var errorMessage = errorMessages.join(", ");
+    res.render("profile_error", { error: errorMessage });
+    return;
+  }
+ 
+
+
+
   await userCollection.updateOne(
     { email: req.session.email },
     {
       $set: {
         name: req.body.name,
+
+        birthday:req.body.birthday,
+        
 
       }
     }
@@ -119,7 +147,9 @@ app.post('/profile', async (req, res) => {
 
   req.session.name = req.body.name;
 
-  // Redirect the user back to the profile page, without the "edit" query parameter
+  req.session.birthday = req.body.birthday,
+  
+// Redirect the user back to the profile page, without the "edit" query parameter
   res.redirect('/profile');
 });
 
