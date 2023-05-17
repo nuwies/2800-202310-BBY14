@@ -107,11 +107,39 @@ app.get("/profile", sessionValidation, (req, res) => {
 // POST handler for the /profile route
 app.post('/profile', async (req, res) => {
 
+  var name= req.body.name;
+  var birthday = req.body.birthday;
+  const schema = Joi.object({
+    name: Joi.string().max(20).required(),
+    
+    birthday: Joi.date().required(),
+  }).options({ abortEarly: false }); 
+
+
+  const validationResult = schema.validate({ name,  birthday });
+
+  if (validationResult.error != null) {
+    var errors = validationResult.error.details; // array of error objects from Joi validation
+    var errorMessages = []; // array for error messages
+    for (var i = 0; i < errors.length; i++) {
+      errorMessages.push(errors[i].message);
+    }
+    var errorMessage = errorMessages.join(", ");
+    res.render("profile_error", { error: errorMessage });
+    return;
+  }
+ 
+
+
+
   await userCollection.updateOne(
     { email: req.session.email },
     {
       $set: {
         name: req.body.name,
+
+        birthday:req.body.birthday,
+        
 
       }
     }
@@ -119,7 +147,9 @@ app.post('/profile', async (req, res) => {
 
   req.session.name = req.body.name;
 
-  // Redirect the user back to the profile page, without the "edit" query parameter
+  req.session.birthday = req.body.birthday,
+  
+// Redirect the user back to the profile page, without the "edit" query parameter
   res.redirect('/profile');
 });
 
@@ -742,6 +772,25 @@ app.post('/reportProblem', sessionValidation, async (req, res) => {
   const email = req.session.email;
   const problemText = req.body.problemText; // extract problem text from request body
   const date = new Date(); // get current date and time
+
+  const schema = Joi.object({
+    
+    problemText: Joi.string().max(100).required(),
+  }).options({ abortEarly: false });
+
+  const validationResult = schema.validate({ problemText });
+
+  if (validationResult.error != null) {
+    var errors = validationResult.error.details;
+    var errorMessages = [];
+    for (var i = 0; i < errors.length; i++) {
+      errorMessages.push(errors[i].message);
+    }
+    var errorMessage = errorMessages.join(", ");
+    res.render("problem_error", { error: errorMessage });
+    return;
+  }
+
   const report = {
     problemText: problemText,
     date: date,
@@ -750,9 +799,9 @@ app.post('/reportProblem', sessionValidation, async (req, res) => {
   };
 
   try {
-    const result = await reportCollection.insertOne(report);
-    console.log(`Inserted report `);
-
+    const result = await reportProblem.insertOne(report);
+    console.log(`Inserted problem reported ${result}`);
+    
     res.send("<script>alert('Problem Reported succesfully');window.location.href='/problem'</script>")
   } catch (error) {
     console.error(error);

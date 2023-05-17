@@ -45,7 +45,7 @@
                             <div class="form-group">
                                 <label class="form-label">Date of Birth</label>
                                 <input id="dateInput" type="date" class="form-control" placeholder="enter DOB"
-                                    value="<%= birthday%>" disabled>
+                                   name="birthday" value="<%= birthday%>" <% if (!isEditing) { %>disabled<% } %>>
                             </div>
                             <br>
 
