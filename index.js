@@ -42,6 +42,7 @@ const userCollection = database.db(mongodb_database).collection("users");
 
 const reportCollection = database.db(mongodb_database).collection("reports");
 const reportProblem = database.db(mongodb_database).collection("reportProblem");
+const analysisCollection = database.db(mongodb_database).collection("analysisCollection");
 
 
 app.set("view engine", "ejs");
@@ -867,6 +868,111 @@ app.post("/updateGoal", sessionValidation, (req, res) => {
   // If the input is invalid or empty, render the stats page with the existing sleepScoreGoal
   res.render("stats", { name: name, averageSleepScore: averageSleepScore, sleepScoreGoal: req.session.sleepScoreGoal });
 });
+
+
+//STORING DATA OF ANALYSIS IN MONGODB
+
+const data = [
+  {
+    "age_range": "9-12",
+    "Awakenings": -0.00,
+    "Caffeine_consumption": 0.00,
+    "Alcohol_consumption": 0.00,
+    "Exercise_frequency": 0.00,
+    "Intercept": 0.86,
+
+  },
+  {
+    "age_range": "13-18",
+    "Awakenings": 0.00,
+    "Caffeine_consumption": 0.00,
+    "Alcohol_consumption": 0.00,
+    "Exercise_frequency": 0.06,
+    "Intercept": 0.90,
+
+  },
+  {
+    "age_range": "19-25",
+    "Awakenings": -0.04,
+    "Caffeine_consumption": 0.00,
+    "Alcohol_consumption": -0.02,
+    "Exercise_frequency": -0.01,
+    "Intercept": 0.91,
+
+  },
+  {
+    "age_range": "26-35",
+    "Awakenings": -0.06,
+    "Caffeine_consumption": -0.00,
+    "Alcohol_consumption": -0.03,
+    "Exercise_frequency": 0.00,
+    "Intercept": 0.93,
+
+  },
+  {
+    "age_range": "36-45",
+    "Awakenings": -0.04,
+    "Caffeine_consumption": 0.00,
+    "Alcohol_consumption": -0.04,
+    "Exercise_frequency": -0.00,
+    "Intercept": 0.95,
+
+  },
+  {
+    "age_range": "46-55",
+    "Awakenings": -0.05,
+    "Caffeine_consumption": 0.00,
+    "Alcohol_consumption": -0.02,
+    "Exercise_frequency": 0.01,
+    "Intercept": 0.89,
+
+  },
+  {
+    "age_range": "56-64",
+    "Awakenings": -0.06,
+    "Caffeine_consumption": -0.00,
+    "Alcohol_consumption": -0.02,
+    "Exercise_frequency": 0.01,
+    "Intercept": 0.94,
+
+  },
+  {
+    "age_range": "65+",
+    "Awakenings": -0.05,
+    "Caffeine_consumption": -0.00,
+    "Alcohol_consumption": -0.02,
+    "Exercise_frequency": 0.00,
+    "Intercept": 0.96,
+
+  }
+
+]
+
+analysisCollection.insertMany(data);
+analysisCollection.deleteMany({});
+
+
+app.get('/calculateAge',sessionValidation, (req, res) => {
+  const birthday = new Date(req.session.birthday);
+  const currentDate = new Date();
+  console.log('Birthday:', birthday);
+  console.log('Current Date:', currentDate);
+  if (isNaN(birthday)) {
+    return res.status(400).send('Invalid birthday');
+  }
+  
+  const age = currentDate.getFullYear() - birthday.getFullYear();
+
+  // Display the age
+  console.log("Age:", age);
+
+  // Respond with the age
+  res.send(`Age: ${age}`);
+});
+
+
+
+
 
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
