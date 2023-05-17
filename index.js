@@ -450,34 +450,41 @@ app.get("/createreport", sessionValidation, (req, res) => {
 
 app.post("/submitreport", sessionValidation, async (req, res) => {
 
+  // let sleepScore = 100;
+
   const userName = req.session.name;
   const email = req.session.email;
 
-  var bedtimeHour = req.body.bedtimeHour;
-  var bedtimeMinute = req.body.bedtimeMinute;
-  var bedtimeAmPm = req.body.bedtimeAmPm;
+  const bedtimeHour = req.body.bedtimeHour;
+  const bedtimeMinute = req.body.bedtimeMinute;
+  const bedtimeAmPm = req.body.bedtimeAmPm;
 
-  var wakeupHour = req.body.wakeupHour;
-  var wakeupMinute = req.body.wakeupMinute;
-  var wakeupAmPm = req.body.wakeupAmPm;
+  const wakeupHour = req.body.wakeupHour;
+  const wakeupMinute = req.body.wakeupMinute;
+  const wakeupAmPm = req.body.wakeupAmPm;
 
-  var takeTimeAsleepHour = req.body.takeTimeAsleepHour;
-  var takeTimeAsleepMinute = req.body.takeTimeAsleepMinute;
+  const takeTimeAsleepHour = req.body.takeTimeAsleepHour;
+  const takeTimeAsleepMinute = req.body.takeTimeAsleepMinute;
 
-  var wakeupCount = req.body.wakeupcount;
+  const wakeupCount = req.body.wakeupcount;
 
-  var caffeine = req.body.caffeine;
-  var alcohol = req.body.alcohol;
-  var exercise = req.body.exercise;
+  const caffeine = req.body.caffeine;
+  const alcohol = req.body.alcohol;
+  const exercise = req.body.exercise;
 
-  // let sleepScore = 100;
+  //convert to int
+  const wakeupHourInt = parseInt(wakeupHour);
+  const wakeupMinuteInt = parseInt(wakeupMinute);
+  const bedtimeHourInt = parseInt(bedtimeHour);
+  const bedtimeMinuteInt = parseInt(bedtimeMinute);
 
-  // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
-  const bedtime = `${bedtimeHour}:${bedtimeMinute} ${bedtimeAmPm}`;
-  // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
-  const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
-  //format "5+ hrs 40 min"
-  const takeTimeAsleep = `${takeTimeAsleepHour} ${takeTimeAsleepMinute}`;
+  let takeTimeAsleepHourInt;
+  if (takeTimeAsleepHour === "5+ hrs") {
+    takeTimeAsleepHourInt = 5;
+  } else {
+    takeTimeAsleepHourInt = parseInt(takeTimeAsleepHour);
+  }
+  let takeTimeAsleepMinuteInt = parseInt(takeTimeAsleepMinute);
 
   let wakeupCountInt;
   if (wakeupCount === "10+ times") {
@@ -510,6 +517,50 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   } else {
     exerciseCount = parseInt(req.body.exercisecount);
   }
+
+  // convert to string stored on database
+  // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
+  const bedtime = `${bedtimeHour}:${bedtimeMinute} ${bedtimeAmPm}`;
+  // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
+  const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
+  //format "5+ hrs 40 min"
+  const takeTimeAsleep = `${takeTimeAsleepHour} ${takeTimeAsleepMinute}`;
+
+  const sleepDurationMin = calculateSleepDuration(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm, wakeupHourInt, wakeupMinuteInt, wakeupAmPm);
+  const sleepDuration = `${Math.floor(sleepDurationMin / 60)} hrs ${sleepDurationMin % 60} min`;
+
+  const HoursAsleepMin = sleepDurationMin - (takeTimeAsleepHourInt * 60 + takeTimeAsleepMinuteInt);
+  const HoursAsleep = `${Math.floor(HoursAsleepMin / 60)} hrs ${HoursAsleepMin % 60} min`;
+
+  // const sleepEfficiency = HoursAsleepMin / sleepDurationMin;
+  const sleepEfficiency = Math.round((HoursAsleepMin / sleepDurationMin) * 10000) / 100;
+
+  function convertTo24HourFormat(hour, amPm) {
+    if (amPm === "PM" && hour < 12) {
+      hour += 12;
+    } else if (amPm === "AM" && hour === 12) {
+      hour = 0;
+    }
+    return hour;
+  }
+
+  function calculateSleepDuration(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm, wakeupHourInt, wakeupMinuteInt, wakeupAmPm) {
+    // Convert bedtime to 24-hour format
+    const bedtime = convertTo24HourFormat(bedtimeHourInt, bedtimeAmPm);
+
+    // Convert wakeup time to 24-hour format
+    const wakeup = convertTo24HourFormat(wakeupHourInt, wakeupAmPm);
+
+    // Calculate the time difference
+    let sleepDurationMin = (wakeup + 24 - bedtime) * 60;
+
+    // Subtract additional minutes
+    sleepDurationMin -= bedtimeMinuteInt;
+    sleepDurationMin += wakeupMinuteInt;
+
+    return sleepDurationMin;
+  }
+
 
   // const tips = [
   //   {
@@ -610,14 +661,17 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     bedtime,
     wakeup,
     takeTimeAsleep,
+    sleepDuration, //
+    HoursAsleep, //
     wakeupCount: wakeupCountInt,
-    caffeine, //
-    caffeineCount,//
+    caffeine,
+    caffeineCount,
     alcohol,
     alcoholCount,
-    exercise, //
-    exerciseCount, //
+    exercise,
+    exerciseCount,
     // sleepScore,
+    sleepEfficiency, //
     date: formattedDate, // use formatted date
     // tips: tipsString // add the tips array as a string
   };
@@ -629,7 +683,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
 
     // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}&date=${encodeURIComponent(formattedDate)}`);
-    res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&date=${encodeURIComponent(formattedDate)}`);
+    res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${encodeURIComponent(formattedDate)}`);
 
   } catch (error) {
     console.error(error);
