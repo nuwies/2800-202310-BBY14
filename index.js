@@ -824,22 +824,34 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
     projection: {
       bedtime: 1,
       wakeup: 1,
+      takeTimeAsleep: 1,
+      sleepDuration: 1,
+      HoursAsleep: 1,
       wakeupCount: 1,
+      caffeine: 1, 
+      caffeineCount:1,
       alcohol: 1,
       alcoholCount: 1,
       tips: 1,
       userName: 1,
+      exercise: 1, 
+      exerciseCount:1, 
+      sleepEfficiency:1,
       date: 1,
-      sleepScore: 1
+      // sleepScore: 1
     }
   });
   console.log(report);
 
-  const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips, date } = report;
-  const tipsString = encodeURIComponent(tips);
-  const formattedDate = encodeURIComponent(date);
+  // const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips, date } = report;
+  // const tipsString = encodeURIComponent(tips);
+  // const formattedDate = encodeURIComponent(date);
+  // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}&date=${formattedDate}`);
 
-  res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}&date=${formattedDate}`);
+  const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = report;
+  const formattedDate = encodeURIComponent(date);
+  res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
+
 });
 
 app.get("/problem", sessionValidation, (req, res) => {
