@@ -420,20 +420,52 @@ app.get("/createreport", sessionValidation, (req, res) => {
 
 app.post("/submitreport", sessionValidation, async (req, res) => {
 
-  let sleepScore = 100;
   const userName = req.session.name;
   const email = req.session.email;
-  const bedtimeHour = req.body.bedtimeHour;
-  const bedtimeMinute = req.body.bedtimeMinute;
-  const bedtimeAmPm = req.body.bedtimeAmPm;
-  const wakeupHour = req.body.wakeupHour;
-  const wakeupMinute = req.body.wakeupMinute;
-  const wakeupAmPm = req.body.wakeupAmPm;
-  const wakeupCount = req.body.wakeupcount;
-  const alcohol = req.body.alcohol;
 
-  let alcoholCount, wakeupCountInt;
+  var bedtimeHour = req.body.bedtimeHour;
+  var bedtimeMinute = req.body.bedtimeMinute;
+  var bedtimeAmPm = req.body.bedtimeAmPm;
 
+  var wakeupHour = req.body.wakeupHour;
+  var wakeupMinute = req.body.wakeupMinute;
+  var wakeupAmPm = req.body.wakeupAmPm;
+
+  var takeTimeAsleepHour = req.body.takeTimeAsleepHour;
+  var takeTimeAsleepMinute = req.body.takeTimeAsleepMinute;
+
+  var wakeupCount = req.body.wakeupcount;
+
+  var caffeine = req.body.caffeine;
+  var alcohol = req.body.alcohol;
+  var exercise = req.body.exercise;
+
+  let sleepScore = 100;
+
+  // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
+  const bedtime = `${bedtimeHour}:${bedtimeMinute} ${bedtimeAmPm}`;
+  // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
+  const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
+  //format "5+ hrs 40 min"
+  const takeTimeAsleep = `${takeTimeAsleepHour} ${takeTimeAsleepMinute}`;
+
+  let wakeupCountInt;
+  if (wakeupCount === "10+ times") {
+    wakeupCountInt = 10;
+  } else {
+    wakeupCountInt = parseInt(wakeupCount);
+  }
+
+  let caffeineCount;
+  if (caffeine === "No") {
+    caffeineCount = 0;
+  } else if (req.body.caffeine === "10+ mg") {
+    caffeineCount = 10;
+  } else {
+    caffeineCount = parseInt(req.body.caffeinecount);
+  }
+
+  let alcoholCount;
   if (alcohol === "No") {
     alcoholCount = 0;
   } else if (req.body.alcohol === "10+ oz") {
@@ -442,16 +474,12 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     alcoholCount = parseInt(req.body.alcoholcount);
   }
 
-  if (wakeupCount === "10+ times") {
-    wakeupCountInt = 10;
+  let exerciseCount;
+  if (exercise === "No") {
+    exerciseCount = 0;
   } else {
-    wakeupCountInt = parseInt(wakeupCount);
+    exerciseCount = parseInt(req.body.exercisecount);
   }
-
-  // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
-  const bedtime = `${bedtimeHour}:${bedtimeMinute} ${bedtimeAmPm}`;
-  // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
-  const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
 
   const tips = [
     {
@@ -516,27 +544,27 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     sleepScore = sleepScore - 25;
   }
 
-  if (alcoholCount === 1) { 
-    sleepScore = sleepScore - 10 
+  if (alcoholCount === 1) {
+    sleepScore = sleepScore - 10
   }
 
-  if (alcoholCount === 2) { 
-    sleepScore = sleepScore - 15 
+  if (alcoholCount === 2) {
+    sleepScore = sleepScore - 15
   }
 
-  if (alcoholCount === 3) { 
-    sleepScore = sleepScore - 20 
+  if (alcoholCount === 3) {
+    sleepScore = sleepScore - 20
   }
 
-  if (alcoholCount === 4) { 
-    sleepScore = sleepScore - 25 
+  if (alcoholCount === 4) {
+    sleepScore = sleepScore - 25
   }
 
-  if (alcoholCount >= 5) { 
-    sleepScore = sleepScore - 30 
+  if (alcoholCount >= 5) {
+    sleepScore = sleepScore - 30
   }
 
-  
+
 
   // Create a new report object with the current date and time
   const currentDate = new Date();
@@ -554,9 +582,14 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     email,
     bedtime,
     wakeup,
+    takeTimeAsleep,
     wakeupCount: wakeupCountInt,
+    caffeine, //
+    caffeineCount,//
     alcohol,
     alcoholCount,
+    exercise, //
+    exerciseCount, //
     sleepScore,
     date: formattedDate, // use formatted date
     tips: tipsString // add the tips array as a string
@@ -567,7 +600,10 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     const result = await reportCollection.insertOne(report);
     console.log(`Inserted report with ID ${result.insertedId}`);
     // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
-    res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}&date=${encodeURIComponent(formattedDate)}`);
+
+    // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}&date=${encodeURIComponent(formattedDate)}`);
+    res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&tips=${encodeURIComponent(tipsString)}&date=${encodeURIComponent(formattedDate)}`);
+
   } catch (error) {
     console.error(error);
     res.status(500).send('Error submitting report');
@@ -660,7 +696,7 @@ app.get('/settings', sessionValidation, function (req, res) {
   res.render("settings", { name: req.session.name });
 })
 
-app.get('/preferences', sessionValidation, function(req, res){
+app.get('/preferences', sessionValidation, function (req, res) {
   res.render("preferences");
 })
 
@@ -697,11 +733,11 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
   res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}&date=${formattedDate}`);
 });
 
-app.get("/problem",sessionValidation,(req, res) => {
+app.get("/problem", sessionValidation, (req, res) => {
   res.render("problem");
 });
 
-app.post('/reportProblem',sessionValidation, async(req, res) => {
+app.post('/reportProblem', sessionValidation, async (req, res) => {
   const name = req.session.name;
   const email = req.session.email;
   const problemText = req.body.problemText; // extract problem text from request body
@@ -709,14 +745,14 @@ app.post('/reportProblem',sessionValidation, async(req, res) => {
   const report = {
     problemText: problemText,
     date: date,
-    name:name,
-    email:email
+    name: name,
+    email: email
   };
 
   try {
     const result = await reportCollection.insertOne(report);
     console.log(`Inserted report `);
-    
+
     res.send("<script>alert('Problem Reported succesfully');window.location.href='/problem'</script>")
   } catch (error) {
     console.error(error);
@@ -736,8 +772,8 @@ app.get("/stats", sessionValidation, async (req, res) => {
     sleepScoreGoal = '';
   }
 
-  res.render("stats", { 
-    name: name, 
+  res.render("stats", {
+    name: name,
     averageSleepScore: averageSleepScore,
     sleepScoreGoal: sleepScoreGoal,
     updatedSleepScoreGoal: req.query.sleepScoreGoal // Add the updated goal as a rendering variable

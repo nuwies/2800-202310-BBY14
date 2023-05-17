@@ -82,10 +82,10 @@
 
       <!-- How long does it take you to fall asleep? -->
       <div class="form-group">
-        <label for="bedtime">How long did it take you to fall asleep?</label>
+        <label for="takeTimeAsleep">How long did it take you to fall asleep?</label>
         <div class="row">
           <div class="col">
-            <select class="form-control" id="bedtimeHour" name="bedtimeHour">
+            <select class="form-control" id="takeTimeAsleepHour" name="takeTimeAsleepHour">
               <option>1 hr</option>
               <option>2 hrs</option>
               <option>3 hrs</option>
@@ -94,7 +94,7 @@
             </select>
           </div>
           <div class="col">
-            <select class="form-control" id="bedtimeMinute" name="bedtimeMinute">
+            <select class="form-control" id="takeTimeAsleepMinute" name="takeTimeAsleepMinute">
               <option>00 min</option>
               <option>10 min</option>
               <option>20 min</option>
@@ -103,95 +103,97 @@
               <option>50 min</option>
             </select>
           </div>
+        </div>
+      </div>
 
-          <!-- How many times did you wake up during the night? -->
-          <div class="form-group">
-            <label for="wakeupcount">How many times did you wake up during the night?</label>
-            <select class="form-control" id="wakeupcount" name="wakeupcount">
-              <option>0 times</option>
-              <option>1 time</option>
-              <option>2 times</option>
-              <option>3 times</option>
-              <option>4 times</option>
-              <option>5 times</option>
-              <option>6 times</option>
-              <option>7 times</option>
-              <option>8 times</option>
-              <option>9 times</option>
-              <option>10+ times</option>
-            </select>
-          </div>
+      <!-- How many times did you wake up during the night? -->
+      <div class="form-group">
+        <label for="wakeupcount">How many times did you wake up during the night?</label>
+        <select class="form-control" id="wakeupcount" name="wakeupcount">
+          <option>0 times</option>
+          <option>1 time</option>
+          <option>2 times</option>
+          <option>3 times</option>
+          <option>4 times</option>
+          <option>5 times</option>
+          <option>6 times</option>
+          <option>7 times</option>
+          <option>8 times</option>
+          <option>9 times</option>
+          <option>10+ times</option>
+        </select>
+      </div>
 
-          <!-- caffeine -->
-          <div class="form-group">
-            <label for="caffeine">Did you consume any caffeine yesterday?</label>
-            <select class="form-control" id="caffeine" name="caffeine">
-              <option>No</option>
-              <option>Yes</option>
-            </select>
-          </div>
-          <div class="form-group" id="caffeineamount" style="display:none;">
-            <label for="caffeinecount">Approximately how many milligrams of caffeine did you consume?</label>
-            <select class="form-control" id="caffeinecount" name="caffeinecount">
-              <option>1 mg</option>
-              <option>2 mg</option>
-              <option>3 mg</option>
-              <option>4 mg</option>
-              <option>5 mg</option>
-              <option>6 mg</option>
-              <option>7 mg</option>
-              <option>8 mg</option>
-              <option>9 mg</option>
-              <option>10+ mg</option>
-            </select>
-          </div>
+      <!-- caffeine -->
+      <div class="form-group">
+        <label for="caffeine">Did you consume any caffeine yesterday?</label>
+        <select class="form-control" id="caffeine" name="caffeine">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+      <div class="form-group" id="caffeineamount" style="display:none;">
+        <label for="caffeinecount">Approximately how many milligrams of caffeine did you consume?</label>
+        <select class="form-control" id="caffeinecount" name="caffeinecount">
+          <option>1 mg</option>
+          <option>2 mg</option>
+          <option>3 mg</option>
+          <option>4 mg</option>
+          <option>5 mg</option>
+          <option>6 mg</option>
+          <option>7 mg</option>
+          <option>8 mg</option>
+          <option>9 mg</option>
+          <option>10+ mg</option>
+        </select>
+      </div>
 
-          <!-- alcohol -->
-          <div class="form-group">
-            <label for="alcohol">Did you drink any alcohol yesterday?</label>
-            <select class="form-control" id="alcohol" name="alcohol">
-              <option>No</option>
-              <option>Yes</option>
-            </select>
-          </div>
-          <div class="form-group" id="alcoholamount" style="display:none;">
-            <label for="alcoholcount">Approximately how many ounces of alcohol did you drink?</label>
-            <select class="form-control" id="alcoholcount" name="alcoholcount">
-              <option>1 oz</option>
-              <option>2 oz</option>
-              <option>3 oz</option>
-              <option>4 oz</option>
-              <option>5 oz</option>
-              <option>6 oz</option>
-              <option>7 oz</option>
-              <option>8 oz</option>
-              <option>9 oz</option>
-              <option>10+ oz</option>
-            </select>
-          </div>
+      <!-- alcohol -->
+      <div class="form-group">
+        <label for="alcohol">Did you drink any alcohol yesterday?</label>
+        <select class="form-control" id="alcohol" name="alcohol">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+      <div class="form-group" id="alcoholamount" style="display:none;">
+        <label for="alcoholcount">Approximately how many ounces of alcohol did you drink?</label>
+        <select class="form-control" id="alcoholcount" name="alcoholcount">
+          <option>1 oz</option>
+          <option>2 oz</option>
+          <option>3 oz</option>
+          <option>4 oz</option>
+          <option>5 oz</option>
+          <option>6 oz</option>
+          <option>7 oz</option>
+          <option>8 oz</option>
+          <option>9 oz</option>
+          <option>10+ oz</option>
+        </select>
+      </div>
 
-          <!-- exercise -->
-          <div class="form-group">
-            <label for="exercise">Have you exercise within this week?</label>
-            <select class="form-control" id="exercise" name="exercise">
-              <option>No</option>
-              <option>Yes</option>
-            </select>
-          </div>
-          <div class="form-group" id="exerciseamount" style="display:none;">
-            <label for="exerciseamount">Approximately how many times did you exercise?</label>
-            <select class="form-control" id="exerciseamount" name="exerciseamount">
-              <option>1 time</option>
-              <option>2 times</option>
-              <option>3 times</option>
-              <option>4 times</option>
-              <option>5 times</option>
-              <option>6 times</option>
-              <option>7 times</option>
-            </select>
-          </div>
+      <!-- exercise -->
+      <div class="form-group">
+        <label for="exercise">Have you exercise within this week?</label>
+        <select class="form-control" id="exercise" name="exercise">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+      <div class="form-group" id="exerciseamount" style="display:none;">
+        <label for="exercisecount">Approximately how many times did you exercise?</label>
+        <select class="form-control" id="exercisecount" name="exercisecount">
+          <option>1 time</option>
+          <option>2 times</option>
+          <option>3 times</option>
+          <option>4 times</option>
+          <option>5 times</option>
+          <option>6 times</option>
+          <option>7 times</option>
+        </select>
+      </div>
 
-          <button type="submit" class="btn btn-primary mt-2 justify-content-sm-center">Submit</button>
+      <button type="submit" class="btn btn-primary mt-2 justify-content-sm-center">Submit</button>
     </form>
   </div>
 
