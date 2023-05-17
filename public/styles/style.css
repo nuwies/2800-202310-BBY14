@@ -46,8 +46,27 @@
   }
   
 
-body.dark-mode {
+/* body.dark-mode {
     background-color: #222;
     color: #fff;
-  }
+  } */
+
+ /* Dark Mode */
+body.dark-mode #navbar {
+  background-color: darkgrey; 
+}
+
+body.dark-mode .navbar .navbar-brand {
+  color: yellow;
   
+}
+
+body.dark-mode #myElement {
+  background-color: #222222;
+  color: #ffffff;
+}
+
+body.dark-mode {
+  background-color: #222;
+    color: #fff;
+}
