@@ -17,21 +17,23 @@ getRandomTip();
 const darkModeToggle = document.querySelector('#dark-mode-toggle');
 const body = document.querySelector('body');
 
-// Check if dark mode preference is set, if so, enable it
-const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
-if (prefersDarkMode.matches) {
-  body.classList.add('dark-mode');
-  darkModeToggle.checked = true;
+// Check for saved dark mode preference on page load
+const userPreference = localStorage.getItem('dark-mode');
+
+// If user preference is set, apply it
+if (userPreference) {
+  body.classList.toggle('dark-mode', userPreference === 'true');
+  darkModeToggle.checked = userPreference === 'true';
+} else {
+  // If user preference is not set, check the system preference
+  const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+  body.classList.toggle('dark-mode', prefersDarkMode.matches);
+  darkModeToggle.checked = prefersDarkMode.matches;
 }
 
 // Listen for dark mode toggle clicks and toggle class on body
 darkModeToggle.addEventListener('click', () => {
-  body.classList.toggle('dark-mode');
-  localStorage.setItem('dark-mode', body.classList.contains('dark-mode'));
+  const isDarkMode = body.classList.toggle('dark-mode');
+  localStorage.setItem('dark-mode', isDarkMode);
+  // navbar.classList.toggle('dark-mode', isDarkMode);
 });
-
-// Check for saved dark mode preference on page load
-if (localStorage.getItem('dark-mode')) {
-  body.classList.add('dark-mode');
-  darkModeToggle.checked = true;
-}
