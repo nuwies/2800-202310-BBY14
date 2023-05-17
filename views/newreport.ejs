@@ -8,25 +8,36 @@
       Sleep Information
     </div>
     <div class="card-body">
-      <p class="card-text">Sleep Score: <%= sleepScore %></p>
-      <p class="card-text">Bedtime: <%= bedtime %></p>
-      <p class="card-text">Wakeup Time: <%= wakeup %></p>
+      <!-- <p class="card-text">Sleep Score: <%= sleepScore %></p> -->
+      <p class="card-text">Bed Time: <%= bedtime %></p>
+      <p class="card-text">Wake Up Time: <%= wakeup %></p>
+
+      <p class="card-text">Take Time Asleep:</p>
+      <p class="card-text">Sleep Duration:</p>
+      <p class="card-text">Hours Asleep:</p>
+
       <p class="card-text">Number of Wakeups: <%= wakeupCount %></p>
+      <p class="card-text">Caffeine Consumption: </p>
       <p class="card-text">Alcohol Consumption: <%= alcohol %> (<%= alcoholCount %> oz)</p>
+      <p class="card-text">Exercise Frequency: </p>
     </div>
   </div>
 
   <% if (tips.length > 0) { %>
     <div class="card mb-4">
       <div class="card-header">
-        Tips
+        Analysis
+      </div>
+      <div>
+        <p class="card-text">Sleep Efficiency: </p>
       </div>
       <div class="card-body">
-        <ul class="list-group list-group-flush">
+        <p>facts: </p>
+        <!-- <ul class="list-group list-group-flush">
           <% tips.forEach(function(tip) { %>
             <li class="list-group-item"><%= tip.trim() %></li>
           <% }); %>
-        </ul>
+        </ul> -->
       </div>
     </div>
   <% } %>  
