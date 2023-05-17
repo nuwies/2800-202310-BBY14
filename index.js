@@ -733,22 +733,22 @@ app.get('/newreport', sessionValidation, (req, res) => {
   });
 });
 
-//display sleepscore in main page
+//display sleepEfficiency in main page
 app.get("/main", sessionValidation, async (req, res) => {
   const name = req.session.name;
 
   const latestReport = await reportCollection.findOne({ userName: name }, { sort: { date: -1 } });
   console.log(latestReport);
 
-  let sleepScore = "NA";
+  let sleepEfficiency = "NA";
   if (latestReport !== null) {
-    const { sleepScore: reportSleepScore } = latestReport;
-    if (reportSleepScore !== null) {
-      sleepScore = reportSleepScore;
+    const { sleepEfficiency: reportSleepEfficiency } = latestReport;
+    if (reportSleepEfficiency !== null) {
+      sleepEfficiency = reportSleepEfficiency;
     }
   }
 
-  res.render("main", { name: name, sleepScore: sleepScore });
+  res.render("main", { name: name, sleepEfficiency: sleepEfficiency });
 });
 
 //for clicking on the button to see the latest report
@@ -812,7 +812,7 @@ app.get('/preferences', sessionValidation, function (req, res) {
 //get currentuser reports from mongodb
 app.get('/report_list', sessionValidation, async (req, res) => {
   const name = req.session.name;
-  const result = await reportCollection.find({ userName: name }).project({ userName: 1, date: 1, sleepScore: 1, _id: 1 }).toArray();
+  const result = await reportCollection.find({ userName: name }).project({ userName: 1, date: 1, sleepEfficiency: 1, _id: 1 }).toArray();
   console.log(result);
   res.render("report_list", { reports: result });
 });
@@ -835,8 +835,8 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
       tips: 1,
       userName: 1,
       exercise: 1, 
-      exerciseCount:1, 
-      sleepEfficiency:1,
+      exerciseCount: 1, 
+      sleepEfficiency: 1,
       date: 1,
       // sleepScore: 1
     }
