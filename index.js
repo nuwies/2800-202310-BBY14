@@ -761,11 +761,14 @@ app.post("/latestReport", sessionValidation, async (req, res) => {
     return res.send("<script>alert('You don\\'t have report! Let\\'s get your first report now!');window.location.href='/createreport'</script>");
   }
 
-  const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips, date } = latestReport;
-  const tipsString = encodeURIComponent(tips);
+  // const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips, date } = latestReport;
+  const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = latestReport;
+
+  // const tipsString = encodeURIComponent(tips);
   const formattedDate = encodeURIComponent(date);
 
-  res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}&date=${formattedDate}`);
+  // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}&date=${formattedDate}`);
+  res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
 });
 
 
