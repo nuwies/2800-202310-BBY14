@@ -1,6 +1,4 @@
-
-
-// tips page
+// tips
 function getRandomTip() {
     fetch('/tips-data')
         .then(response => response.json())
@@ -12,6 +10,46 @@ function getRandomTip() {
         .catch(error => console.log(error));
 }
 getRandomTip();
+
+
+// facts
+function getRandomFact() {
+  fetch('/facts-data')
+      .then(response => response.json())
+      .then(data => {
+          const factTextElement = document.getElementById('fact-explanation');
+          const factReasonElement = document.getElementById('fact-reason');
+
+          const randomCategory = Math.floor(Math.random() * 3);
+
+          let randomindex;
+          let randomReason;
+          let randomExplanation;
+          if (randomCategory === 0) {
+            randomindex = Math.floor(Math.random() * data.caffeine.length);
+            randomReason = data.caffeine[randomindex].reason;
+            randomExplanation = data.caffeine[randomindex].explanation;
+          } else if (randomCategory === 1) {
+            randomindex = Math.floor(Math.random() * data.alcohol.length);
+            randomReason = data.alcohol[randomindex].reason;
+            randomExplanation = data.alcohol[randomindex].explanation;
+          } else {
+            randomindex = Math.floor(Math.random() * data.exercise.length);
+            randomReason = data.exercise[randomindex].reason;
+            randomExplanation = data.exercise[randomindex].explanation;
+          }
+
+          factReasonElement.innerText = randomReason;
+          factTextElement.innerText = randomExplanation;
+      })
+      .catch(error => console.log(error));
+}
+getRandomFact();
+
+
+
+
+
 
 
 const darkModeToggle = document.querySelector('#dark-mode-toggle');
