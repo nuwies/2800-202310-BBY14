@@ -211,6 +211,24 @@ app.post("/submitUser", async (req, res) => {
     return;
   }
 
+  const today = new Date();
+  const minAge = 9;
+  const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
+
+  // Parse the birthday input string into a Date object
+  var birthday = new Date(req.body.birthday);
+
+  // Validate the birthday
+  if (isNaN(birthday.getTime()) || birthday > today) {
+    res.render("signup_error", { error: "Invalid birthday" });
+    return;
+  }
+  
+  if (birthday > minDate) {
+    res.render("signup_error", { error: "Invalid birthday" });
+    return;
+  }
+
   // hash password
   var hashedPassword = await bcrypt.hash(password, saltRounds);
 
