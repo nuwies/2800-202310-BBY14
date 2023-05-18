@@ -451,8 +451,6 @@ app.get("/createreport", sessionValidation, (req, res) => {
 
 app.post("/submitreport", sessionValidation, async (req, res) => {
 
-  // let sleepScore = 100;
-
   const userName = req.session.name;
   const email = req.session.email;
 
@@ -533,36 +531,28 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   const HoursAsleepMin = sleepDurationMin - (takeTimeAsleepHourInt * 60 + takeTimeAsleepMinuteInt);
   const HoursAsleep = `${Math.floor(HoursAsleepMin / 60)} hrs ${HoursAsleepMin % 60} min`;
 
-  // const sleepEfficiency = HoursAsleepMin / sleepDurationMin;
   const sleepEfficiency = Math.round((HoursAsleepMin / sleepDurationMin) * 10000) / 100;
 
-  // function convertTo24HourFormat(hour, amPm) {
   function convertTo24HourFormat(hour, minute, amPm) {
     if (amPm === "PM" && hour < 12) {
       hour += 12;
     } else if (amPm === "AM" && hour === 12) {
       hour = 0;
     }
-    // return hour;
     return { hour, minute };
   }
 
   function calculateSleepDuration(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm, wakeupHourInt, wakeupMinuteInt, wakeupAmPm) {
     // Convert bedtime to 24-hour format
-    // const bedtime = convertTo24HourFormat(bedtimeHourInt, bedtimeAmPm);
     const bedtime = convertTo24HourFormat(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm);
 
     // Convert wakeup time to 24-hour format
-    // const wakeup = convertTo24HourFormat(wakeupHourInt, wakeupAmPm);
     const wakeup = convertTo24HourFormat(wakeupHourInt, wakeupMinuteInt, wakeupAmPm);
 
     // Calculate the time difference
-    // let sleepDurationMin = (wakeup + 24 - bedtime) * 60;
     let sleepDurationMin = (wakeup.hour * 60 + wakeup.minute) - (bedtime.hour * 60 + bedtime.minute);
 
-    // // Subtract additional minutes
-    // sleepDurationMin -= bedtimeMinuteInt;
-    // sleepDurationMin += wakeupMinuteInt;
+    // Subtract additional minutes
     if (sleepDurationMin < 0) {
       sleepDurationMin += 24 * 60; // Add 24 hours if the wakeup time is before the bedtime
     }
@@ -603,19 +593,31 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     // tips: tipsString // add the tips array as a string
   };
 
-  // Save the report to the database
-  try {
-    const result = await reportCollection.insertOne(report);
-    console.log(`Inserted report with ID ${result.insertedId}`);
-    // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
+  // Check the number of existing reports
+  const reportCount = await reportCollection.countDocuments({ userName });
+  console.log(`Report count: ${reportCount}`);
+  // Set the maximum limit for reports
+  const reportLimit = 10;
 
-    // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}&date=${encodeURIComponent(formattedDate)}`);
-    res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${encodeURIComponent(formattedDate)}`);
+  if (reportCount >= reportLimit) {
+    // If the limit is reached, you can handle it accordingly
+    console.log('Report limit reached');
+    return res.send("<script>alert('The report limit has reached 10! Please delete some reports in order to free up space.');window.location.href='/report_list'</script>");
+  } else {
+    // Save the report to the database
+    try {
+      const result = await reportCollection.insertOne(report);
+      console.log(`Inserted report with ID ${result.insertedId}`);
+      // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error submitting report');
-  }
+      // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}&date=${encodeURIComponent(formattedDate)}`);
+      res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${encodeURIComponent(formattedDate)}`);
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Error submitting report');
+    }
+  };
 });
 
 app.get('/newreport', sessionValidation, (req, res) => {
@@ -688,7 +690,6 @@ app.post("/latestReport", sessionValidation, async (req, res) => {
     return res.send("<script>alert('You don\\'t have report! Let\\'s get your first report now!');window.location.href='/createreport'</script>");
   }
 
-  // const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips, date } = latestReport;
   const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = latestReport;
 
   // const tipsString = encodeURIComponent(tips);
@@ -704,12 +705,6 @@ app.get("/about", (req, res) => {
 });
 
 
-
-
-// app.get("/tips", sessionValidation, (req, res) => {
-//   res.render("tips");
-// });
-
 app.get("/facts", sessionValidation, (req, res) => {
   res.render("facts");
 });
@@ -724,17 +719,6 @@ app.get('/facts-data', sessionValidation, function (req, res) {
   const factsData = require('./app/data/facts.json');
   res.json(factsData);
 });
-
-
-
-
-app.get('/settings', sessionValidation, function (req, res) {
-  res.render("settings", { name: req.session.name });
-})
-
-app.get('/preferences', sessionValidation, function (req, res) {
-  res.render("preferences");
-})
 
 //get currentuser reports from mongodb
 app.get('/report_list', sessionValidation, async (req, res) => {
@@ -770,16 +754,27 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
   });
   console.log(report);
 
-  // const { sleepScore, bedtime, wakeup, wakeupCount, alcohol, alcoholCount, tips, date } = report;
-  // const tipsString = encodeURIComponent(tips);
-  // const formattedDate = encodeURIComponent(date);
-  // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}&date=${formattedDate}`);
-
   const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = report;
   const formattedDate = encodeURIComponent(date);
   res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
-
 });
+
+//delete report
+app.post('/report_list/delete/:id', sessionValidation, async (req, res) => {
+  const reportId = req.params.id;
+  console.log(reportId);
+  await reportCollection.deleteOne({ _id: new ObjectId(reportId) });
+  res.redirect('/report_list');
+});
+
+
+app.get('/settings', sessionValidation, function (req, res) {
+  res.render("settings", { name: req.session.name });
+})
+
+app.get('/preferences', sessionValidation, function (req, res) {
+  res.render("preferences");
+})
 
 app.get("/problem", sessionValidation, (req, res) => {
   res.render("problem");
@@ -950,7 +945,7 @@ analysisCollection.insertMany(data);
 analysisCollection.deleteMany({});
 
 
-app.get('/calculateAge',sessionValidation, (req, res) => {
+app.get('/calculateAge', sessionValidation, (req, res) => {
   const birthday = new Date(req.session.birthday);
   const currentDate = new Date();
   console.log('Birthday:', birthday);
@@ -958,7 +953,7 @@ app.get('/calculateAge',sessionValidation, (req, res) => {
   if (isNaN(birthday)) {
     return res.status(400).send('Invalid birthday');
   }
-  
+
   const age = currentDate.getFullYear() - birthday.getFullYear();
 
   // Display the age
