@@ -1,0 +1,34 @@
+<%- include("templates/header_goback") %> 
+
+<div class="card mb-4">
+    <div class="card-header">
+      Sleep Information
+    </div>
+    <div class="card-body">
+      <!-- <p class="card-text">Sleep Score: = sleepScore </p> -->
+      <div class="alert alert-warning" role="alert">
+       PEOPLE OF YOUR AGE NEED TO HAVE SLEEP EFFICIENCY OF <%= Intercept %> %
+      </div>
+
+      <div class="alert alert-danger" role="alert">
+        The most important factor affecting your sleep is <%= MostNegativeFactor%>
+       </div>
+
+       <div class="alert alert-success" role="alert">
+        <h2>Relevant Facts:</h2>
+        <% for (const fact of RelevantFacts) { %>
+          <h3>Reason: <%= fact.reason %></h3>
+          <p>Explanation: <%= fact.explanation %></p>
+        <% } %>
+       </div>
+
+
+      
+      
+       
+       
+      
+    </div>
+  </div>
+
+<%- include("templates/footer") %> 
