@@ -82,3 +82,52 @@ body {
 }
 
 
+.colored-text {
+  color: #7b98b3;
+  font-weight: 900;
+}
+
+.infobox {
+  background-color: #a6cdf0;
+  border-radius: 15px;
+}
+
+#sleepEfficiencyBox{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+width:100px;
+margin: 0 auto;
+}
+
+.transparentbox {
+    background-color: rgba(255, 255, 255, 0.164)
+  
+}
+
+.buttondefault {
+  margin-top:10px;
+}
+
+.button1 {
+  background-color: rgb(255, 175, 78);
+color: rgb(41, 41, 41);
+border: none;
+}
+
+.button1:hover {
+  background-color: rgb(255, 140, 0);
+
+}
+
+.button2 {
+  background-color: rgb(194, 210, 255);
+  border:none;
+  color:black;
+}
+
+.button2:hover {
+  background-color: rgb(83, 102, 153);
+
+}
+
