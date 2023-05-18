@@ -70,10 +70,15 @@ body.dark-mode #myElement {
 }
 
 body.dark-mode {
-  background-color: #222;
+  background-color: #131313;
     color: #fff;
 }
 
 body {
-  font: 400 15px/1.8 "Quicksand", sans-serif;
+  font-weight: 400;
+  font-size: 15pt;
+  font-family: "Quicksand", sans-serif;
+  background-color: #cfdff7;
 }
+
+
