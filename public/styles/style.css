@@ -137,7 +137,7 @@ border: none;
 }
 
 .header {
- 
+ /* reserved for future use if needed */
 }
 
 .statscircle {
@@ -162,5 +162,10 @@ border: none;
 
 .badge {
   color:#54687a;
+}
+
+.alertbar1{
+  background-color: rgb(250, 203, 145);
+  border-color: rgb(255, 175, 78);
 }
 
