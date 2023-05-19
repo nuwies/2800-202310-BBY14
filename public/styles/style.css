@@ -244,3 +244,18 @@ body.dark-mode .transparentbox {
 body.dark-mode .chart {
   background-color: white;
 }
+
+
+
+body.dark-mode #confirm-delete {
+  color: black;
+}
+
+body.dark-mode .reportproblemtext {
+  color: white;
+}
+
+#problemInput {
+  display: block;
+  margin: 0 auto;
+}
