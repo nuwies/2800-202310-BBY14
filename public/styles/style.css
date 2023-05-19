@@ -153,11 +153,14 @@ border: none;
   background-size: 100% 250%;
 }
 
-.securitySaveButton {
+.centeredbutton {
   display:flex;
   justify-content: center;
   align-items: center;
   margin-top: 10px;
 }
 
+.badge {
+  color:#54687a;
+}
 

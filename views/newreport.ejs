@@ -3,40 +3,46 @@
 <div class="container mb-5 pb-5">
   <h1 class="my-4">My Report for <%= date %> </h1>
 <form action="/analysis" method="post">
-  <div class="card mb-4">
+  <div class="card mb-4 transparentbox">
     <div class="card-header">
       Sleep Information
     </div>
     <div class="card-body">
       <!-- <p class="card-text">Sleep Score: = sleepScore </p> -->
-      <p class="card-text">Bed Time: <%= bedtime %></p>
-      <p class="card-text">Wake Up Time: <%= wakeup %></p>
+      <p class="card-text"><strong>Bed Time:</strong> <%= bedtime %></p>
+      <p class="card-text"><strong>Wake up Time:</strong> <%= wakeup %></p>
 
-      <p class="card-text">Take Time Asleep: <%= takeTimeAsleep %></p>
-      <p class="card-text">Sleep Duration:  <%= sleepDuration %></p>
-      <p class="card-text">Hours Asleep: <%= HoursAsleep %></p>
+      <p class="card-text"><strong>Take Time Asleep:</strong> <%= takeTimeAsleep %></p>
+      <p class="card-text"><strong>Sleep Duration:</strong>  <%= sleepDuration %></p>
+      <p class="card-text"><strong>Hours Asleep:</strong> <%= HoursAsleep %></p>
 
-      <p class="card-text">Number of Wakeups: <input type="text" name="wakeupCount" value="<%= wakeupCount %>"  readonly ></p>
-      <p class="card-text">Caffeine Consumption: <%= caffeine %> <input type="text" name="caffeineCount" value="<%= caffeineCount %>"  readonly >mg</p>
-      <p class="card-text">Alcohol Consumption: <%= alcohol %> <input type="text" name="alcoholCount" value="<%= alcoholCount %>"  readonly > oz</p>
-      <p class="card-text">Exercise Frequency: <%= exercise %> <input type="text" name="exerciseCount" value="<%= exerciseCount %>"  readonly > times</p>
+      <p class="card-text"><strong>Number of Wakeups:</strong> <%= wakeupCount %></p>
+      <p class="card-text"><strong>Caffeine Consumption:</strong> <%= caffeine %>. &nbsp;<strong>Amount:</strong>  <%= caffeineCount %> mg</p>
+      <p class="card-text"><strong>Alcohol Consumption:</strong> <%= alcohol %>.   &nbsp;<strong>Amount:</strong> <%= alcoholCount %> oz</p>
+      <p class="card-text"><strong>Exercise Frequency:</strong> <%= exercise %>.   &nbsp;<strong>Amount:</strong> <%= exerciseCount %> times</p>
     </div>
   </div>
 
    <!-- if (tips.length > 0) {  -->
-    <div class="card mb-4">
+    <div class="card mb-4 transparentbox">
       <div class="card-header">
         Analysis
       </div>
-      <div>
-        <p class="card-text">Sleep Efficiency:<input type="text" name="sleepEfficiency" value="<%= sleepEfficiency %>"  readonly >  %</p>
+      <div class="card-body">
+        <p class="card-text"><strong>Sleep Efficiency:</strong> <%= sleepEfficiency %> / 100 </p>
       </div>
-      <button type="submit" id="analysis" class="btn btn-primary">view more</button>
+      
+    </div>
+
+    <div class="centeredbutton">
+      <button type="submit" class="btn btn-primary button1">View More Analysis</button>
     </div>
   </form>
    <!-- }   -->
 
-  <a href="/main" class="btn btn-primary">Go back to Home</a>
+    <div class="centeredbutton">
+      <button type="submit" class="btn btn-primary button2">Go back to Home</button>
+    </div>
 </div>
 
 
