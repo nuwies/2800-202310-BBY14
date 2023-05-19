@@ -123,6 +123,7 @@ border: none;
   height: 175px; 
   width: 175px; 
   padding: 10px;
+  border-color:rgb(255, 175, 78) ;
 }
 
 .profilebanner {
@@ -234,7 +235,7 @@ body.dark-mode .statscircle {
   height: 175px; 
   width: 175px; 
   padding: 10px;
-  
+  border-color: white;
 }
 
 body.dark-mode .transparentbox {
@@ -258,4 +259,13 @@ body.dark-mode .reportproblemtext {
 #problemInput {
   display: block;
   margin: 0 auto;
+}
+
+
+#sleepTips{
+  color: white;
+}
+
+#sleepFacts {
+  color: white;
 }
