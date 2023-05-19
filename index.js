@@ -146,6 +146,14 @@ app.post('/profile', async (req, res) => {
     }
   );
 
+  // Calculate the updated age
+  const currentDate = new Date();
+  const updatedBirthday = new Date(req.body.birthday);
+  const updatedAge = currentDate.getFullYear() - updatedBirthday.getFullYear();
+
+  // Update the age in the session
+  req.session.age = updatedAge;
+
   req.session.name = req.body.name;
 
   req.session.birthday = req.body.birthday,
@@ -180,6 +188,12 @@ app.post("/submitUser", async (req, res) => {
     confirm_password: Joi.string().max(20),
     birthday: Joi.date().required(),
   }).options({ abortEarly: false }); // check all fields before returning
+
+// Calculate the age
+const currentDate = new Date();
+const birthdayDate = new Date(birthday);
+const age = currentDate.getFullYear() - birthdayDate.getFullYear();
+
 
   const validationResult = schema.validate({ name, email, password, birthday });
 
@@ -223,6 +237,9 @@ app.post("/submitUser", async (req, res) => {
     token: "", // empty field for password reset token
   });
 
+
+  // Store age in the session
+  req.session.age = age;
   // successful signup - log in user and redirect to main page
   req.session.authenticated = true;
   req.session.name = name;
@@ -1026,7 +1043,7 @@ app.post('/analysis', sessionValidation, async (req, res) => {
   const WakeupCount = parseInt(req.body.wakeupCount);
   const alcoholCount = req.body.alcoholCount;
   const exerciseCount = req.body.exerciseCount;
-  console.log(WakeupCount);
+  console.log(caffeineCount,WakeupCount,alcoholCount,exerciseCount);
   // Extract factor values from the MongoDB matching range
   const caffeineFromDB = matchingRange.Caffeine_consumption;
   const awakeningsFromDB = matchingRange.Awakenings;
@@ -1042,19 +1059,25 @@ app.post('/analysis', sessionValidation, async (req, res) => {
 
   // Determine which product is more negative
   let mostNegativeFactor;
+  let factor;
   if (caffeineProduct <= awakeningProduct && caffeineProduct <= alcoholProduct && caffeineProduct <= exerciseProduct) {
     mostNegativeFactor = 'Caffeine';
     facts = factorsData.caffeine;
+    factor = caffeineProduct;
   } else if (awakeningProduct <= caffeineProduct && awakeningProduct <= alcoholProduct && awakeningProduct <= exerciseProduct) {
     mostNegativeFactor = 'WakeupCount';
     facts = factorsData.awaking;
+    factor = awakeningProduct;
   } else if (alcoholProduct <= caffeineProduct && alcoholProduct <= awakeningProduct && alcoholProduct <= exerciseProduct) {
     mostNegativeFactor = 'Alcohol';
     facts = factorsData.alcohol;
+    factor = alcoholProduct;
   } else {
     mostNegativeFactor = 'Exercise';
     facts = factorsData.exercise;
+    factor = exerciseProduct;
   }
+const finalFactor = Math.abs(factor) * 100;
 
 
   console.log('Caffeine product:', caffeineProduct);
@@ -1064,42 +1087,89 @@ app.post('/analysis', sessionValidation, async (req, res) => {
   console.log('Most negative factor:', mostNegativeFactor);
   console.log(caffeineCount);
 
-  const relevantFacts = facts.slice(0, 2).map((fact) => ({
-    reason: fact.reason,
-    explanation: fact.explanation,
-  }));
+// most negative factor from from database
+let mostNegativeFactorFromDB;
+let factorFromDB;
+
+if (caffeineFromDB <= awakeningsFromDB && caffeineFromDB <= alcoholFromDB && caffeineFromDB <= exerciseFromDB) {
+  mostNegativeFactorFromDB = 'Caffeine';
+  factorFromDB = caffeineFromDB;
+  facts = factorsData.caffeine;
+} else if (awakeningsFromDB <= caffeineFromDB && awakeningsFromDB <= alcoholFromDB && awakeningsFromDB <= exerciseFromDB) {
+  mostNegativeFactorFromDB = 'Awakenings';
+  factorFromDB = awakeningsFromDB;
+  facts = factorsData.awaking;
+} else if (alcoholFromDB <= caffeineFromDB && alcoholFromDB <= awakeningsFromDB && alcoholFromDB <= exerciseFromDB) {
+  mostNegativeFactorFromDB = 'Alcohol';
+  factorFromDB = alcoholFromDB;
+  factor = alcoholProduct;
+} else {
+  mostNegativeFactorFromDB = 'Exercise';
+  factorFromDB = exerciseFromDB;
+  facts = factorsData.exercise;
+}
+
+console.log('Most negative factor from db :', mostNegativeFactorFromDB);
+  // Shuffle the facts array
+const shuffledFacts = facts.sort(() => Math.random() - 0.5);
+
+// Take the first two randomly picked facts
+const relevantFacts = shuffledFacts.slice(0, 2).map((fact) => ({
+  reason: fact.reason,
+  explanation: fact.explanation,
+}));
+  
 
   const sleepEfficiency = req.body.sleepEfficiency;
-
-
-  // Check if user's age group is 8-12 and sleep quality is less than intercept
-  if (matchingRange.age_range === '9-12' && sleepEfficiency < intercept) {
-    // Encourage the user to improve sleep quality and provide tips
-    const improve = "Most people in your age group are not affected by the factors we analyzed. However, it seems like your sleep quality is lower than expected. Here are some tips to improve your sleep:\n1. Maintain a consistent sleep schedule.\n2. Create a calming bedtime routine.\n3. Ensure a comfortable sleep environment.\n4. Avoid electronic devices before bed.\n5. Limit caffeine and sugar intake in the evening.";
-
-    console.log('Encouragement:', improve);
-  
-    // Add the improvement message to the relevant facts array
-    const relevantFactsWithImprovement = [
-      { reason: 'Improvement', explanation: improve },
-      ...relevantFacts,
-    ];
-    // Render the analysis template with the calculated sleep efficiency, intercept value, most negative factor, relevant facts, and encouragement
-    res.render("analysis", {
+  const difference = intercept - sleepEfficiency ;
+  if (
+    caffeineCount == 0 &&
+    WakeupCount == 0 &&
+    alcoholCount == 0 &&
+    exerciseCount == 0 && sleepEfficiency < intercept
+  ) {
+    // Render a different page when all factor values are zero
+    res.render("analysisThree", {
+      Intercept: intercept,
+      SleepEfficiency: sleepEfficiency,
+      MostNegativeFactor: mostNegativeFactorFromDB,
+      RelevantFacts: relevantFacts,
+      Difference: difference
+    });
+  } 
+ 
+ else  if (matchingRange.age_range === '9-12' && sleepEfficiency < intercept) {
+   
+    res.render("analysisOne", {
     
       Intercept: intercept,
       SleepEfficiency: sleepEfficiency,
       MostNegativeFactor: mostNegativeFactor,
-      RelevantFacts: relevantFactsWithImprovement,
+      RelevantFacts: relevantFacts,
+      Difference: difference
       
     });
-  } else {
+  }else if(sleepEfficiency > intercept){
+    res.render("analysisTwo", {
+      Intercept: intercept,
+      SleepEfficiency: sleepEfficiency,
+      MostNegativeFactor: mostNegativeFactorFromDB,
+      RelevantFacts: relevantFacts
+    });
+    
+
+  }
+   else {
+
+
     // Render the analysis template with the calculated sleep efficiency, intercept value, most negative factor, and relevant facts
     res.render("analysis", {
       Intercept: intercept,
       SleepEfficiency: sleepEfficiency,
       MostNegativeFactor: mostNegativeFactor,
-      RelevantFacts: relevantFacts
+      RelevantFacts: relevantFacts,
+      Difference: difference,
+      Factor :finalFactor
     });
   }
 });
