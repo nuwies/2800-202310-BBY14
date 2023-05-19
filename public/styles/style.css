@@ -262,10 +262,27 @@ body.dark-mode .reportproblemtext {
 }
 
 
-#sleepTips{
+body.dark-mode #sleepTips{
   color: white;
 }
 
-#sleepFacts {
+body.dark-mode #sleepFacts {
+  color: white;
+}
+
+body.dark-mode .headline {
+  color:white;
+}
+
+body.dark-mode svg.bi {
+  fill: white;
+}
+
+#congratulationsText {
+  display:none;
+}
+
+body.dark-mode #congratulationsText {
+  display:none;
   color: white;
 }
