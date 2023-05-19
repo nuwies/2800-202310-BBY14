@@ -1052,29 +1052,16 @@ async function updateData() {
 // Call the async function to update the data
 updateData();
 
-app.get('/calculateAge', sessionValidation, (req, res) => {
-  const birthday = new Date(req.session.birthday);
+function calculateAge(birthday) {
   const currentDate = new Date();
-  console.log('Birthday:', birthday);
-  console.log('Current Date:', currentDate);
-  if (isNaN(birthday)) {
-    return res.status(400).send('Invalid birthday');
-  }
-
   const age = currentDate.getFullYear() - birthday.getFullYear();
-
-  // Display the age
-  console.log("Age:", age);
-  req.session.age = age;
-  console.log(req.session.age);
-
-  // Respond with the age
-  res.send(`Age: ${age}`);
-});
+  return age;
+}
 
 const factorsData = require('./app/data/facts.json');
 app.post('/analysis', sessionValidation, async (req, res) => {
-  const age = req.session.age.toString();
+  const birthday = new Date(req.session.birthday);
+  const age = calculateAge(birthday);
   const results = await analysisCollection
     .find({ $or: [{ age_range: { $regex: new RegExp(`^(\\d+)-`) } }, { age_range: { $eq: '65+' } }] })
     .project({ age_range: 1, Awakenings: 1, Caffeine_consumption: 1, Alcohol_consumption: 1, Exercise_frequency: 1, Intercept: 1 })
