@@ -230,15 +230,15 @@ const age = currentDate.getFullYear() - birthdayDate.getFullYear();
   const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
 
   // Parse the birthday input string into a Date object
-  var birthday = new Date(req.body.birthday);
+  var birthdayNew = new Date(req.body.birthday);
 
   // Validate the birthday
-  if (isNaN(birthday.getTime()) || birthday > today) {
+  if (isNaN(birthdayNew.getTime()) || birthdayNew > today) {
     res.render("signup_error", { error: "Invalid birthday" });
     return;
   }
 
-  if (birthday > minDate) {
+  if (birthdayNew > minDate) {
     res.render("signup_error", { error: "Invalid birthday" });
     return;
   }
