@@ -101,8 +101,11 @@ margin: 0 auto;
 }
 
 .transparentbox {
-    background-color: rgba(255, 255, 255, 0.164)
-  
+    background-color: rgba(255, 255, 255, 0.164);
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgb(175, 175, 175);
+    border-radius: 10px;
 }
 
 .buttondefault {
@@ -121,7 +124,7 @@ border: none;
 }
 
 .button2 {
-  background-color: rgb(194, 210, 255);
+  background-color: rgb(152, 178, 252);
   border:none;
   color:black;
 }
@@ -130,4 +133,3 @@ border: none;
   background-color: rgb(83, 102, 153);
 
 }
-
