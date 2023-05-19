@@ -169,3 +169,13 @@ border: none;
   border-color: rgb(255, 175, 78);
 }
 
+
+.a-forsetting {
+  color: black; 
+  text-decoration: none; 
+}
+
+.a-forsetting.dark-mode {
+  color: rgb(255, 255, 255); 
+  text-decoration: none; 
+}
