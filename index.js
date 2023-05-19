@@ -755,11 +755,11 @@ app.get("/easter_egg", (req, res) => {
   res.render("easter_egg");
 });
 
-//read the dream pics data
-app.get('/dreamPic-data', sessionValidation, function (req, res) {
-  const DreamPicData = require('./app/data/dream_pics.json');
-  res.json(DreamPicData);
-});
+// //read the dream pics data
+// app.get('/dreamPic-data', sessionValidation, function (req, res) {
+//   const DreamPicData = require('./app/data/dream_pics.json');
+//   res.json(DreamPicData);
+// });
 
 
 app.get("/facts", sessionValidation, (req, res) => {
