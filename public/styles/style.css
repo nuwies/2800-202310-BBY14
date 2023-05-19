@@ -286,3 +286,14 @@ body.dark-mode #congratulationsText {
   display:none;
   color: white;
 }
+
+/* Trash button in the list of reports */
+.list-group-item button.btn-floating svg.bi {
+  fill: rgb(0, 0, 0);
+}
+
+/* Hover over trash button in the list of reports */
+.list-group-item button.btn-floating:hover svg.bi {
+  fill: red;
+}
+
