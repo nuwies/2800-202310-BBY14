@@ -17,6 +17,8 @@ List technologies (with version numbers), API's, icons, fonts, images, media or 
 * CSS
 * Tips resource1: https://www.cdc.gov/sleep/about_sleep/sleep_hygiene.html
 * Tips resource2: https://www.healthline.com/nutrition/ways-to-fall-asleep#The-bottom-line
+* Profile Banner: https://www.freepik.com/free-vector/night-african-savannah-landscape-wild-nature-africa-twilight-view-cartoon-background-with-road-trees-rocks-birds-flying-starry-sky-with-full-moon-kenya-nighttime-vector-illustration_21994618.htm#query=night%20landscape&position=3&from_view=search&track=ais Image by upklyak on Freepik
+* Profile Banner 2: https://www.freepik.com/free-photo/sunset-silhouettes-trees-mountains-generative-ai_39657505.htm#query=sunrise%20vector%20illustration&position=4&from_view=search&track=ais Image by pvproductions on Freepik
 
 ## 4. Complete setup/installion/usage
 State what a user needs to do when they come to your project.  How do others start using your code or application?

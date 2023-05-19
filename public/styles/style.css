@@ -137,7 +137,7 @@ border: none;
 }
 
 .header {
-  background-color: white;
+ 
 }
 
 .statscircle {
@@ -145,3 +145,12 @@ border: none;
   width: 175px; 
   padding: 10px;
 }
+
+.profilebanner {
+  height: 200px;
+  background-image: url('/images/profilebanner2.jpg');
+  background-repeat: no-repeat;
+  background-size: 100% 250%;
+}
+
+
