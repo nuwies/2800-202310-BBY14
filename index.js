@@ -904,31 +904,36 @@ app.get("/stats", sessionValidation, async (req, res) => {
     sleepEfficiencyGoal = '';
   }
 
+  // Retrieve the target date from the session
+  const targetDate = req.session.targetDate || '';
+
   res.render("stats", {
     name: name,
     averageSleepEfficiency: averageSleepEfficiency,
     sleepEfficiencyGoal: sleepEfficiencyGoal,
     updatedSleepEfficiencyGoal: req.query.sleepEfficiencyGoal, // Add the updated goal as a rendering variable
     sleepEfficiencies: JSON.stringify(sleepEfficiencies), // Pass sleepEfficiencies as a JSON string
-    dates: JSON.stringify(dates) // Pass dates as a JSON string
+    dates: JSON.stringify(dates), // Pass dates as a JSON string
+    targetDate: targetDate // Pass the target date as a rendering variable
   });
 });
 
 app.post("/updateGoal", sessionValidation, async (req, res) => {
   const name = req.session.name;
-  let sleepEfficiencyGoal = req.body.goal; // Use "goal" instead of "sleepEfficiencyGoal"
+  let sleepEfficiencyGoal = req.body.goal;
+  let targetDate = req.body.targetDate;
 
   // Check if the input is a valid number between 0 and 100 inclusive
   if (sleepEfficiencyGoal !== '') {
     const sleepEfficiencyGoalNumber = parseInt(sleepEfficiencyGoal);
     if (!isNaN(sleepEfficiencyGoalNumber) && sleepEfficiencyGoalNumber >= 0 && sleepEfficiencyGoalNumber <= 100) {
       req.session.sleepEfficiencyGoal = sleepEfficiencyGoalNumber;
-      res.redirect("/stats?sleepEfficiencyGoal=" + sleepEfficiencyGoalNumber); // Add the updated goal as a query parameter in the URL
-      return; // Return early to prevent the subsequent res.render() call from executing
+      req.session.targetDate = targetDate; // Save the targetDate in the session
+      res.redirect("/stats?sleepEfficiencyGoal=" + sleepEfficiencyGoalNumber);
+      return;
     }
   }
 
-  // If the input is invalid or empty, set a default value for sleepEfficiencyGoal
   sleepEfficiencyGoal = req.session.sleepEfficiencyGoal || '';
 
   const sleepEfficiencyData = await calculateSleepEfficiencyData(name);
@@ -941,9 +946,10 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
     name: name,
     averageSleepEfficiency: averageSleepEfficiency,
     sleepEfficiencyGoal: sleepEfficiencyGoal,
-    updatedSleepEfficiencyGoal: '', // Add the updated goal as a rendering variable with an empty value
-    sleepEfficiencies: JSON.stringify(sleepEfficiencies), // Pass sleepEfficiencies as a JSON string
-    dates: JSON.stringify(dates) // Pass dates as a JSON string
+    targetDate: targetDate, // Pass targetDate as a rendering variable
+    updatedSleepEfficiencyGoal: '',
+    sleepEfficiencies: JSON.stringify(sleepEfficiencies),
+    dates: JSON.stringify(dates)
   });
 });
 
