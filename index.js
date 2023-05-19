@@ -880,46 +880,72 @@ app.post('/reportProblem', sessionValidation, async (req, res) => {
   }
 });
 
+// Helper function to calculate average sleep efficiency
+async function calculateSleepEfficiencyData(name) {
+  const reports = await reportCollection
+    .find({ userName: name })
+    .project({ userName: 1, date: 1, sleepEfficiency: 1, _id: 0 })
+    .sort({ date: 1 }) // Sort the reports in ascending order by date
+    .toArray();
+
+  return reports.map(report => ({ date: report.date, sleepEfficiency: report.sleepEfficiency }));
+}
+
 app.get("/stats", sessionValidation, async (req, res) => {
   const name = req.session.name;
-  const reports = await reportCollection.find({ userName: name }).project({ userName: 1, date: 1, sleepScore: 1, _id: 0 }).toArray();
-  const sleepScores = reports.map(report => report.sleepScore);
-  const averageSleepScore = sleepScores.reduce((acc, score) => acc + score, 0) / sleepScores.length;
+  const sleepEfficiencyData = await calculateSleepEfficiencyData(name);
+  const sleepEfficiencies = sleepEfficiencyData.map(data => data.sleepEfficiency);
+  const dates = sleepEfficiencyData.map(data => data.date);
+  const averageSleepEfficiency = sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
 
   // Check if the user has set a sleep score goal
-  let sleepScoreGoal = req.session.sleepScoreGoal;
-  if (!sleepScoreGoal) {
-    sleepScoreGoal = '';
+  let sleepEfficiencyGoal = req.session.sleepEfficiencyGoal;
+  if (!sleepEfficiencyGoal) {
+    sleepEfficiencyGoal = '';
   }
 
   res.render("stats", {
     name: name,
-    averageSleepScore: averageSleepScore,
-    sleepScoreGoal: sleepScoreGoal,
-    updatedSleepScoreGoal: req.query.sleepScoreGoal // Add the updated goal as a rendering variable
+    averageSleepEfficiency: averageSleepEfficiency,
+    sleepEfficiencyGoal: sleepEfficiencyGoal,
+    updatedSleepEfficiencyGoal: req.query.sleepEfficiencyGoal, // Add the updated goal as a rendering variable
+    sleepEfficiencies: JSON.stringify(sleepEfficiencies), // Pass sleepEfficiencies as a JSON string
+    dates: JSON.stringify(dates) // Pass dates as a JSON string
   });
 });
 
-// CURRENTLY -- breaks display of average sleep score if no input is provided when updating goal
-app.post("/updateGoal", sessionValidation, (req, res) => {
+app.post("/updateGoal", sessionValidation, async (req, res) => {
   const name = req.session.name;
-  const averageSleepScore = req.body.averageSleepScore;
-  const sleepScoreGoal = req.body.goal; // Use "goal" instead of "sleepScoreGoal"
+  let sleepEfficiencyGoal = req.body.goal; // Use "goal" instead of "sleepEfficiencyGoal"
 
   // Check if the input is a valid number between 0 and 100 inclusive
-  if (sleepScoreGoal !== '') {
-    const sleepScoreGoalNumber = parseInt(sleepScoreGoal);
-    if (!isNaN(sleepScoreGoalNumber) && sleepScoreGoalNumber >= 0 && sleepScoreGoalNumber <= 100) {
-      req.session.sleepScoreGoal = sleepScoreGoalNumber;
-      res.redirect("/stats?sleepScoreGoal=" + sleepScoreGoalNumber); // Add the updated goal as a query parameter in the URL
-      return; // return early to prevent the subsequent res.render() call from executing
+  if (sleepEfficiencyGoal !== '') {
+    const sleepEfficiencyGoalNumber = parseInt(sleepEfficiencyGoal);
+    if (!isNaN(sleepEfficiencyGoalNumber) && sleepEfficiencyGoalNumber >= 0 && sleepEfficiencyGoalNumber <= 100) {
+      req.session.sleepEfficiencyGoal = sleepEfficiencyGoalNumber;
+      res.redirect("/stats?sleepEfficiencyGoal=" + sleepEfficiencyGoalNumber); // Add the updated goal as a query parameter in the URL
+      return; // Return early to prevent the subsequent res.render() call from executing
     }
   }
 
-  // If the input is invalid or empty, render the stats page with the existing sleepScoreGoal
-  res.render("stats", { name: name, averageSleepScore: averageSleepScore, sleepScoreGoal: req.session.sleepScoreGoal });
-});
+  // If the input is invalid or empty, set a default value for sleepEfficiencyGoal
+  sleepEfficiencyGoal = req.session.sleepEfficiencyGoal || '';
 
+  const sleepEfficiencyData = await calculateSleepEfficiencyData(name);
+  const sleepEfficiencies = sleepEfficiencyData.map(data => data.sleepEfficiency);
+  const dates = sleepEfficiencyData.map(data => data.date);
+
+  const averageSleepEfficiency = sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
+
+  res.render("stats", {
+    name: name,
+    averageSleepEfficiency: averageSleepEfficiency,
+    sleepEfficiencyGoal: sleepEfficiencyGoal,
+    updatedSleepEfficiencyGoal: '', // Add the updated goal as a rendering variable with an empty value
+    sleepEfficiencies: JSON.stringify(sleepEfficiencies), // Pass sleepEfficiencies as a JSON string
+    dates: JSON.stringify(dates) // Pass dates as a JSON string
+  });
+});
 
 //STORING DATA OF ANALYSIS IN MONGODB
 
@@ -1214,10 +1240,6 @@ const relevantFacts = shuffledFacts.slice(0, 2).map((fact) => ({
     });
   }
 });
-
-
-
-
 
 
 //The route for public folder
