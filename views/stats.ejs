@@ -8,22 +8,24 @@
         </div>
         <div class="card-body">
           <div class="text-center">
-            <h3 class="text-center m-4">Your average sleep score is:</h3>
+            <h3 class="text-center m-4">Your average sleep efficiency is:</h3>
             <div class="d-flex align-items-center justify-content-center" style="height: 200px;">
-              <div class="rounded-circle d-flex align-items-center justify-content-center border border-dark border-3" style="height: 175px; width: 175px; padding: 10px;">
-                <span class="display-4 m-2" style="font-size: 3rem;"><%= Math.round(averageSleepScore) %> / 100</span>
-            </div>    
+              <div class="rounded-circle d-flex align-items-center justify-content-center border border-dark border-4" style="height: 175px; width: 175px; padding: 10px;">
+                <span class="display-4 m-2" style="font-size: 3rem;"><%= Math.round(averageSleepEfficiency) %> %</span>
+              </div>
             </div>
+            <h5 class="text-center m-4">Recent sleep efficiency trend</h5>
+            <!-- Add a canvas element to render the graph -->
+            <canvas id="sleepEfficiencyChart" width="400" height="200"></canvas>
             <div class="row justify-content-center">
+              <h6 class="mt-5">Set your sleep efficiency goal</h6>
               <form action="/updateGoal" method="POST" class="col-md-4">
                 <div class="form-group mt-4">
-                  <label for="goal">Set your sleep score goal:</label>
-                  <input type="number" id="goal" name="goal" class="form-control my-4" min="0" max="100" value="<%= sleepScoreGoal %>">
+                  <input type="number" id="goal" name="goal" placeholder="%" class="form-control my-4" min="0" max="100" value="<%= sleepEfficiencyGoal %>">
                 </div>
                 <button type="submit" class="btn btn-primary">Update Goal</button>
               </form>
             </div>            
-            <p class="mt-4">Your current sleep score goal is: <%= sleepScoreGoal %> / 100</p>
           </div>
         </div>
       </div>
@@ -31,3 +33,68 @@
   </div>
 </div>
 <%- include('templates/footer') %>
+
+<div id="sleepEfficiencies" data-values="<%= sleepEfficiencies %>"></div>
+<div id="dates" data-values="<%= dates %>"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Retrieve the sleepEfficiencies data from the data attribute
+    var sleepEfficiencies = JSON.parse(document.getElementById('sleepEfficiencies').dataset.values);
+
+    // Retrieve the dates data from the data attribute
+    var dates = JSON.parse(document.getElementById('dates').dataset.values);
+
+    // Create a new array with only the data for the most recent 7 days
+    var chartData = sleepEfficiencies.slice(-7);
+    var chartLabels = dates.slice(-7);
+
+    console.log(chartData);
+    console.log(chartLabels);
+
+    // Convert dates to the desired format (mm/dd/yyyy)
+    var formattedDates = chartLabels.map(function(date) {
+      return moment(date, 'MMM DD, YYYY [at] hh:mm A').format('MM/DD/YYYY');
+    });
+
+    // Create a new chart instance
+    var ctx = document.getElementById('sleepEfficiencyChart').getContext('2d');
+    var chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: formattedDates,
+        datasets: [{
+          label: 'Sleep Efficiency',
+          data: chartData,
+          backgroundColor: 'rgba(0, 123, 255, 0.2)', // Background color of the line
+          borderColor: 'rgba(0, 123, 255, 1)', // Color of the line
+          borderWidth: 1,
+          fill: false // Disable filling under the line
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Date'
+            }
+          },
+          y: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Sleep Efficiency'
+            },
+            suggestedMin: 0, // Set the minimum value for the y-axis
+            suggestedMax: 100 // Set the maximum value for the y-axis
+          }
+        }
+      }
+    });
+  });
+</script>
