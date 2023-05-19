@@ -74,6 +74,8 @@ body.dark-mode {
     color: #fff;
 }
 
+/* Jimmy's edits start here */
+
 body {
   font-weight: 400;
   font-size: 15pt;
@@ -136,4 +138,10 @@ border: none;
 
 .header {
   background-color: white;
+}
+
+.statscircle {
+  height: 175px; 
+  width: 175px; 
+  padding: 10px;
 }
