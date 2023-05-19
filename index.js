@@ -223,7 +223,7 @@ app.post("/submitUser", async (req, res) => {
     res.render("signup_error", { error: "Invalid birthday" });
     return;
   }
-  
+
   if (birthday > minDate) {
     res.render("signup_error", { error: "Invalid birthday" });
     return;
@@ -722,6 +722,28 @@ app.get("/about", (req, res) => {
   res.render("about");
 });
 
+let clickCount = 0;
+app.post("/about", (req, res) => {
+  clickCount++;
+  if (clickCount === 3) {
+    clickCount = 0;
+    return res.send("<script>alert('Would you like to see something interesting?'); window.location.href='/easter_egg'</script>");
+  } 
+  else {
+    return res.redirect("/about");
+  }
+});
+
+app.get("/easter_egg", (req, res) => {
+  res.render("easter_egg");
+});
+
+//read the dream pics data
+app.get('/dreamPic-data', sessionValidation, function (req, res) {
+  const DreamPicData = require('./app/data/dream_pics.json');
+  res.json(DreamPicData);
+});
+
 
 app.get("/facts", sessionValidation, (req, res) => {
   res.render("facts");
@@ -732,6 +754,7 @@ app.get('/tips-data', sessionValidation, function (req, res) {
   const tipsData = require('./app/data/tips.json');
   res.json(tipsData);
 });
+
 //read the facts data
 app.get('/facts-data', sessionValidation, function (req, res) {
   const factsData = require('./app/data/facts.json');
