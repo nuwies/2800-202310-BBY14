@@ -238,3 +238,15 @@ body.dark-mode .btn-floating[href="/settings"] svg {
 body.dark-mode .btn-floating[href="javascript:history.back()"] svg {
   fill: rgb(255, 255, 255); 
 }
+
+body.dark-mode .transparentbox {
+  background-color: rgb(0, 0, 0);
+  border-width: 2px;
+  border-style: solid;
+  border-color: rgb(175, 175, 175);
+  border-radius: 10px;
+}
+
+body.dark-mode .form-group label {
+  color: white;
+}
