@@ -4,26 +4,31 @@
         
         <img class="d-block mx-auto mb-4" src="images/logo.png" alt="" width="300">
 
-        <div class="col-lg-6 px-auto py-1 mx-auto" style="background-color: #f1f1f19b;">
+        <div class="transparentbox col-lg-6 px-auto py-1 mx-auto">
 
-            <p class="lead mb-2">Hello, <%- name %>!</p>
-            <p class="lead">Your sleep efficiency: </p>
-            <p class="lead mb-2"> <%- sleepEfficiency %> %</p>
-
-            <form action="/latestReport" method="post" class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <button type="submit" class="btn btn-outline-secondary btn-lg px-4">
+            <p class="lead mb-2">
+                Hello, <span class="colored-text"><%- name %></span>!
+              </p>
+            <p class="lead">Your most recent sleep efficiency: </p>
+            <div class="infobox" id="sleepEfficiencyBox">
+            <p class="lead mb-2">
+                <span class="colored-text"><%- sleepEfficiency %> / 100</span>
+              </p>
+            </div>
+            <form action="/latestReport" method="post" class="d-grid gap-2 d-sm-flex justify-content-sm-center ">
+                <button type="submit" class="btn btn-outline-secondary btn-lg px-4 buttondefault button1">
                     <h5>See my report</h5>
                 </button>
             </form>
-            <form  class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a href="/report_list" type="button" class="btn btn-outline-secondary btn-lg px-4">
+            <form class="d-grid gap-2 d-sm-flex justify-content-sm-center ">
+                <a href="/report_list" type="button" class="btn btn-outline-secondary btn-lg px-4 buttondefault button1">
                     <h5>View reports list</h5>
                 </a>
             </form>
 
         </div>
         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-            <a href="/createreport" type="button" class="btn btn-primary btn-lg px-4 gap-3 my-3">Get Started</a>
+            <a href="/createreport" type="button" class="btn btn-primary btn-lg px-4 gap-3 my-3 button2">Get Started</a>
         </div>
     </div>
     <br>

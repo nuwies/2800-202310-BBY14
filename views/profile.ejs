@@ -9,18 +9,18 @@
                         <br><br>
 
                         <div class="media-body ml-4">
-                            <label class="btn btn-outline-primary">
+                            <label class="btn btn-outline-primary button1">
                                 Upload new photo
 
                                 <input type="file" id="mypic-input" class="account-settings-fileinput" accept="image/*"
                                     style="display:none;" />
                             </label>
-                            <button type="button" class="btn btn-primary">Save </button>
+                            <button type="button" class="btn btn-primary button2">Save </button>
 
 
 
 
-                            <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+                            <div class="small mt-1">Allowed image types: JPG, GIF or PNG. Max size of 800K.</div>
                         </div>
                     </div>
                     <hr class="border-light m-0">
@@ -51,11 +51,11 @@
 
                             <% if (!isEditing) { %>
                                
-                                <button type="button" class="btn btn-outline-primary"
+                                <button type="button" class="btn btn-outline-primary button1"
                                     onclick="window.location.href='/profile?edit=true'">Edit profile</button>
                                 <% } else { %>
-                                    <button type="submit" class="btn btn-primary">Update Profile</button>&nbsp;
-                                    <button type="button" class="btn btn-outline-primary"
+                                    <button type="submit" class="btn btn-primary button1">Update Profile</button>&nbsp;
+                                    <button type="button" class="btn btn-outline-primary button2"
                                         onclick="window.location.href='/profile'">Cancel</button>
                                     <% } %>
 
