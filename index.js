@@ -577,23 +577,45 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     return { hour, minute };
   }
 
+  // function calculateSleepDuration(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm, wakeupHourInt, wakeupMinuteInt, wakeupAmPm) {
+  //   // Convert bedtime to 24-hour format
+  //   const bedtime = convertTo24HourFormat(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm);
+
+  //   // Convert wakeup time to 24-hour format
+  //   const wakeup = convertTo24HourFormat(wakeupHourInt, wakeupMinuteInt, wakeupAmPm);
+
+  //   // Calculate the time difference
+  //   let sleepDurationMin = (wakeup.hour * 60 + wakeup.minute) - (bedtime.hour * 60 + bedtime.minute);
+
+  //   // Subtract additional minutes
+  //   if (sleepDurationMin < 0) {
+  //     sleepDurationMin += 24 * 60; // Add 24 hours if the wakeup time is before the bedtime
+  //   }
+
+  //   return sleepDurationMin;
+  // }
+
   function calculateSleepDuration(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm, wakeupHourInt, wakeupMinuteInt, wakeupAmPm) {
     // Convert bedtime to 24-hour format
     const bedtime = convertTo24HourFormat(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm);
-
+  
     // Convert wakeup time to 24-hour format
     const wakeup = convertTo24HourFormat(wakeupHourInt, wakeupMinuteInt, wakeupAmPm);
-
+  
     // Calculate the time difference
-    let sleepDurationMin = (wakeup.hour * 60 + wakeup.minute) - (bedtime.hour * 60 + bedtime.minute);
-
-    // Subtract additional minutes
-    if (sleepDurationMin < 0) {
-      sleepDurationMin += 24 * 60; // Add 24 hours if the wakeup time is before the bedtime
+    let sleepDurationMin = 0;
+  
+    if (wakeup.hour > bedtime.hour || (wakeup.hour === bedtime.hour && wakeup.minute >= bedtime.minute)) {
+      // The wakeup time is after the bedtime on the same day
+      sleepDurationMin = (wakeup.hour * 60 + wakeup.minute) - (bedtime.hour * 60 + bedtime.minute);
+    } else {
+      // The wakeup time is before the bedtime, so it's on the next day
+      sleepDurationMin = (wakeup.hour * 60 + wakeup.minute) + (24 * 60) - (bedtime.hour * 60 + bedtime.minute);
     }
-
+  
     return sleepDurationMin;
   }
+  
 
 
   // Create a new report object with the current date and time
@@ -1181,7 +1203,8 @@ const relevantFacts = shuffledFacts.slice(0, 2).map((fact) => ({
   
 
   const sleepEfficiency = req.body.sleepEfficiency;
-  const difference = intercept - sleepEfficiency ;
+  const difference = Math.round(intercept - sleepEfficiency) ;
+
   if (
     caffeineCount == 0 &&
     WakeupCount == 0 &&
