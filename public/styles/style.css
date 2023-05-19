@@ -83,7 +83,7 @@ body {
 
 
 .colored-text {
-  color: #7b98b3;
+  color: #54687a;
   font-weight: 900;
 }
 
@@ -96,7 +96,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-width:100px;
+width:150px;
 margin: 0 auto;
 }
 
