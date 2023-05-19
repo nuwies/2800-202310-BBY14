@@ -1,18 +1,16 @@
 <%- include('templates/header_goback') %>
-<div class="container mb-5 pb-5">
+<div class="container mb-5 pb-5 ">
   <div class="row">
     <div class="col-md-8 mx-auto">
-      <div class="card">
-        <div class="card-header">
-          <h1 class="text-center mb-0">Hello, <%= name %>!</h1>
-        </div>
+      <div class="card transparentbox">
+          <h1 class="text-center mb-0">Hello, <span class="colored-text"><%- name %></span>!</h1>
         <div class="card-body">
           <div class="text-center">
             <h3 class="text-center m-4">Your average sleep efficiency is:</h3>
             <div class="d-flex align-items-center justify-content-center" style="height: 200px;">
-              <div class="rounded-circle d-flex align-items-center justify-content-center border border-dark border-4" style="height: 175px; width: 175px; padding: 10px;">
+              <div class="rounded-circle d-flex align-items-center justify-content-center border border-dark border-4 statscircle">
                 <span class="display-4 m-2" style="font-size: 3rem;"><%= Math.round(averageSleepEfficiency) %> %</span>
-              </div>
+            </div>    
             </div>
             <h5 class="text-center m-4">Recent sleep efficiency trend</h5>
             <!-- Add a canvas element to render the graph -->

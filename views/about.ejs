@@ -5,36 +5,42 @@
         <h1 class="display-5 fw-bold text-body-emphasis">About Us</h1>
 
         <!-- app logo -->
-        <img class="d-block mx-auto my-4" src="images/logo2.png" width="180">
+        <form method="post" action="/about">
+            <button style="text-decoration: none;" class="btn btn-link btn-floating text-dark m-2"
+                    role="button" data-mdb-ripple-color="dark" type="submit">
+                <img class="d-block mx-auto my-4" src="images/logo2.png" width="180">
+            </button>
+        </form>
 
-        <div class="col-lg-6 px-2 py-3 mx-auto" style="background-color: #f1f1f19b;">
+        <div class="col-lg-6 px-2 py-3 mx-auto transparentbox">
             <p class="lead mb-4">
-                Welcome to AISLEEP! We are Team BBY-14, passionate about helping people achieve better
-                sleep. Our app offers free, simple, and AI-generated solutions to help you overcome your sleep issues.
-                By inputting your data, our app provides personalized sleep reports with scores and recommendations to
-                improve your sleep quality. Unlike other apps on the market, our unique features ensure accessibility
-                and ease of use. Our goal is to make quality sleep accessible to everyone, regardless of their
-                circumstances. Join us on our mission to help individuals across the globe achieve restful nights and
-                wake up rejuvenated. Start using AISleep today and embark on a journey towards better sleep!
+                Welcome to AISleep! We are Team BBY-14, and we are passionate about helping people achieve better
+                sleep. Our app offers free, simple, AI-generated solutions to help you improve your sleep efficiency and recognize how your habits effect your sleep.
+                By inputting your data, our app provides personalized sleep efficiency reports with scores and analysis to
+                improve your sleep efficiency. <br> <br>
+                Unlike other apps on the market, we focus on changing common habits that can greatly impact your sleep! <br><br> Our goal is to make quality sleep accessible to everyone, regardless of their
+                circumstances. Join us on our mission to help individuals across the globe achieve great sleep and
+                wake up feeling rejuvenated. Start using AISleep today and embark on a journey towards better, more efficient sleep!
             </p>
         </div>
     </div>
 
     <!-- App instructions -->
     <div class="px-4 mb-4">
-        <div class="col-lg-6 px-2 py-3 mx-auto" style="background-color: #f1f1f19b;">
+        <div class="col-lg-6 px-2 py-3 mx-auto transparentbox">
             <h1 class="display-6 fw-bold text-body-emphasis text-center">How to use our app?</h1>
             <ul class="lead mb-4 text-start">
-                <li class="mb-2">To view your existing sleep reports at any time, simply go to the main page
+                <li class="mb-2">To view your existing sleep efficiency reports at any time, simply go to the Home page
                     <svg class="bi" width="24" height="24">
                         <use xlink:href="#home"></use>
                     </svg>
+                    .
                 </li>
-                <li class="mb-2">You can click on the below <svg class="bi" width="24" height="24">
+                <li class="mb-2">You can click on the Stats icon <svg class="bi" width="24" height="24">
                         <use xlink:href="#stats"></use>
-                    </svg> to see the sleep statistical data.
+                    </svg> to see your statistics and set a sleep efficiency score.
                 </li>
-                <li class="mb-2">Don't forget to check out Tips <svg class="bi" width="24" height="24">
+                <li class="mb-2">Don't forget to check out Facts <svg class="bi" width="24" height="24">
                         <use xlink:href="#tips"></use>
                     </svg> for helpful quick advice and relaxing tunes to help you sleep better!
                 </li>
@@ -51,7 +57,7 @@
             </svg>
         </div>
         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-            <a href="/createreport" type="button" class="btn btn-primary btn-lg px-4 gap-3 my-3">Get Started</a>
+            <a href="/createreport" type="button" class="btn btn-primary btn-lg px-4 gap-3 my-3 button2">Get Started</a>
         </div>
     </div>
 
