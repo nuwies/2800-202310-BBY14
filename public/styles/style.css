@@ -39,7 +39,7 @@
   }
   
   input:checked + .slider {
-    background-color: #2196F3;
+    background-color: #fff14d;
   }
   
   input:checked + .slider:before {
@@ -151,6 +151,13 @@ border: none;
   background-image: url('/images/profilebanner2.jpg');
   background-repeat: no-repeat;
   background-size: 100% 250%;
+}
+
+.securitySaveButton {
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
 }
 
 
