@@ -1,7 +1,7 @@
 <%- include('templates/header_goback') %>
 <div class="m-5">
 <div class="alert alert-primary text-center" role="alert">
-  <h2>Log In &nbsp ٩(ˊᗜˋ*)و </h2>
+  <h2>Log In</h2>
 </div>
 <form action="/loggingin" method="post">
   <div class="form-group mb-2">
@@ -12,9 +12,11 @@
     <label for="password">Password</label>
     <input type="password" class="form-control" id="password" name="password" placeholder="Password">
   </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-  <div class="mt-2">
-    <a href="/forgotpassword">Forgot password?</a>
+  <div class="centeredbutton">
+    <button type="submit" class="btn btn-primary button1">Submit</button>
+  </div>
+  <div class="mt-2 centeredbutton">
+    <a href='/forgotpassword'><button type="button" class="btn btn-outline-primary button2">Forgot Password?</button></a>
   </div>
 </form>
 </div>

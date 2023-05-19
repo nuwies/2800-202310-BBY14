@@ -2,36 +2,47 @@
 
 <div class="container mb-5 pb-5">
   <h1 class="my-4">My Report for <%= date %> </h1>
-
-  <div class="card mb-4">
+<form action="/analysis" method="post">
+  <div class="card mb-4 transparentbox">
     <div class="card-header">
       Sleep Information
     </div>
     <div class="card-body">
-      <p class="card-text">Sleep Score: <%= sleepScore %></p>
-      <p class="card-text">Bedtime: <%= bedtime %></p>
-      <p class="card-text">Wakeup Time: <%= wakeup %></p>
-      <p class="card-text">Number of Wakeups: <%= wakeupCount %></p>
-      <p class="card-text">Alcohol Consumption: <%= alcohol %> (<%= alcoholCount %> oz)</p>
+      <!-- <p class="card-text">Sleep Score: = sleepScore </p> -->
+      <p class="card-text"><strong>Bed Time:</strong> <%= bedtime %></p>
+      <p class="card-text"><strong>Wake up Time:</strong> <%= wakeup %></p>
+
+      <p class="card-text"><strong>Time taken to fall asleep:</strong> <%= takeTimeAsleep %></p>
+      <p class="card-text"><strong>Sleep Duration:</strong>  <%= sleepDuration %></p>
+      <p class="card-text"><strong>Hours Asleep:</strong> <%= HoursAsleep %></p>
+
+      <p class="card-text"><strong>Number of Wakeups:</strong> <input type="text" name="wakeupCount" value="<%= wakeupCount %>"  readonly ></p>
+      <p class="card-text"><strong>Caffeine Consumption:</strong> <%= caffeine %> <input type="text" name="caffeineCount" value="<%= caffeineCount %>"  readonly >mg</p>
+      <p class="card-text"><strong>Alcohol Consumption: </strong><%= alcohol %> <input type="text" name="alcoholCount" value="<%= alcoholCount %>"  readonly > oz</p>
+      <p class="card-text"><strong>Exercise Frequency:</strong> <%= exercise %> <input type="text" name="exerciseCount" value="<%= exerciseCount %>"  readonly > times</p>
     </div>
   </div>
 
-  <% if (tips.length > 0) { %>
-    <div class="card mb-4">
+   <!-- if (tips.length > 0) {  -->
+    <div class="card mb-4 transparentbox">
       <div class="card-header">
-        Tips
+        Analysis
       </div>
       <div class="card-body">
-        <ul class="list-group list-group-flush">
-          <% tips.forEach(function(tip) { %>
-            <li class="list-group-item"><%= tip.trim() %></li>
-          <% }); %>
-        </ul>
+        <p class="card-text"><strong>Sleep Efficiency:</strong><input type="text" name="sleepEfficiency" value="<%= sleepEfficiency %>"  readonly >  /100</p>
       </div>
+      
     </div>
-  <% } %>  
 
-  <a href="/main" class="btn btn-primary">Go back to Home</a>
+    <div class="centeredbutton">
+      <button type="submit" class="btn btn-primary button1" id="analysis">View More Analysis</button>
+    </div>
+  </form>
+   <!-- }   -->
+
+    <div class="centeredbutton">
+      <a href="/main" class="btn btn-primary button2">Go back to Home</a>
+    </div>
 </div>
 
 

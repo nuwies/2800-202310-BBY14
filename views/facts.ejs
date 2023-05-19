@@ -1,0 +1,51 @@
+<%- include("templates/header_goback") %>
+
+    <!-- facts section -->
+    <div class="px-4 mb-3 text-center">
+        <h1 class="display-4 fw-bold  text-center" id="sleepFacts">Sleep Facts</h1>
+        <div class="col-lg-6 px-2 pt-4 pb-4 mx-auto transparentbox">
+            <div style="height: 320px; align-items: center; justify-content: center;">
+                <p class="lead display-6" id="fact-reason"></p>
+                <p class="lead" id="fact-explanation"></p>
+            </div>
+            <button type="button" class="mt-2 btn btn-outline-secondary justify-content-sm-center button1"
+                onclick="getRandomFact()">Next One</button>
+        </div>
+    </div>
+
+
+    <!-- tips section -->
+    <div class="px-4 mb-3 text-center">
+        <h1 class="display-8 fw-bold  text-center" id="sleepTips">Quick sleeping tips</h1>
+        <div class="col-lg-6 px-2 py-3 mx-auto text-center transparentbox">
+            <h1 class="display-6 fw-bold text-body-emphasis text-center"></h1>
+            <div style="height: 150px; align-items: center; justify-content: center;">
+                <p class="lead" id="tip-text"></p>
+            </div>
+            <button type="button" class="mt-2 btn btn-outline-secondary justify-content-sm-center button1"
+                onclick="getRandomTip();">Next One</button>
+        </div>
+    </div>
+
+    <!-- music section -->
+    <!-- <div class="px-4 mb-4 text-center">
+        <div class="col-lg-6 px-2 py-3 mx-auto" style="background-color: #f1f1f19b;">
+            <p class="lead mb-4">
+                music API section
+            </p>
+
+        </div>
+    </div> -->
+
+    <form action="/latestReport" method="post" class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <button type="submit" class="btn btn-outline-secondary btn-lg px-4 button2">
+            <h5>See my latest report</h5>
+        </button>
+    </form>
+
+    <br>
+    <br>
+    <br>
+    <br>
+
+    <%- include("templates/footer") %>

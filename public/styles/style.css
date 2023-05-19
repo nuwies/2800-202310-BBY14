@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+
 .switch {
     position: relative;
     display: inline-block;
@@ -36,7 +39,7 @@
   }
   
   input:checked + .slider {
-    background-color: #2196F3;
+    background-color: #fff14d;
   }
   
   input:checked + .slider:before {
@@ -45,9 +48,252 @@
     transform: translateX(26px);
   }
   
-
 body.dark-mode {
-    background-color: #222;
+  background-color: #131313;
     color: #fff;
-  }
-  
+}
+
+/* Jimmy's edits start here */
+
+body {
+  font-weight: 400;
+  font-size: 15pt;
+  font-family: "Quicksand", sans-serif;
+  background-color: #cfdff7;
+}
+
+
+.colored-text {
+  color: #54687a;
+  font-weight: 900;
+}
+
+.infobox {
+  background-color: #a6cdf0;
+  border-radius: 15px;
+}
+
+#sleepEfficiencyBox{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+width:150px;
+margin: 0 auto;
+}
+
+.transparentbox {
+    background-color: rgba(255, 255, 255, 0.719);
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgb(175, 175, 175);
+    border-radius: 10px;
+}
+
+.buttondefault {
+  margin-top:10px;
+}
+
+.button1 {
+  background-color: rgb(255, 175, 78);
+color: rgb(41, 41, 41);
+border: none;
+}
+
+.button1:hover {
+  background-color: rgb(255, 140, 0);
+
+}
+
+.button2 {
+  background-color: rgb(152, 178, 252);
+  border:none;
+  color:black;
+}
+
+.button2:hover {
+  background-color: rgb(83, 102, 153);
+
+}
+
+.header {
+ /* reserved for future use if needed */
+}
+
+.statscircle {
+  height: 175px; 
+  width: 175px; 
+  padding: 10px;
+  border-color:rgb(255, 175, 78) ;
+}
+
+.profilebanner {
+  height: 200px;
+  background-image: url('/images/profilebanner2.jpg');
+  background-repeat: no-repeat;
+  background-size: 100% 250%;
+}
+
+.centeredbutton {
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.badge {
+  color:#54687a;
+}
+
+.alertbar1{
+  background-color: rgb(250, 203, 145);
+  border-color: rgb(255, 175, 78);
+}
+
+
+.a-forsetting {
+  color: black; 
+  text-decoration: none; 
+}
+
+body.dark-mode #a-forsetting {
+  color: rgb(255, 255, 255); 
+  text-decoration: none; 
+}
+
+body.dark-mode #a-forsetting2 {
+  color: rgb(255, 255, 255); 
+  text-decoration: none; 
+}
+
+body.dark-mode #a-forsetting3 {
+  color: rgb(255, 255, 255); 
+  text-decoration: none; 
+}
+
+body.dark-mode .profilebanner {
+  height: 200px;
+  background-image: url('/images/profilebanner.jpg');
+  background-repeat: no-repeat;
+  background-size: 100% 250%;
+}
+
+footer {
+  background-color: white;
+}
+
+body.dark-mode .footer {
+  background-color: rgb(54, 54, 54);
+}
+
+body.dark-mode .d-block {
+  color: white;
+}
+
+/* Stats icon */
+body.dark-mode .btn-floating[href="/stats"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+/* Home icon */
+body.dark-mode .btn-floating[href="/main"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+/* Tips icon */
+body.dark-mode .btn-floating[href="/facts"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+/* About icon */
+body.dark-mode .btn-floating[href="/about"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+/* Setting icon */
+body.dark-mode .btn-floating[href="/settings"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+/* Go back icon */
+body.dark-mode .btn-floating[href="javascript:history.back()"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+body.dark-mode .transparentbox {
+  background-color: rgb(0, 0, 0);
+  border-width: 2px;
+  border-style: solid;
+  border-color: rgb(255, 255, 255);
+  border-radius: 10px;
+}
+
+body.dark-mode .form-group label {
+  color: white;
+}
+
+body.dark-mode .statscircle {
+  height: 175px; 
+  width: 175px; 
+  padding: 10px;
+  border-color: white;
+}
+
+body.dark-mode .transparentbox {
+  color: white; /* Set the color for the text */
+}
+
+body.dark-mode .chart {
+  background-color: white;
+}
+
+
+
+body.dark-mode #confirm-delete {
+  color: black;
+}
+
+body.dark-mode .reportproblemtext {
+  color: white;
+}
+
+#problemInput {
+  display: block;
+  margin: 0 auto;
+}
+
+
+body.dark-mode #sleepTips{
+  color: white;
+}
+
+body.dark-mode #sleepFacts {
+  color: white;
+}
+
+body.dark-mode .headline {
+  color:white;
+}
+
+body.dark-mode svg.bi {
+  fill: white;
+}
+
+#congratulationsText {
+  display:none;
+}
+
+body.dark-mode #congratulationsText {
+  display:none;
+  color: white;
+}
+
+/* Trash button in the list of reports */
+.list-group-item button.btn-floating svg.bi {
+  fill: rgb(0, 0, 0);
+}
+
+/* Hover over trash button in the list of reports */
+.list-group-item button.btn-floating:hover svg.bi {
+  fill: red;
+}
+

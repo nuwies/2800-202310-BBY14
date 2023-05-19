@@ -1,4 +1,4 @@
-<%- include("templates/header_profile") %>
+<%- include("templates/header_goback") %>
     <div class="container justify-content-center mb-5 pb-5">
         <div class="col-md-9">
             <div class="tab-content">
@@ -9,18 +9,18 @@
                         <br><br>
 
                         <div class="media-body ml-4">
-                            <label class="btn btn-outline-primary">
+                            <label class="btn btn-outline-primary button1">
                                 Upload new photo
 
                                 <input type="file" id="mypic-input" class="account-settings-fileinput" accept="image/*"
                                     style="display:none;" />
                             </label>
-                            <button type="button" class="btn btn-primary">Save </button>
+                            <button type="button" class="btn btn-primary button2">Save </button>
 
 
 
 
-                            <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+                            <div class="small mt-1">Allowed image types: JPG, GIF or PNG. Max size of 800K.</div>
                         </div>
                     </div>
                     <hr class="border-light m-0">
@@ -45,17 +45,17 @@
                             <div class="form-group">
                                 <label class="form-label">Date of Birth</label>
                                 <input id="dateInput" type="date" class="form-control" placeholder="enter DOB"
-                                    value="<%= birthday%>" disabled>
+                                   name="birthday" value="<%= birthday%>" <% if (!isEditing) { %>disabled<% } %>>
                             </div>
                             <br>
 
                             <% if (!isEditing) { %>
                                
-                                <button type="button" class="btn btn-outline-primary"
+                                <button type="button" class="btn btn-outline-primary button1"
                                     onclick="window.location.href='/profile?edit=true'">Edit profile</button>
                                 <% } else { %>
-                                    <button type="submit" class="btn btn-primary">Update Profile</button>&nbsp;
-                                    <button type="button" class="btn btn-outline-primary"
+                                    <button type="submit" class="btn btn-primary button1">Update Profile</button>&nbsp;
+                                    <button type="button" class="btn btn-outline-primary button2"
                                         onclick="window.location.href='/profile'">Cancel</button>
                                     <% } %>
 
@@ -76,7 +76,7 @@
             <div class="form-group">
                 <br>
                 <label class="d-block text-danger">Delete Account</label>
-                <p class="text-muted font-size-sm">Once you delete your account, there is no going back. Please be
+                <p class="font-size-sm" id="deleteacc">Once you delete your account, there is no going back. Please be
                     certain.
                 </p>
             </div>
