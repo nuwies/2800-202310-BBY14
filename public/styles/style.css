@@ -48,27 +48,6 @@
     transform: translateX(26px);
   }
   
-
-/* body.dark-mode {
-    background-color: #222;
-    color: #fff;
-  } */
-
- /* Dark Mode */
-body.dark-mode #navbar {
-  background-color: darkgrey; 
-}
-
-body.dark-mode .navbar .navbar-brand {
-  color: yellow;
-  
-}
-
-body.dark-mode #myElement {
-  background-color: #222222;
-  color: #ffffff;
-}
-
 body.dark-mode {
   background-color: #131313;
     color: #fff;
@@ -169,3 +148,114 @@ border: none;
   border-color: rgb(255, 175, 78);
 }
 
+
+.a-forsetting {
+  color: black; 
+  text-decoration: none; 
+}
+
+body.dark-mode #a-forsetting {
+  color: rgb(255, 255, 255); 
+  text-decoration: none; 
+}
+
+body.dark-mode #a-forsetting2 {
+  color: rgb(255, 255, 255); 
+  text-decoration: none; 
+}
+
+body.dark-mode #a-forsetting3 {
+  color: rgb(255, 255, 255); 
+  text-decoration: none; 
+}
+
+body.dark-mode .profilebanner {
+  height: 200px;
+  background-image: url('/images/profilebanner.jpg');
+  background-repeat: no-repeat;
+  background-size: 100% 250%;
+}
+
+footer {
+  background-color: white;
+}
+
+body.dark-mode .footer {
+  background-color: rgb(54, 54, 54);
+}
+
+body.dark-mode .d-block {
+  color: white;
+}
+
+/* Stats icon */
+body.dark-mode .btn-floating[href="/stats"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+/* Home icon */
+body.dark-mode .btn-floating[href="/main"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+/* Tips icon */
+body.dark-mode .btn-floating[href="/facts"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+/* About icon */
+body.dark-mode .btn-floating[href="/about"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+/* Setting icon */
+body.dark-mode .btn-floating[href="/settings"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+/* Go back icon */
+body.dark-mode .btn-floating[href="javascript:history.back()"] svg {
+  fill: rgb(255, 255, 255); 
+}
+
+body.dark-mode .transparentbox {
+  background-color: rgb(0, 0, 0);
+  border-width: 2px;
+  border-style: solid;
+  border-color: rgb(255, 255, 255);
+  border-radius: 10px;
+}
+
+body.dark-mode .form-group label {
+  color: white;
+}
+
+body.dark-mode .statscircle {
+  height: 175px; 
+  width: 175px; 
+  padding: 10px;
+  
+}
+
+body.dark-mode .transparentbox {
+  color: white; /* Set the color for the text */
+}
+
+body.dark-mode .chart {
+  background-color: white;
+}
+
+
+
+body.dark-mode #confirm-delete {
+  color: black;
+}
+
+body.dark-mode .reportproblemtext {
+  color: white;
+}
+
+#problemInput {
+  display: block;
+  margin: 0 auto;
+}
