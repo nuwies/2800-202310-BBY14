@@ -1,0 +1,26 @@
+<%- include("templates/header_goback") %> 
+
+<div class="card mb-4">
+   
+    <div class="card-body">
+        <img class="d-block mx-auto mb-4" src="images/welldone.jpg" alt="" width="120">
+        <div class="alert alert-success" role="alert">
+            YOUR SLEEPING EFFICIENCY IS GOOD as the minimum efficiency required for people of you age is <%=Intercept%> % <br> KEEP IT UP !!!!
+        </div>
+
+        <div class="alert alert-warning" role="alert">
+            <h3>However the factor that can effect sleep of your age group is <%=MostNegativeFactor%></h3>
+            <% for (const fact of RelevantFacts) { %>
+                <h4>Reason: <%= fact.reason %>
+                </h4>
+                <p>Explanation: <%= fact.explanation %>
+                </p>
+                <% } %>
+        </div>
+       
+       
+      
+    </div>
+  </div>
+
+<%- include("templates/footer") %> 

@@ -2,7 +2,7 @@
 
 <div class="container mb-5 pb-5">
   <h1 class="my-4">My Report for <%= date %> </h1>
-
+<form action="/analysis" method="post">
   <div class="card mb-4">
     <div class="card-header">
       Sleep Information
@@ -16,10 +16,10 @@
       <p class="card-text">Sleep Duration:  <%= sleepDuration %></p>
       <p class="card-text">Hours Asleep: <%= HoursAsleep %></p>
 
-      <p class="card-text">Number of Wakeups: <%= wakeupCount %></p>
-      <p class="card-text">Caffeine Consumption: <%= caffeine %> (<%= caffeineCount %> mg)</p>
-      <p class="card-text">Alcohol Consumption: <%= alcohol %> (<%= alcoholCount %> oz)</p>
-      <p class="card-text">Exercise Frequency: <%= exercise %> (<%= exerciseCount %> times)</p>
+      <p class="card-text">Number of Wakeups: <input type="text" name="wakeupCount" value="<%= wakeupCount %>"  readonly ></p>
+      <p class="card-text">Caffeine Consumption: <%= caffeine %> <input type="text" name="caffeineCount" value="<%= caffeineCount %>"  readonly >mg</p>
+      <p class="card-text">Alcohol Consumption: <%= alcohol %> <input type="text" name="alcoholCount" value="<%= alcoholCount %>"  readonly > oz</p>
+      <p class="card-text">Exercise Frequency: <%= exercise %> <input type="text" name="exerciseCount" value="<%= exerciseCount %>"  readonly > times</p>
     </div>
   </div>
 
@@ -29,17 +29,11 @@
         Analysis
       </div>
       <div>
-        <p class="card-text">Sleep Efficiency: <%= sleepEfficiency %> %</p>
+        <p class="card-text">Sleep Efficiency:<input type="text" name="sleepEfficiency" value="<%= sleepEfficiency %>"  readonly >  %</p>
       </div>
-      <div class="card-body">
-        <p>facts: </p>
-        <!-- <ul class="list-group list-group-flush">
-           tips.forEach(function(tip) { 
-            <li class="list-group-item"> = tip.trim() </li>
-           }); 
-        </ul> -->
-      </div>
+      <button type="submit" id="analysis" class="btn btn-primary">view more</button>
     </div>
+  </form>
    <!-- }   -->
 
   <a href="/main" class="btn btn-primary">Go back to Home</a>

@@ -146,6 +146,14 @@ app.post('/profile', async (req, res) => {
     }
   );
 
+  // Calculate the updated age
+  const currentDate = new Date();
+  const updatedBirthday = new Date(req.body.birthday);
+  const updatedAge = currentDate.getFullYear() - updatedBirthday.getFullYear();
+
+  // Update the age in the session
+  req.session.age = updatedAge;
+
   req.session.name = req.body.name;
 
   req.session.birthday = req.body.birthday,
@@ -181,6 +189,12 @@ app.post("/submitUser", async (req, res) => {
     birthday: Joi.date().required(),
   }).options({ abortEarly: false }); // check all fields before returning
 
+// Calculate the age
+const currentDate = new Date();
+const birthdayDate = new Date(birthday);
+const age = currentDate.getFullYear() - birthdayDate.getFullYear();
+
+
   const validationResult = schema.validate({ name, email, password, birthday });
 
   if (validationResult.error != null) {
@@ -211,6 +225,24 @@ app.post("/submitUser", async (req, res) => {
     return;
   }
 
+  const today = new Date();
+  const minAge = 9;
+  const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
+
+  // Parse the birthday input string into a Date object
+  var birthday = new Date(req.body.birthday);
+
+  // Validate the birthday
+  if (isNaN(birthday.getTime()) || birthday > today) {
+    res.render("signup_error", { error: "Invalid birthday" });
+    return;
+  }
+  
+  if (birthday > minDate) {
+    res.render("signup_error", { error: "Invalid birthday" });
+    return;
+  }
+
   // hash password
   var hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -223,6 +255,9 @@ app.post("/submitUser", async (req, res) => {
     token: "", // empty field for password reset token
   });
 
+
+  // Store age in the session
+  req.session.age = age;
   // successful signup - log in user and redirect to main page
   req.session.authenticated = true;
   req.session.name = name;
@@ -941,9 +976,32 @@ const data = [
 
 ]
 
-analysisCollection.insertMany(data);
-analysisCollection.deleteMany({});
+async function updateData() {
+  try {
+    // Assuming you have established a connection to your MongoDB database
 
+    // Define the update operation for each data object
+    const updateOperations = data.map((obj) => ({
+      updateOne: {
+        filter: { age_range: obj.age_range },
+        update: { $setOnInsert: obj },
+        upsert: true,
+      },
+    }));
+
+    // Perform the update operation
+    await analysisCollection.bulkWrite(updateOperations, { ordered: false });
+
+    console.log("Data inserted or updated successfully.");
+  } catch (error) {
+    console.error("Error inserting or updating data:", error);
+  } finally {
+    // Close the database connection or perform any cleanup tasks if necessary
+  }
+}
+
+// Call the async function to update the data
+updateData();
 
 app.get('/calculateAge', sessionValidation, (req, res) => {
   const birthday = new Date(req.session.birthday);
@@ -958,10 +1016,182 @@ app.get('/calculateAge', sessionValidation, (req, res) => {
 
   // Display the age
   console.log("Age:", age);
+  req.session.age = age;
+  console.log(req.session.age);
 
   // Respond with the age
   res.send(`Age: ${age}`);
 });
+
+const factorsData = require('./app/data/facts.json');
+app.post('/analysis', sessionValidation, async (req, res) => {
+  const age = req.session.age.toString();
+  const results = await analysisCollection
+    .find({ $or: [{ age_range: { $regex: new RegExp(`^(\\d+)-`) } }, { age_range: { $eq: '65+' } }] })
+    .project({ age_range: 1, Awakenings: 1, Caffeine_consumption: 1, Alcohol_consumption: 1, Exercise_frequency: 1, Intercept: 1 })
+    .toArray();
+
+  if (results.length === 0) {
+    console.error('No matching age category found');
+    return res.status(400).send('No matching age category found');
+  }
+
+  const matchingRange = results.find((result) => {
+    if (result.age_range === '65+') {
+      return age >= 65;
+    } else {
+      const [startAge, endAge] = result.age_range.split('-');
+      return age >= parseInt(startAge) && age <= parseInt(endAge);
+    }
+  });
+
+  if (!matchingRange) {
+    console.error('No matching age range found');
+    return res.status(400).send('No matching age range found');
+  }
+
+  console.log('Matching age range:', matchingRange);
+
+  // Perform further analysis or calculations based on the matching range
+
+  // Respond with the matching range
+  const intercept = matchingRange.Intercept * 100;
+  // from body
+  const caffeineCount = req.body.caffeineCount;
+  const WakeupCount = parseInt(req.body.wakeupCount);
+  const alcoholCount = req.body.alcoholCount;
+  const exerciseCount = req.body.exerciseCount;
+  console.log(caffeineCount,WakeupCount,alcoholCount,exerciseCount);
+  // Extract factor values from the MongoDB matching range
+  const caffeineFromDB = matchingRange.Caffeine_consumption;
+  const awakeningsFromDB = matchingRange.Awakenings;
+  const alcoholFromDB = matchingRange.Alcohol_consumption;
+  const exerciseFromDB = matchingRange.Exercise_frequency;
+
+  // Calculate the products
+  const caffeineProduct = caffeineCount * caffeineFromDB;
+  const awakeningProduct = WakeupCount * awakeningsFromDB;
+  const alcoholProduct = alcoholCount * alcoholFromDB;
+  const exerciseProduct = exerciseCount * exerciseFromDB;
+
+
+  // Determine which product is more negative
+  let mostNegativeFactor;
+  let factor;
+  if (caffeineProduct <= awakeningProduct && caffeineProduct <= alcoholProduct && caffeineProduct <= exerciseProduct) {
+    mostNegativeFactor = 'Caffeine';
+    facts = factorsData.caffeine;
+    factor = caffeineProduct;
+  } else if (awakeningProduct <= caffeineProduct && awakeningProduct <= alcoholProduct && awakeningProduct <= exerciseProduct) {
+    mostNegativeFactor = 'WakeupCount';
+    facts = factorsData.awaking;
+    factor = awakeningProduct;
+  } else if (alcoholProduct <= caffeineProduct && alcoholProduct <= awakeningProduct && alcoholProduct <= exerciseProduct) {
+    mostNegativeFactor = 'Alcohol';
+    facts = factorsData.alcohol;
+    factor = alcoholProduct;
+  } else {
+    mostNegativeFactor = 'Exercise';
+    facts = factorsData.exercise;
+    factor = exerciseProduct;
+  }
+const finalFactor = Math.abs(factor) * 100;
+
+
+  console.log('Caffeine product:', caffeineProduct);
+  console.log('Awakening product:', awakeningProduct);
+  console.log('Alcohol product:', alcoholProduct);
+  console.log('Exercise product:', exerciseProduct);
+  console.log('Most negative factor:', mostNegativeFactor);
+  console.log(caffeineCount);
+
+// most negative factor from from database
+let mostNegativeFactorFromDB;
+let factorFromDB;
+
+if (caffeineFromDB <= awakeningsFromDB && caffeineFromDB <= alcoholFromDB && caffeineFromDB <= exerciseFromDB) {
+  mostNegativeFactorFromDB = 'Caffeine';
+  factorFromDB = caffeineFromDB;
+  facts = factorsData.caffeine;
+} else if (awakeningsFromDB <= caffeineFromDB && awakeningsFromDB <= alcoholFromDB && awakeningsFromDB <= exerciseFromDB) {
+  mostNegativeFactorFromDB = 'Awakenings';
+  factorFromDB = awakeningsFromDB;
+  facts = factorsData.awaking;
+} else if (alcoholFromDB <= caffeineFromDB && alcoholFromDB <= awakeningsFromDB && alcoholFromDB <= exerciseFromDB) {
+  mostNegativeFactorFromDB = 'Alcohol';
+  factorFromDB = alcoholFromDB;
+  factor = alcoholProduct;
+} else {
+  mostNegativeFactorFromDB = 'Exercise';
+  factorFromDB = exerciseFromDB;
+  facts = factorsData.exercise;
+}
+
+console.log('Most negative factor from db :', mostNegativeFactorFromDB);
+  // Shuffle the facts array
+const shuffledFacts = facts.sort(() => Math.random() - 0.5);
+
+// Take the first two randomly picked facts
+const relevantFacts = shuffledFacts.slice(0, 2).map((fact) => ({
+  reason: fact.reason,
+  explanation: fact.explanation,
+}));
+  
+
+  const sleepEfficiency = req.body.sleepEfficiency;
+  const difference = intercept - sleepEfficiency ;
+  if (
+    caffeineCount == 0 &&
+    WakeupCount == 0 &&
+    alcoholCount == 0 &&
+    exerciseCount == 0 && sleepEfficiency < intercept
+  ) {
+    // Render a different page when all factor values are zero
+    res.render("analysisThree", {
+      Intercept: intercept,
+      SleepEfficiency: sleepEfficiency,
+      MostNegativeFactor: mostNegativeFactorFromDB,
+      RelevantFacts: relevantFacts,
+      Difference: difference
+    });
+  } 
+ 
+ else  if (matchingRange.age_range === '9-12' && sleepEfficiency < intercept) {
+   
+    res.render("analysisOne", {
+    
+      Intercept: intercept,
+      SleepEfficiency: sleepEfficiency,
+      MostNegativeFactor: mostNegativeFactor,
+      RelevantFacts: relevantFacts,
+      Difference: difference
+      
+    });
+  }else if(sleepEfficiency > intercept){
+    res.render("analysisTwo", {
+      Intercept: intercept,
+      SleepEfficiency: sleepEfficiency,
+      MostNegativeFactor: mostNegativeFactorFromDB,
+      RelevantFacts: relevantFacts
+    });
+    
+
+  }
+   else {
+
+
+    // Render the analysis template with the calculated sleep efficiency, intercept value, most negative factor, and relevant facts
+    res.render("analysis", {
+      Intercept: intercept,
+      SleepEfficiency: sleepEfficiency,
+      MostNegativeFactor: mostNegativeFactor,
+      RelevantFacts: relevantFacts,
+      Difference: difference,
+      Factor :finalFactor
+    });
+  }
+});
+
 
 
 
