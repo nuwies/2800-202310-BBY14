@@ -846,7 +846,7 @@ app.post('/reportProblem', sessionValidation, async (req, res) => {
 
   const schema = Joi.object({
 
-    problemText: Joi.string().max(100).required(),
+    problemText: Joi.string().max(300).required(),
   }).options({ abortEarly: false });
 
   const validationResult = schema.validate({ problemText });
