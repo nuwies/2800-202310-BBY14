@@ -9,65 +9,73 @@
                         <br><br>
 
                         <div class="media-body ml-4">
-                            <label class="btn btn-outline-primary button1">
-                                Upload new photo
-
-                                <input type="file" id="mypic-input" class="account-settings-fileinput" accept="image/*"
-                                    style="display:none;" />
-                            </label>
-                            <button type="button" class="btn btn-primary button2">Save </button>
 
 
-
-
-                            <div class="small mt-1">Allowed image types: JPG, GIF or PNG. Max size of 800K.</div>
-                        </div>
-                    </div>
-                    <hr class="border-light m-0">
-                    <!-- <fieldset class="mb-3" id="personalInfoFields" disabled> -->
-                    <form id="profileForm" method="POST" action="/profile">
-
-
-
-                        <div class="card-body">
-
-                            <div class="form-group">
-                                <label class="form-label">Name</label>
-                                <input id="nameInput" type="text" class="form-control" placeholder="enter your name"
-                                    name="name" value="<%= name%>" <% if (!isEditing) { %>disabled<% } %>>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Email</label>
-                                <input id="bioInput" type="text" class="form-control mb-1" placeholder="enter email"
-                                    value="<%= email%>" disabled>
-
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Date of Birth</label>
-                                <input id="dateInput" type="date" class="form-control" placeholder="enter DOB"
-                                   name="birthday" value="<%= birthday%>" <% if (!isEditing) { %>disabled<% } %>>
-                            </div>
+                            <button type="button" class="btn btn-primary button2" onclick="showProfileImages()">Choose
+                                Image</button>
                             <br>
 
-                            <% if (!isEditing) { %>
-                               
-                                <button type="button" class="btn btn-outline-primary button1"
-                                    onclick="window.location.href='/profile?edit=true'">Edit profile</button>
-                                <% } else { %>
-                                    <button type="submit" class="btn btn-primary button1">Update Profile</button>&nbsp;
-                                    <button type="button" class="btn btn-outline-primary button2"
-                                        onclick="window.location.href='/profile'">Cancel</button>
-                                    <% } %>
+                            <!-- Profile image options -->
+                            <div id="profile-images" style="display:none;margin-top: 20px;">
+                                <img src="/profileImages/profilepic1.png" width="50" height="50"
+                                    onclick="setProfileImage('/profileImages/profilepic1.png')" />
+                                <img src="/profileImages/profilepic2.png" width="50" height="50"
+                                    onclick="setProfileImage('/profileImages/profilepic2.png')" />
+                                <img src="/profileImages/profilepic3.png" width="50" height="50"
+                                    onclick="setProfileImage('/profileImages/profilepic3.png')" />
+                                <img src="/profileImages/profilepic4.png" width="50" height="50"
+                                    onclick="setProfileImage('/profileImages/profilepic4.png')" />
+                                <img src="/profileImages/profilepic5.png" width="50" height="50"
+                                    onclick="setProfileImage('/profileImages/profilepic5.png')" />
+                                <img src="profile_dummy.png" width="50" height="50"
+                                    onclick="setProfileImage('profile_dummy.png')" />
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <hr class="border-light m-0">
+                <!-- <fieldset class="mb-3" id="personalInfoFields" disabled> -->
+                <form id="profileForm" method="POST" action="/profile">
+
+
+
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input id="nameInput" type="text" class="form-control" placeholder="enter your name"
+                                name="name" value="<%= name%>" <% if (!isEditing) { %>disabled<% } %>>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input id="bioInput" type="text" class="form-control mb-1" placeholder="enter email"
+                                value="<%= email%>" disabled>
 
                         </div>
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <input id="dateInput" type="date" class="form-control" placeholder="enter DOB"
+                                name="birthday" value="<%= birthday%>" <% if (!isEditing) { %>disabled<% } %>>
+                        </div>
+                        <br>
 
-                </div>
-                </form>
+                        <% if (!isEditing) { %>
+
+                            <button type="button" class="btn btn-outline-primary button1"
+                                onclick="window.location.href='/profile?edit=true'">Edit profile</button>
+                            <% } else { %>
+                                <button type="submit" class="btn btn-primary button1">Update Profile</button>&nbsp;
+                                <button type="button" class="btn btn-outline-primary button2"
+                                    onclick="window.location.href='/profile'">Cancel</button>
+                                <% } %>
+
+                    </div>
+
             </div>
+            </form>
         </div>
-
-
-
 
 
         <!-- <button type="submit" class="btn btn-primary">Save Profile</button>&nbsp; -->
@@ -91,7 +99,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="deleteModal">Confirm Account Deletion</h5>
-                        
+
                     </div>
                     <div class="modal-body">
                         Are you sure you want to delete your account? This action cannot be undone.
@@ -105,30 +113,56 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- JavaScript code -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-        <script>
-            $(function () {
-                $('#delete-btn').click(function () {
-                    $('#confirm-delete').modal('show');
-                });
-
-                $('#confirm-delete-btn').click(function () {
-                    $('#delete-form').submit();
-                });
-                $('#cancel-delete').click(function () {
-                    $('#confirm-delete').modal('hide');
-                });
-                $('#confirm-delete').on('hidden.bs.modal', function () {
-                    // Clear the form data when the modal is closed
-                    $('#delete-form')[0].reset();
-                });
+    <!-- JavaScript code -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            $('#delete-btn').click(function () {
+                $('#confirm-delete').modal('show');
             });
-        </script>
 
-        
+            $('#confirm-delete-btn').click(function () {
+                $('#delete-form').submit();
+            });
+            $('#cancel-delete').click(function () {
+                $('#confirm-delete').modal('hide');
+            });
+            $('#confirm-delete').on('hidden.bs.modal', function () {
+                // Clear the form data when the modal is closed
+                $('#delete-form')[0].reset();
+            });
+        });
+
+        var storedImage = localStorage.getItem('profileImage');
+
+
+        // If a profile image is stored, set it as the source for the placeholder image
+        if (storedImage) {
+            var profileImage = document.getElementById('mypic-goes-here');
+            profileImage.src = storedImage;
+        }
+
+        function showProfileImages() {
+            var profileImages = document.getElementById('profile-images');
+            profileImages.style.display = 'block';
+        }
+
+        function setProfileImage(imageUrl) {
+            var profileImage = document.getElementById('mypic-goes-here');
+            profileImage.src = imageUrl;
+
+            // Store the selected image URL in the local storage
+            localStorage.setItem('profileImage', imageUrl);
+
+            var profileImages = document.getElementById('profile-images');
+            profileImages.style.display = 'none';
+        }
+
+
+    </script>
 
 
 
@@ -136,4 +170,6 @@
 
 
 
-        <%- include("templates/footer") %>
+
+
+    <%- include("templates/footer") %>
