@@ -1,3 +1,20 @@
+//easter egg page music
+window.addEventListener('DOMContentLoaded', function () {
+  var audio = document.getElementById("myAudio");
+  var muteButton = document.getElementById("muteButton");
+
+  muteButton.addEventListener('click', function() {
+    if (audio.muted) {
+      audio.muted = false;
+      muteButton.innerHTML = '<svg class="bi" width="24" height="24"><use xlink:href="#unmute"></use></svg>';
+    } else {
+      audio.muted = true;
+      muteButton.innerHTML = '<svg class="bi" width="24" height="24"><use xlink:href="#mute"></use></svg>';
+    }
+  });
+});
+
+
 // facts_page random tips
 function getRandomTip() {
   fetch('/tips-data')
