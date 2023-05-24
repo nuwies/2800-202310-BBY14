@@ -43,7 +43,7 @@ const userCollection = database.db(mongodb_database).collection("users");
 const reportCollection = database.db(mongodb_database).collection("reports");
 const reportProblem = database.db(mongodb_database).collection("reportProblem");
 const analysisCollection = database.db(mongodb_database).collection("analysisCollection");
-
+const goalCollection = database.db(mongodb_database).collection("goals");
 
 app.set("view engine", "ejs");
 
@@ -959,35 +959,70 @@ async function calculateSleepEfficiencyData(name) {
   return reports.map(report => ({ date: report.date, sleepEfficiency: report.sleepEfficiency }));
 }
 
+// Helper function to provide a status for the goal
+function calculateGoalStatus(targetDate, sleepEfficiencyGoal, averageSleepEfficiency) {
+  const currentDate = new Date();
+  averageSleepEfficiency = Math.round(averageSleepEfficiency);
+  
+  if (!targetDate || targetDate === '') {
+    return 'No goal set. Set a sleep efficiency goal to track your progress!';
+  } else if (currentDate > new Date(targetDate)) {
+    if (averageSleepEfficiency >= sleepEfficiencyGoal) {
+      return 'Congratulations! You achieved your sleep efficiency goal in time!';
+    } else {
+      return "You didn't reach your sleep efficiency goal in time. Keep going!";
+    }
+  } else if (currentDate < new Date(targetDate)) {
+    return 'Keep going! You are still working towards your sleep efficiency goal.';
+  } else {
+    if (averageSleepEfficiency >= sleepEfficiencyGoal) {
+      return 'Congratulations! You achieved your sleep efficiency goal!';
+    } else {
+      return "You didn't reach your sleep efficiency goal. Keep going!";
+    }
+  }
+}
+
 app.get("/stats", sessionValidation, async (req, res) => {
   const name = req.session.name;
+  const userId = req.session._id; 
+
   const sleepEfficiencyData = await calculateSleepEfficiencyData(name);
   const sleepEfficiencies = sleepEfficiencyData.map(data => data.sleepEfficiency);
   const dates = sleepEfficiencyData.map(data => data.date);
   const averageSleepEfficiency = sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
 
-  // Check if the user has set a sleep score goal
-  let sleepEfficiencyGoal = req.session.sleepEfficiencyGoal;
-  if (!sleepEfficiencyGoal) {
-    sleepEfficiencyGoal = '';
-  }
+  // Retrieve the sleep efficiency goal and target date from the 'goals' collection
+  const goalDocument = await goalCollection.findOne({ userId: userId });
 
-  // Retrieve the target date from the session
-  const targetDate = req.session.targetDate || '';
+  let sleepEfficiencyGoal = '';
+  let targetDate = '';
+  let goalMessage = '';
+
+  if (goalDocument) {
+    sleepEfficiencyGoal = goalDocument.sleepEfficiencyGoal || '';
+    targetDate = goalDocument.targetDate || '';
+    goalMessage = calculateGoalStatus(targetDate, sleepEfficiencyGoal, averageSleepEfficiency);
+  } else {
+    goalMessage = calculateGoalStatus('', '', averageSleepEfficiency);
+  }
 
   res.render("stats", {
     name: name,
     averageSleepEfficiency: averageSleepEfficiency,
     sleepEfficiencyGoal: sleepEfficiencyGoal,
-    updatedSleepEfficiencyGoal: req.query.sleepEfficiencyGoal, // Add the updated goal as a rendering variable
-    sleepEfficiencies: JSON.stringify(sleepEfficiencies), // Pass sleepEfficiencies as a JSON string
-    dates: JSON.stringify(dates), // Pass dates as a JSON string
-    targetDate: targetDate // Pass the target date as a rendering variable
+    updatedSleepEfficiencyGoal: req.query.sleepEfficiencyGoal,
+    sleepEfficiencies: JSON.stringify(sleepEfficiencies),
+    dates: JSON.stringify(dates),
+    targetDate: targetDate,
+    goalMessage: goalMessage // Add the goal message as a rendering variable
   });
 });
 
 app.post("/updateGoal", sessionValidation, async (req, res) => {
   const name = req.session.name;
+  const userId = req.session._id;
+
   let sleepEfficiencyGoal = req.body.goal;
   let targetDate = req.body.targetDate;
 
@@ -995,8 +1030,27 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
   if (sleepEfficiencyGoal !== '') {
     const sleepEfficiencyGoalNumber = parseInt(sleepEfficiencyGoal);
     if (!isNaN(sleepEfficiencyGoalNumber) && sleepEfficiencyGoalNumber >= 0 && sleepEfficiencyGoalNumber <= 100) {
-      req.session.sleepEfficiencyGoal = sleepEfficiencyGoalNumber;
-      req.session.targetDate = targetDate; // Save the targetDate in the session
+      // Check if a goal document already exists for the user
+      const existingGoal = await goalCollection.findOne({ userId: userId });
+
+      if (existingGoal) {
+        // Update the existing goal document
+        await goalCollection.updateOne(
+          { userId: userId },
+          { $set: { sleepEfficiencyGoal: sleepEfficiencyGoalNumber, targetDate: targetDate } }
+        );
+      } else {
+        // Create a new goal document for the user
+        await goalCollection.insertOne({
+          userId: userId,
+          sleepEfficiencyGoal: sleepEfficiencyGoalNumber,
+          targetDate: targetDate
+        });
+      }
+
+      req.session.sleepEfficiencyGoal = sleepEfficiencyGoalNumber; // Update the session with the new goal
+      req.session.targetDate = targetDate; // Update the session with the new target date
+
       res.redirect("/stats?sleepEfficiencyGoal=" + sleepEfficiencyGoalNumber);
       return;
     }
@@ -1010,14 +1064,23 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
 
   const averageSleepEfficiency = sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
 
+  let goalMessage = '';
+
+  if (targetDate) {
+    goalMessage = calculateGoalStatus(targetDate, sleepEfficiencyGoal, averageSleepEfficiency);
+  } else {
+    goalMessage = calculateGoalStatus('', sleepEfficiencyGoal, averageSleepEfficiency);
+  }
+
   res.render("stats", {
     name: name,
     averageSleepEfficiency: averageSleepEfficiency,
     sleepEfficiencyGoal: sleepEfficiencyGoal,
-    targetDate: targetDate, // Pass targetDate as a rendering variable
+    targetDate: targetDate,
     updatedSleepEfficiencyGoal: '',
     sleepEfficiencies: JSON.stringify(sleepEfficiencies),
-    dates: JSON.stringify(dates)
+    dates: JSON.stringify(dates),
+    goalMessage: goalMessage // Add the goal message as a rendering variable
   });
 });
 
