@@ -1,19 +1,19 @@
 <%- include("templates/header_goback") %>
 
-    <!-- Dream Pics -->
-    <!-- <div class="px-4 mb-3 text-center">
-        <div class="col-lg-6 px-2 py-3 mx-auto text-center" style="background-color: #f1f1f19b;">
-
-            <img id="dream-pic" src="" alt="Random Dream Pic" width="300" class="d-block mx-auto my-4">
-
-            <button type="button" class="mt-2 btn btn-outline-secondary justify-content-sm-center"
-                onclick="getRandomDreamPic();">Next One</button>
-        </div>
-    </div> -->
-
     <div class="px-4 mb-5 text-center">
-        <h1 class="display-5 fw-bold headline">Let's play a puzzle!</h1>
-        <div class="col-lg-6 px-2 py-3 mx-auto" style="display: block; box-shadow: 5px 5px 5px grey; cursor: pointer;  background-color: #f1f1f19b;">
+        <h1 class="display-5 fw-bold headline">
+            Let's play a puzzle!
+
+            <a id="muteButton" style="text-decoration: none;" class="btn btn-link btn-floating text-dark m-2"
+                role="button" data-mdb-ripple-color="dark">
+                <svg class="bi" width="30" height="30">
+                    <use xlink:href="#unmute"></use>
+                </svg>
+            </a>
+        </h1>
+
+        <div class="col-lg-6 px-2 py-3 mx-auto"
+            style="display: block; box-shadow: 5px 5px 5px grey; cursor: pointer;  background-color: #f1f1f19b;">
             <canvas id="puzzle"></canvas>
         </div>
         <div id="congratulationsText" class="px-2 pt-4 pb-5 mb-5">
@@ -22,5 +22,7 @@
         </div>
     </div>
 
+    <!-- hidden audio -->
+    <audio id="myAudio" src="music/easter_egg_music.m4a" autoplay loop></audio>
 
-<%- include("templates/footer") %>
+    <%- include("templates/footer") %>
