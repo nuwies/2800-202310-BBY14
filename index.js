@@ -189,10 +189,10 @@ app.post("/submitUser", async (req, res) => {
     birthday: Joi.date().required(),
   }).options({ abortEarly: false }); // check all fields before returning
 
-// Calculate the age
-const currentDate = new Date();
-const birthdayDate = new Date(birthday);
-const age = currentDate.getFullYear() - birthdayDate.getFullYear();
+  // Calculate the age
+  const currentDate = new Date();
+  const birthdayDate = new Date(birthday);
+  const age = currentDate.getFullYear() - birthdayDate.getFullYear();
 
 
   const validationResult = schema.validate({ name, email, password, birthday });
@@ -530,7 +530,29 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   let caffeineCount;
   if (caffeine === "No") {
     caffeineCount = 0;
-  } else if (req.body.caffeine === "10+ mg") {
+    // } else if (req.body.caffeine === "10+ mg") {
+    //   caffeineCount = 10;
+
+    //store caffeinecount as 10 levels on mongoDB
+  } else if (req.body.caffeinecount === "25 mg (1/3 cup)") {
+    caffeineCount = 1;
+  } else if (req.body.caffeinecount === "50 mg (2/3 cup)") {
+    caffeineCount = 2;
+  } else if (req.body.caffeinecount === "75 mg (1 cup)") {
+    caffeineCount = 3;
+  } else if (req.body.caffeinecount === "100 mg (1 1/3 cup)") {
+    caffeineCount = 4;
+  } else if (req.body.caffeinecount === "125 mg (1 2/3 cup)") {
+    caffeineCount = 5;
+  } else if (req.body.caffeinecount === "150 mg (2 cup)") {
+    caffeineCount = 6;
+  } else if (req.body.caffeinecount === "175 mg (2 1/3 cup)") {
+    caffeineCount = 7;
+  } else if (req.body.caffeinecount === "200 mg (2 2/3 cup)") {
+    caffeineCount = 8;
+  } else if (req.body.caffeinecount === "225 mg (3 cup)") {
+    caffeineCount = 9;
+  } else if (req.body.caffeinecount === "250+ mg (3 1/3+ cup)") {
     caffeineCount = 10;
   } else {
     caffeineCount = parseInt(req.body.caffeinecount);
@@ -577,34 +599,16 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     return { hour, minute };
   }
 
-  // function calculateSleepDuration(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm, wakeupHourInt, wakeupMinuteInt, wakeupAmPm) {
-  //   // Convert bedtime to 24-hour format
-  //   const bedtime = convertTo24HourFormat(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm);
-
-  //   // Convert wakeup time to 24-hour format
-  //   const wakeup = convertTo24HourFormat(wakeupHourInt, wakeupMinuteInt, wakeupAmPm);
-
-  //   // Calculate the time difference
-  //   let sleepDurationMin = (wakeup.hour * 60 + wakeup.minute) - (bedtime.hour * 60 + bedtime.minute);
-
-  //   // Subtract additional minutes
-  //   if (sleepDurationMin < 0) {
-  //     sleepDurationMin += 24 * 60; // Add 24 hours if the wakeup time is before the bedtime
-  //   }
-
-  //   return sleepDurationMin;
-  // }
-
   function calculateSleepDuration(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm, wakeupHourInt, wakeupMinuteInt, wakeupAmPm) {
     // Convert bedtime to 24-hour format
     const bedtime = convertTo24HourFormat(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm);
-  
+
     // Convert wakeup time to 24-hour format
     const wakeup = convertTo24HourFormat(wakeupHourInt, wakeupMinuteInt, wakeupAmPm);
-  
+
     // Calculate the time difference
     let sleepDurationMin = 0;
-  
+
     if (wakeup.hour > bedtime.hour || (wakeup.hour === bedtime.hour && wakeup.minute >= bedtime.minute)) {
       // The wakeup time is after the bedtime on the same day
       sleepDurationMin = (wakeup.hour * 60 + wakeup.minute) - (bedtime.hour * 60 + bedtime.minute);
@@ -612,11 +616,9 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
       // The wakeup time is before the bedtime, so it's on the next day
       sleepDurationMin = (wakeup.hour * 60 + wakeup.minute) + (24 * 60) - (bedtime.hour * 60 + bedtime.minute);
     }
-  
+
     return sleepDurationMin;
   }
-  
-
 
   // Create a new report object with the current date and time
   const currentDate = new Date();
@@ -665,10 +667,12 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     try {
       const result = await reportCollection.insertOne(report);
       console.log(`Inserted report with ID ${result.insertedId}`);
-      // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
 
-      // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${encodeURIComponent(tipsString)}&date=${encodeURIComponent(formattedDate)}`);
-      res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${encodeURIComponent(formattedDate)}`);
+      //convert back for displaying on page
+      convertToCaffeineOption(caffeineCount);
+
+      // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
+      res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineOption}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${encodeURIComponent(formattedDate)}`);
 
     } catch (error) {
       console.error(error);
@@ -749,11 +753,13 @@ app.post("/latestReport", sessionValidation, async (req, res) => {
 
   const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = latestReport;
 
-  // const tipsString = encodeURIComponent(tips);
   const formattedDate = encodeURIComponent(date);
 
+  //convert back for displaying on page
+  convertToCaffeineOption(caffeineCount);
+
   // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}&date=${formattedDate}`);
-  res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
+  res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineOption}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
 });
 
 
@@ -767,7 +773,7 @@ app.post("/about", (req, res) => {
   if (clickCount === 3) {
     clickCount = 0;
     return res.send("<script>alert('Would you like to see something interesting?'); window.location.href='/easter_egg'</script>");
-  } 
+  }
   else {
     return res.redirect("/about");
   }
@@ -776,13 +782,6 @@ app.post("/about", (req, res) => {
 app.get("/easter_egg", (req, res) => {
   res.render("easter_egg");
 });
-
-// //read the dream pics data
-// app.get('/dreamPic-data', sessionValidation, function (req, res) {
-//   const DreamPicData = require('./app/data/dream_pics.json');
-//   res.json(DreamPicData);
-// });
-
 
 app.get("/facts", sessionValidation, (req, res) => {
   res.render("facts");
@@ -836,8 +835,55 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
 
   const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = report;
   const formattedDate = encodeURIComponent(date);
-  res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineCount}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
+
+  //convert back for displaying on page
+  convertToCaffeineOption(caffeineCount);
+
+  res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineOption}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
 });
+
+//convert back for displaying on page
+let caffeineOption;
+function convertToCaffeineOption(caffeineCount) {
+  switch (caffeineCount) {
+    case 0:
+      caffeineOption = 0;
+      break;
+    case 1:
+      caffeineOption = 25;
+      break;
+    case 2:
+      caffeineOption = 50;
+      break;
+    case 3:
+      caffeineOption = 75;
+      break;
+    case 4:
+      caffeineOption = 100;
+      break;
+    case 5:
+      caffeineOption = 125;
+      break;
+    case 6:
+      caffeineOption = 150;
+      break;
+    case 7:
+      caffeineOption = 175;
+      break;
+    case 8:
+      caffeineOption = 200;
+      break;
+    case 9:
+      caffeineOption = 225;
+      break;
+    case 10:
+      caffeineOption = 250;
+      break;
+    default:
+      caffeineOption = 0; // Default to "No" if the input is not within the expected range
+      break;
+  }
+}
 
 //delete report
 app.post('/report_list/delete/:id', sessionValidation, async (req, res) => {
@@ -1125,7 +1171,7 @@ app.post('/analysis', sessionValidation, async (req, res) => {
   const WakeupCount = parseInt(req.body.wakeupCount);
   const alcoholCount = req.body.alcoholCount;
   const exerciseCount = req.body.exerciseCount;
-  console.log(caffeineCount,WakeupCount,alcoholCount,exerciseCount);
+  console.log(caffeineCount, WakeupCount, alcoholCount, exerciseCount);
   // Extract factor values from the MongoDB matching range
   const caffeineFromDB = matchingRange.Caffeine_consumption;
   const awakeningsFromDB = matchingRange.Awakenings;
@@ -1159,7 +1205,7 @@ app.post('/analysis', sessionValidation, async (req, res) => {
     facts = factorsData.exercise;
     factor = exerciseProduct;
   }
-const finalFactor = Math.abs(factor) * 100;
+  const finalFactor = Math.abs(factor) * 100;
 
 
   console.log('Caffeine product:', caffeineProduct);
@@ -1169,41 +1215,41 @@ const finalFactor = Math.abs(factor) * 100;
   console.log('Most negative factor:', mostNegativeFactor);
   console.log(caffeineCount);
 
-// most negative factor from from database
-let mostNegativeFactorFromDB;
-let factorFromDB;
+  // most negative factor from from database
+  let mostNegativeFactorFromDB;
+  let factorFromDB;
 
-if (caffeineFromDB <= awakeningsFromDB && caffeineFromDB <= alcoholFromDB && caffeineFromDB <= exerciseFromDB) {
-  mostNegativeFactorFromDB = 'Caffeine';
-  factorFromDB = caffeineFromDB;
-  facts = factorsData.caffeine;
-} else if (awakeningsFromDB <= caffeineFromDB && awakeningsFromDB <= alcoholFromDB && awakeningsFromDB <= exerciseFromDB) {
-  mostNegativeFactorFromDB = 'Awakenings';
-  factorFromDB = awakeningsFromDB;
-  facts = factorsData.awaking;
-} else if (alcoholFromDB <= caffeineFromDB && alcoholFromDB <= awakeningsFromDB && alcoholFromDB <= exerciseFromDB) {
-  mostNegativeFactorFromDB = 'Alcohol';
-  factorFromDB = alcoholFromDB;
-  factor = alcoholProduct;
-} else {
-  mostNegativeFactorFromDB = 'Exercise';
-  factorFromDB = exerciseFromDB;
-  facts = factorsData.exercise;
-}
+  if (caffeineFromDB <= awakeningsFromDB && caffeineFromDB <= alcoholFromDB && caffeineFromDB <= exerciseFromDB) {
+    mostNegativeFactorFromDB = 'Caffeine';
+    factorFromDB = caffeineFromDB;
+    facts = factorsData.caffeine;
+  } else if (awakeningsFromDB <= caffeineFromDB && awakeningsFromDB <= alcoholFromDB && awakeningsFromDB <= exerciseFromDB) {
+    mostNegativeFactorFromDB = 'Awakenings';
+    factorFromDB = awakeningsFromDB;
+    facts = factorsData.awaking;
+  } else if (alcoholFromDB <= caffeineFromDB && alcoholFromDB <= awakeningsFromDB && alcoholFromDB <= exerciseFromDB) {
+    mostNegativeFactorFromDB = 'Alcohol';
+    factorFromDB = alcoholFromDB;
+    factor = alcoholProduct;
+  } else {
+    mostNegativeFactorFromDB = 'Exercise';
+    factorFromDB = exerciseFromDB;
+    facts = factorsData.exercise;
+  }
 
-console.log('Most negative factor from db :', mostNegativeFactorFromDB);
+  console.log('Most negative factor from db :', mostNegativeFactorFromDB);
   // Shuffle the facts array
-const shuffledFacts = facts.sort(() => Math.random() - 0.5);
+  const shuffledFacts = facts.sort(() => Math.random() - 0.5);
 
-// Take the first two randomly picked facts
-const relevantFacts = shuffledFacts.slice(0, 2).map((fact) => ({
-  reason: fact.reason,
-  explanation: fact.explanation,
-}));
-  
+  // Take the first two randomly picked facts
+  const relevantFacts = shuffledFacts.slice(0, 2).map((fact) => ({
+    reason: fact.reason,
+    explanation: fact.explanation,
+  }));
+
 
   const sleepEfficiency = req.body.sleepEfficiency;
-  const difference = Math.round(intercept - sleepEfficiency) ;
+  const difference = Math.round(intercept - sleepEfficiency);
 
   if (
     caffeineCount == 0 &&
@@ -1219,30 +1265,30 @@ const relevantFacts = shuffledFacts.slice(0, 2).map((fact) => ({
       RelevantFacts: relevantFacts,
       Difference: difference
     });
-  } 
- 
- else  if (matchingRange.age_range === '9-12' && sleepEfficiency < intercept) {
-   
+  }
+
+  else if (matchingRange.age_range === '9-12' && sleepEfficiency < intercept) {
+
     res.render("analysisOne", {
-    
+
       Intercept: intercept,
       SleepEfficiency: sleepEfficiency,
       MostNegativeFactor: mostNegativeFactor,
       RelevantFacts: relevantFacts,
       Difference: difference
-      
+
     });
-  }else if(sleepEfficiency > intercept){
+  } else if (sleepEfficiency > intercept) {
     res.render("analysisTwo", {
       Intercept: intercept,
       SleepEfficiency: sleepEfficiency,
       MostNegativeFactor: mostNegativeFactorFromDB,
       RelevantFacts: relevantFacts
     });
-    
+
 
   }
-   else {
+  else {
 
 
     // Render the analysis template with the calculated sleep efficiency, intercept value, most negative factor, and relevant facts
@@ -1252,7 +1298,7 @@ const relevantFacts = shuffledFacts.slice(0, 2).map((fact) => ({
       MostNegativeFactor: mostNegativeFactor,
       RelevantFacts: relevantFacts,
       Difference: difference,
-      Factor :finalFactor
+      Factor: finalFactor
     });
   }
 });
