@@ -9,6 +9,8 @@
             <p class="lead mb-2">
                 Hello, <span class="colored-text"><%- name %></span>!
               </p>
+
+              <img id="mypic-goes-here" src="profile_dummy.png" width="100" height="100" class="mb-4" />
             <p class="lead">Your most recent sleep efficiency: </p>
             <div class="infobox" id="sleepEfficiencyBox">
             <p class="lead mb-2">
@@ -34,5 +36,17 @@
     <br>
     <br>
     
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(function () {
+    var storedImage = localStorage.getItem('profileImage');
+
+    // If a profile image is stored, set it as the source for the profile image on the settings page
+    if (storedImage) {
+      var profileImage = document.getElementById('mypic-goes-here');
+      profileImage.src = storedImage;
+    }
+  });
+</script>
 
 <%- include("templates/footer") %>
