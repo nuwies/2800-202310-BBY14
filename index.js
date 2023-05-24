@@ -480,9 +480,37 @@ app.post('/users/:userId', async (req, res) => {
   }
 });
 
-app.get("/createreport", sessionValidation, (req, res) => {
-  res.render("createreport");
+app.get("/createreport", sessionValidation, async (req, res) => {
+  const email = req.session.email;
+
+  // Get today's date
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.toLocaleString('en-US', { month: 'long' });
+  const day = today.getDate();
+
+  // Format today's date as a string to match the stored format
+  const formattedTodayString = `${month} ${day}, ${year}`;
+
+  // Check if a report exists for the current date (ignoring time)
+  const existingReport = await reportCollection.findOne({
+    email: email,
+    date: { $regex: `^${formattedTodayString}` }
+  });
+
+  if (existingReport) {
+    // Report for today already exists
+    res.send("<script>alert('Report already exists for today'); window.location.href = '/report_list';</script>");
+    return;
+  } else {
+    // No report exists for today
+    res.render("createreport");
+  }
 });
+
+
+
+
 
 app.post("/submitreport", sessionValidation, async (req, res) => {
 
@@ -1232,7 +1260,7 @@ const relevantFacts = shuffledFacts.slice(0, 2).map((fact) => ({
       Difference: difference
       
     });
-  }else if(sleepEfficiency > intercept){
+  }else if(sleepEfficiency >= intercept){
     res.render("analysisTwo", {
       Intercept: intercept,
       SleepEfficiency: sleepEfficiency,
