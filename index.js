@@ -878,34 +878,34 @@ function convertToCaffeineOption(caffeineCount) {
       caffeineOption = 0;
       break;
     case 1:
-      caffeineOption = 25;
+      caffeineOption = "25 mg (1/3 cup)";
       break;
     case 2:
-      caffeineOption = 50;
+      caffeineOption = "50 mg (2/3 cup)";
       break;
     case 3:
-      caffeineOption = 75;
+      caffeineOption = "75 mg (1 cup)";
       break;
     case 4:
-      caffeineOption = 100;
+      caffeineOption = "100 mg (1 1/3 cup)";
       break;
     case 5:
-      caffeineOption = 125;
+      caffeineOption = "125 mg (1 2/3 cup)";
       break;
     case 6:
-      caffeineOption = 150;
+      caffeineOption = "150 mg (2 cup)";
       break;
     case 7:
-      caffeineOption = 175;
+      caffeineOption = "175 mg (2 1/3 cup)";
       break;
     case 8:
-      caffeineOption = 200;
+      caffeineOption = "200 mg (2 2/3 cup)";
       break;
     case 9:
-      caffeineOption = 225;
+      caffeineOption = "225 mg (3 cup)";
       break;
     case 10:
-      caffeineOption = 250;
+      caffeineOption = "250+ mg (3 1/3+ cup)";
       break;
     default:
       caffeineOption = 0; // Default to "No" if the input is not within the expected range
