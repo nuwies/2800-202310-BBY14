@@ -542,7 +542,7 @@ app.get("/createreport", sessionValidation, async (req, res) => {
 
   if (existingReport) {
     // Report for today already exists
-    res.send("<script>alert('Report already exists for today'); window.location.href = '/report_list';</script>");
+    res.send("<script>alert('A report already exists for today.'); window.location.href = '/report_list';</script>");
     return;
   } else {
     // No report exists for today
