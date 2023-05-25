@@ -7,6 +7,8 @@ const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
+const methodOverride = require('method-override');
+
 
 // SendGrid email service
 const sgMail = require("@sendgrid/mail");
@@ -64,6 +66,9 @@ app.use(
     resave: true,
   })
 );
+
+
+app.use(methodOverride('_method'));
 
 function sessionValidation(req, res, next) {
   if (req.session.authenticated) {
@@ -263,7 +268,7 @@ app.post("/submitUser", async (req, res) => {
   var hashedPassword = await bcrypt.hash(password, saltRounds);
 
   // insert user into database
-  await userCollection.insertOne({
+ const insertResult = await userCollection.insertOne({
     name: name,
     email: email,
     password: hashedPassword,
@@ -271,6 +276,12 @@ app.post("/submitUser", async (req, res) => {
     token: "", // empty field for password reset token
   });
 
+
+  
+
+// Store user ID in the session
+const userId = insertResult.insertedId.toString();
+req.session._id = userId;
 
   // Store age in the session
   req.session.age = age;
@@ -480,7 +491,7 @@ app.post('/change-password', sessionValidation, async (req, res) => {
 
 
 // deleting the user from the database.
-app.post('/users/:userId', async (req, res) => {
+app.delete('/users/:userId', async (req, res) => {
   const userId = req.params.userId;
 
   try {
@@ -489,12 +500,21 @@ app.post('/users/:userId', async (req, res) => {
       return res.status(404).send('User not found');
     }
 
-    res.redirect('/signup');
+    // End the session
+    req.session.destroy((error) => {
+      if (error) {
+        console.error('Error destroying session:', error);
+        return res.status(500).send('Server error');
+      }
+
+      res.redirect('/signup');
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send('Server error');
   }
 });
+
 
 app.get("/createreport", sessionValidation, async (req, res) => {
   const email = req.session.email;
