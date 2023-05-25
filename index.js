@@ -130,7 +130,23 @@ app.post('/profile', async (req, res) => {
     return;
   }
 
+  const today = new Date();
+  const minAge = 9;
+  const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
 
+  // Parse the birthday input string into a Date object
+  var birthdayNew = new Date(req.body.birthday);
+
+  // Validate the birthday
+  if (isNaN(birthdayNew.getTime()) || birthdayNew > today) {
+    res.render("profile_error", { error: "Invalid birthday" });
+    return;
+  }
+
+  if (birthdayNew > minDate) {
+    res.render("profile_error", { error: "Invalid birthday" });
+    return;
+  }
 
 
   await userCollection.updateOne(
