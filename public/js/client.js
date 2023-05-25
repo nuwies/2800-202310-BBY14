@@ -1,3 +1,12 @@
+//report_list
+const deleteReport = document.getElementById("deleteReport");
+if (deleteReport) {
+  function confirmDelete() {
+    return confirm("Are you sure you want to delete this report?");
+  }
+}
+
+
 //easter egg page music
 const audio = document.getElementById("myAudio");
 if (audio) {
@@ -109,11 +118,6 @@ if (exerciseDropdown) {
     }
   });
 }
-
-
-
-
-
 
 
 //puzzle
