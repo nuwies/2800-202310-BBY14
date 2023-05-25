@@ -297,3 +297,7 @@ body.dark-mode #congratulationsText {
   fill: red;
 }
 
+.required {
+  color: red;
+}
+
