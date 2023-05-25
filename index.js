@@ -460,6 +460,12 @@ app.post('/change-password', sessionValidation, async (req, res) => {
     req.flash('error', 'All fields are required');
     return res.redirect('/security');
   }
+
+  if (currentPassword === newPassword) {
+    req.flash('error', 'Current password and New password must not match');
+    return res.redirect('/security');
+  }
+
   if (newPassword !== confirmNewPassword) {
     req.flash('error', 'New password and confirm password must match');
     return res.redirect('/security');
