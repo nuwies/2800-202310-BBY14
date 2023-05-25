@@ -9,7 +9,7 @@
             <div class="alert alert-warning" role="alert">
                 It is recommended that individuals in your age group strive for a sleep efficiency of at least <%=
                     Intercept %>%. However, our analysis indicates that your current sleep efficiency falls below this
-                    target.(i.e <%=Difference%> % less than required)
+                    target.(i.e <%=Difference%> % less than required.)
             </div>
 
             <!-- <div class="alert alert-danger" role="alert">
@@ -18,7 +18,7 @@
 
             <div class="alert alert-success" role="alert">
                 <h2>Relevant Facts:</h2>
-                <h4>Most people in your age group are not strongly affected by the factors we analyzed. However, it seems like your sleep quality is lower than expected. Here are some tips to improve your sleep:</h4>
+                <h4>Most people in your age group are not strongly affected by the factors we analyzed. However, it seems like your sleep efficiency is lower than expected. Here are some tips to improve your sleep:</h4>
 <ol>
   <li>Maintain a consistent sleep schedule.</li>
   <li>Create a calming bedtime routine.</li>
@@ -29,7 +29,7 @@
   <br>
   
 
-<h4>Along with that you should also care about some other things, including <%=MostNegativeFactor%> because :</h4>
+<h4>Along with that you should also care about some other things, including <%=MostNegativeFactor%> because:</h4>
                 <% for (const fact of RelevantFacts) { %>
                     <h5>Reason: <%= fact.reason %>
                     </h5>
