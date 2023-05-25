@@ -546,8 +546,7 @@ app.get("/createreport", sessionValidation, async (req, res) => {
 
 
 
-
-
+var caffeineCount;
 app.post("/submitreport", sessionValidation, async (req, res) => {
 
   const userName = req.session.name;
@@ -591,7 +590,6 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     wakeupCountInt = parseInt(wakeupCount);
   }
 
-  let caffeineCount;
   if (caffeine === "No") {
     caffeineCount = 0;
     // } else if (req.body.caffeine === "10+ mg") {
@@ -1294,11 +1292,12 @@ app.post('/analysis', sessionValidation, async (req, res) => {
   // Respond with the matching range
   const intercept = matchingRange.Intercept * 100;
   // from body
-  const caffeineCount = req.body.caffeineCount;
+  // const caffeineCount = req.body.caffeineCount;
   const WakeupCount = parseInt(req.body.wakeupCount);
   const alcoholCount = req.body.alcoholCount;
   const exerciseCount = req.body.exerciseCount;
-  console.log(caffeineCount, WakeupCount, alcoholCount, exerciseCount);
+  console.log("caffeineCount", caffeineCount);
+  console.log(WakeupCount, alcoholCount, exerciseCount);
   // Extract factor values from the MongoDB matching range
   const caffeineFromDB = matchingRange.Caffeine_consumption;
   const awakeningsFromDB = matchingRange.Awakenings;
