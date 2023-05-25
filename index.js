@@ -723,7 +723,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   if (reportCount >= reportLimit) {
     // If the limit is reached, you can handle it accordingly
     console.log('Report limit reached');
-    return res.send("<script>alert('The report limit has reached 10! Please delete some reports in order to free up space.');window.location.href='/report_list'</script>");
+    return res.send("<script>alert('The report limit has reached the max amount of 10 reports! Please delete some reports in order to free up space.');window.location.href='/report_list'</script>");
   } else {
     // Save the report to the database
     try {
@@ -810,7 +810,7 @@ app.post("/latestReport", sessionValidation, async (req, res) => {
   console.log(latestReport);
 
   if (latestReport === null) {
-    return res.send("<script>alert('You don\\'t have report! Let\\'s get your first report now!');window.location.href='/createreport'</script>");
+    return res.send("<script>alert('You don\\'t have any reports! Let\\'s get your first report now!');window.location.href='/createreport'</script>");
   }
 
   const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = latestReport;
@@ -1003,10 +1003,10 @@ app.post('/reportProblem', sessionValidation, async (req, res) => {
     const result = await reportProblem.insertOne(report);
     console.log(`Inserted problem reported ${result}`);
 
-    res.send("<script>alert('Problem Reported succesfully');window.location.href='/problem'</script>")
+    res.send("<script>alert('Problem reported succesfully.');window.location.href='/problem'</script>")
   } catch (error) {
     console.error(error);
-    res.status(500).send('Error submitting report');
+    res.status(500).send('Error submitting report!');
   }
 });
 

@@ -9,7 +9,7 @@
             <div class="alert alert-warning" role="alert">
                 It is recommended that individuals in your age group strive for a sleep efficiency of at least <%=
                     Intercept %>%. However, our analysis indicates that your current sleep efficiency falls below this
-                    target.(i.e <%=Difference%> % less than required)
+                    target.(i.e <%=Difference%> % less than required.)
             </div>
 
             <!-- <div class="alert alert-danger" role="alert">
@@ -19,7 +19,7 @@
             <div class="alert alert-success" role="alert">
                 <h2>Relevant Facts:</h2>
                 <h4>While it's great that none of the factors analyzed are currently affecting your sleep efficiency,
-                    there are still some tips you can follow to further improve your sleep quality.
+                    there are still some tips you can follow to further improve your sleep efficiency.
                 </h4>
                 <ol>
                     <li>Maintain a consistent sleep schedule.</li>
@@ -31,8 +31,8 @@
                     <br>
 
 
-                    <h4>HOWEVER, it's important for individuals in this age group to keep paying attention to factors
-                        like <%= MostNegativeFactor %>, as this can have a significant impact on sleep quality.</h4>
+                    <h4>However, it's important for individuals in this age group to keep paying attention to factors
+                        like <%= MostNegativeFactor %>, as this can have a significant impact on sleep efficiency.</h4>
                     <% for (const fact of RelevantFacts) { %>
                         <h5>Reason: <%= fact.reason %>
                         </h5>
