@@ -28,7 +28,11 @@
                 <button type="submit" class="btn btn-primary button1">Update Goal</button>
               </form>              
             </div> 
-            <h5 class="my-4"><%- goalMessage %></h5>           
+            <% if (error === "InvalidDate") { %>
+              <p class="my-4 mx-2 error-message">Error: The target date must be at least one day ahead of the current day.</p>
+            <% } else { %>
+              <h5 class="my-4"><%- goalMessage %></h5>
+            <% } %>  
           </div>
         </div>
       </div>

@@ -962,7 +962,7 @@ async function calculateSleepEfficiencyData(name) {
     .project({ userName: 1, date: 1, sleepEfficiency: 1, _id: 0 })
     .sort({ date: 1 }) // Sort the reports in ascending order by date
     .toArray();
-  return reports.map(report => ({ date: report.date, sleepEfficiency: report.sleepEfficiency }));
+  return reports.map((report) => ({ date: report.date, sleepEfficiency: report.sleepEfficiency }));
 }
 
 // Helper function to provide a status for the goal
@@ -979,7 +979,11 @@ function calculateGoalStatus(targetDate, sleepEfficiencyGoal, averageSleepEffici
       return "You didn't reach your sleep efficiency goal in time. Keep going!";
     }
   } else if (currentDate < new Date(targetDate)) {
-    return "Keep going! You are still working towards your sleep efficiency goal.";
+    if (averageSleepEfficiency >= sleepEfficiencyGoal) {
+      return "Congratulations! You achieved your sleep efficiency goal!";
+    } else {
+      return "Keep going! You are still working towards your sleep efficiency goal.";
+    }
   } else {
     if (averageSleepEfficiency >= sleepEfficiencyGoal) {
       return "Congratulations! You achieved your sleep efficiency goal!";
@@ -994,21 +998,23 @@ app.get("/stats", sessionValidation, async (req, res) => {
   const userId = req.session._id;
 
   const sleepEfficiencyData = await calculateSleepEfficiencyData(name);
-  const sleepEfficiencies = sleepEfficiencyData.map(data => data.sleepEfficiency);
-  const dates = sleepEfficiencyData.map(data => data.date);
-  const averageSleepEfficiency = sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
+  const sleepEfficiencies = sleepEfficiencyData.map((data) => data.sleepEfficiency);
+  const dates = sleepEfficiencyData.map((data) => data.date);
+  const averageSleepEfficiency =
+    sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
   const goalDocument = await goalCollection.findOne({ userId: userId });
 
-  let sleepEfficiencyGoal = '';
-  let targetDate = '';
-  let goalMessage = '';
+  let sleepEfficiencyGoal = "";
+  let targetDate = "";
+  let goalMessage = "";
+  let error = req.query.error; // Get the error message from the query parameter
 
   if (goalDocument) {
-    sleepEfficiencyGoal = goalDocument.sleepEfficiencyGoal || '';
-    targetDate = goalDocument.targetDate || '';
+    sleepEfficiencyGoal = goalDocument.sleepEfficiencyGoal || "";
+    targetDate = goalDocument.targetDate || "";
     goalMessage = calculateGoalStatus(targetDate, sleepEfficiencyGoal, averageSleepEfficiency);
   } else {
-    goalMessage = calculateGoalStatus('', '', averageSleepEfficiency);
+    goalMessage = calculateGoalStatus("", "", averageSleepEfficiency);
   }
 
   res.render("stats", {
@@ -1019,7 +1025,8 @@ app.get("/stats", sessionValidation, async (req, res) => {
     sleepEfficiencies: JSON.stringify(sleepEfficiencies),
     dates: JSON.stringify(dates),
     targetDate: targetDate,
-    goalMessage: goalMessage
+    goalMessage: goalMessage,
+    error: error, // Pass the error variable to the template
   });
 });
 
@@ -1031,45 +1038,62 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
   let targetDate = req.body.targetDate;
 
   // Check if the input is a valid number between 0 and 100 inclusive
-  if (sleepEfficiencyGoal !== '') {
+  if (sleepEfficiencyGoal !== "") {
     const sleepEfficiencyGoalNumber = parseInt(sleepEfficiencyGoal);
     if (!isNaN(sleepEfficiencyGoalNumber) && sleepEfficiencyGoalNumber >= 0 && sleepEfficiencyGoalNumber <= 100) {
-      // Check if a goal document already exists for the user
-      const existingGoal = await goalCollection.findOne({ userId: userId });
-      if (existingGoal) {
-        // Update the existing goal document
-        await goalCollection.updateOne(
-          { userId: userId },
-          { $set: { sleepEfficiencyGoal: sleepEfficiencyGoalNumber, targetDate: targetDate } }
-        );
-      } else {
-        // Create a new goal document for the user
-        await goalCollection.insertOne({
-          userId: userId,
-          sleepEfficiencyGoal: sleepEfficiencyGoalNumber,
-          targetDate: targetDate
-        });
+      // Check if the target date is valid and at least one day ahead of the current day
+      if (targetDate) {
+        const currentDate = new Date();
+        const selectedDate = new Date(targetDate);
+        // Set the time to 0:00:00 to compare only the date
+        selectedDate.setHours(0, 0, 0, 0);
+        currentDate.setHours(0, 0, 0, 0);
+        if (selectedDate >= currentDate) { // Use >= instead of >
+          // Check if a goal document already exists for the user
+          const existingGoal = await goalCollection.findOne({ userId: userId });
+          if (existingGoal) {
+            // Update the existing goal document
+            await goalCollection.updateOne(
+              { userId: userId },
+              { $set: { sleepEfficiencyGoal: sleepEfficiencyGoalNumber, targetDate: targetDate } }
+            );
+          } else {
+            // Create a new goal document for the user
+            await goalCollection.insertOne({
+              userId: userId,
+              sleepEfficiencyGoal: sleepEfficiencyGoalNumber,
+              targetDate: targetDate,
+            });
+          }
+
+          // Update the session variables
+          req.session.sleepEfficiencyGoal = sleepEfficiencyGoalNumber; 
+          req.session.targetDate = targetDate; 
+
+          res.redirect("/stats?sleepEfficiencyGoal=" + sleepEfficiencyGoalNumber);
+          return;
+        } else {
+          // Target date is not at least one day ahead of the current day
+          res.redirect("/stats?error=InvalidDate");
+          return;
+        }
       }
-
-      req.session.sleepEfficiencyGoal = sleepEfficiencyGoalNumber; // Update the session with the new goal
-      req.session.targetDate = targetDate; // Update the session with the new target date
-
-      res.redirect("/stats?sleepEfficiencyGoal=" + sleepEfficiencyGoalNumber);
-      return;
     }
   }
-  sleepEfficiencyGoal = req.session.sleepEfficiencyGoal || '';
+
+  sleepEfficiencyGoal = req.session.sleepEfficiencyGoal || "";
 
   const sleepEfficiencyData = await calculateSleepEfficiencyData(name);
-  const sleepEfficiencies = sleepEfficiencyData.map(data => data.sleepEfficiency);
-  const dates = sleepEfficiencyData.map(data => data.date);
-  const averageSleepEfficiency = sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
-  let goalMessage = '';
+  const sleepEfficiencies = sleepEfficiencyData.map((data) => data.sleepEfficiency);
+  const dates = sleepEfficiencyData.map((data) => data.date);
+  const averageSleepEfficiency =
+    sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
+  let goalMessage = "";
 
   if (targetDate) {
     goalMessage = calculateGoalStatus(targetDate, sleepEfficiencyGoal, averageSleepEfficiency);
   } else {
-    goalMessage = calculateGoalStatus('', sleepEfficiencyGoal, averageSleepEfficiency);
+    goalMessage = calculateGoalStatus("", sleepEfficiencyGoal, averageSleepEfficiency);
   }
 
   res.render("stats", {
@@ -1077,14 +1101,15 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
     averageSleepEfficiency: averageSleepEfficiency,
     sleepEfficiencyGoal: sleepEfficiencyGoal,
     targetDate: targetDate,
-    updatedSleepEfficiencyGoal: '',
+    updatedSleepEfficiencyGoal: "",
     sleepEfficiencies: JSON.stringify(sleepEfficiencies),
     dates: JSON.stringify(dates),
-    goalMessage: goalMessage 
+    goalMessage: goalMessage,
+    error: "", // Set the error variable to an empty string
   });
 });
 
-//STORING DATA OF ANALYSIS IN MONGODB
+// STORING DATA OF ANALYSIS IN MONGODB
 const data = [
   {
     "age_range": "9-12",
