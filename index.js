@@ -551,7 +551,6 @@ app.get("/createreport", sessionValidation, async (req, res) => {
 });
 
 
-
 var caffeineCount;
 app.post("/submitreport", sessionValidation, async (req, res) => {
 
@@ -724,7 +723,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   const reportCount = await reportCollection.countDocuments({ userName });
   console.log(`Report count: ${reportCount}`);
   // Set the maximum limit for reports
-  const reportLimit = 10;
+  const reportLimit = 7;
 
   if (reportCount >= reportLimit) {
     // If the limit is reached, you can handle it accordingly
@@ -953,11 +952,26 @@ function convertToCaffeineOption(caffeineCount) {
   }
 }
 
-//delete report
+
+// delete specific report
 app.post('/report_list/delete/:id', sessionValidation, async (req, res) => {
   const reportId = req.params.id;
   console.log(reportId);
-  await reportCollection.deleteOne({ _id: new ObjectId(reportId) });
+  if (reportId === 'all') {
+    // Handle the case of deleting all reports
+    const name = req.session.name;
+    await reportCollection.deleteMany({ userName: name });
+  } else {
+    // Handle the case of deleting a specific report
+    await reportCollection.deleteOne({ _id: new ObjectId(reportId) });
+  }
+  res.redirect('/report_list');
+});
+
+// delete all reports
+app.post('/report_list/delete/all', sessionValidation, async (req, res) => {
+  const name = req.session.name;
+  await reportCollection.deleteMany({ userName: name });
   res.redirect('/report_list');
 });
 
