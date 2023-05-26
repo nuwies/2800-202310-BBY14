@@ -105,7 +105,6 @@ app.post("/submitUser", async (req, res) => {
     birthday: Joi.date().required(),
   }).options({ abortEarly: false }); // check all fields before returning
 
-  // Calculate the age
   const currentDate = new Date();
   const birthdayDate = new Date(birthday);
   const age = currentDate.getFullYear() - birthdayDate.getFullYear();
@@ -113,8 +112,8 @@ app.post("/submitUser", async (req, res) => {
   const validationResult = schema.validate({ name, email, password, birthday });
 
   if (validationResult.error != null) {
-    var errors = validationResult.error.details; 
-    var errorMessages = []; 
+    var errors = validationResult.error.details;
+    var errorMessages = [];
     for (var i = 0; i < errors.length; i++) {
       errorMessages.push(errors[i].message);
     }
@@ -123,13 +122,11 @@ app.post("/submitUser", async (req, res) => {
     return;
   }
 
-  // Confirm that password fields match
   if (password !== confirm_password) {
-    res.render("signup_error", { error: "Passwords do not match" }); 
+    res.render("signup_error", { error: "Passwords do not match" });
     return;
   }
 
-  // Check if email is already in use
   const result = await userCollection
     .find({ email: email })
     .project({ email: email })
@@ -142,20 +139,16 @@ app.post("/submitUser", async (req, res) => {
 
   const today = new Date();
   const minAge = 9;
+  const maxAge = 140;
   const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
+  const maxDate = new Date(today.getFullYear() - maxAge, today.getMonth(), today.getDate());
 
-  // Validate the birthday (must be a valid date and at least 9 years old)
   var birthdayNew = new Date(req.body.birthday);
-  if (isNaN(birthdayNew.getTime()) || birthdayNew > today) {
-    res.render("signup_error", { error: "Invalid birthday" });
-    return;
-  }
-  if (birthdayNew > minDate) {
+  if (isNaN(birthdayNew.getTime()) || birthdayNew > today || birthdayNew < maxDate || birthdayNew > minDate) {
     res.render("signup_error", { error: "Invalid birthday" });
     return;
   }
 
-  // Hash the password and insert the user into the database
   var hashedPassword = await bcrypt.hash(password, saltRounds);
   const insertResult = await userCollection.insertOne({
     name: name,
@@ -165,7 +158,6 @@ app.post("/submitUser", async (req, res) => {
     token: "", // Empty field reserved for password reset token
   });
 
-  // Set the session variables
   const userId = insertResult.insertedId.toString();
   req.session._id = userId;
   req.session.age = age;
@@ -362,19 +354,17 @@ app.post("/profile", async (req, res) => {
 
   const today = new Date();
   const minAge = 9;
-  const minDate = new Date(
-    today.getFullYear() - minAge,
-    today.getMonth(),
-    today.getDate()
-  );
+  const maxAge = 140;
+  const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
+  const maxDate = new Date(today.getFullYear() - maxAge, today.getMonth(), today.getDate());
 
   var birthdayNew = new Date(req.body.birthday);
-  if (isNaN(birthdayNew.getTime()) || birthdayNew > today) {
-    res.render("profile_error", { error: "Invalid birthday" });
-    return;
-  }
-
-  if (birthdayNew > minDate) {
+  if (
+    isNaN(birthdayNew.getTime()) ||
+    birthdayNew > today ||
+    birthdayNew < maxDate ||
+    birthdayNew > minDate
+  ) {
     res.render("profile_error", { error: "Invalid birthday" });
     return;
   }
@@ -384,18 +374,17 @@ app.post("/profile", async (req, res) => {
     { $set: { name: req.body.name, birthday: req.body.birthday } }
   );
 
-  // Calculate the updated age
   const currentDate = new Date();
   const updatedBirthday = new Date(req.body.birthday);
   const updatedAge = currentDate.getFullYear() - updatedBirthday.getFullYear();
 
-  // Update the age in the session
   req.session.age = updatedAge;
   req.session.name = req.body.name.trim();
-  (req.session.birthday = req.body.birthday),
-    // Redirect the user back to the profile page, without the "edit" query parameter
-    res.redirect("/profile");
+  req.session.birthday = req.body.birthday;
+
+  res.redirect("/profile");
 });
+
 
 // Render the "security" template with flash messages for the authenticated user
 app.get("/security", sessionValidation, (req, res) => {
@@ -1041,14 +1030,20 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
   if (sleepEfficiencyGoal !== "") {
     const sleepEfficiencyGoalNumber = parseInt(sleepEfficiencyGoal);
     if (!isNaN(sleepEfficiencyGoalNumber) && sleepEfficiencyGoalNumber >= 0 && sleepEfficiencyGoalNumber <= 100) {
-      // Check if the target date is valid and at least one day ahead of the current day
+      // Check if the target date is valid and within the allowed range
       if (targetDate) {
         const currentDate = new Date();
         const selectedDate = new Date(targetDate);
+
+        // Calculate the maximum allowed date
+        const maxDate = new Date();
+        maxDate.setFullYear(maxDate.getFullYear() + 100);
+
         // Set the time to 0:00:00 to compare only the date
         selectedDate.setHours(0, 0, 0, 0);
         currentDate.setHours(0, 0, 0, 0);
-        if (selectedDate >= currentDate) { // Use >= instead of >
+
+        if (selectedDate >= currentDate && selectedDate <= maxDate) {
           // Check if a goal document already exists for the user
           const existingGoal = await goalCollection.findOne({ userId: userId });
           if (existingGoal) {
@@ -1067,13 +1062,13 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
           }
 
           // Update the session variables
-          req.session.sleepEfficiencyGoal = sleepEfficiencyGoalNumber; 
-          req.session.targetDate = targetDate; 
+          req.session.sleepEfficiencyGoal = sleepEfficiencyGoalNumber;
+          req.session.targetDate = targetDate;
 
           res.redirect("/stats?sleepEfficiencyGoal=" + sleepEfficiencyGoalNumber);
           return;
         } else {
-          // Target date is not at least one day ahead of the current day
+          // Target date is not within the allowed range
           res.redirect("/stats?error=InvalidDate");
           return;
         }
