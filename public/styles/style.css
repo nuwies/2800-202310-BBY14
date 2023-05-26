@@ -8,11 +8,11 @@
     height: 34px;
   }
   
-  .switch input {
+.switch input {
     display: none;
-  }
+}
   
-  .slider {
+.slider {
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -23,9 +23,9 @@
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 34px;
-  }
+}
   
-  .slider:before {
+.slider:before {
     position: absolute;
     content: "";
     height: 26px;
@@ -36,24 +36,22 @@
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 50%;
-  }
+}
   
-  input:checked + .slider {
+input:checked + .slider {
     background-color: #fff14d;
-  }
+}
   
-  input:checked + .slider:before {
+input:checked + .slider:before {
     -webkit-transform: translateX(26px);
     -ms-transform: translateX(26px);
     transform: translateX(26px);
-  }
+}
   
 body.dark-mode {
   background-color: #131313;
     color: #fff;
 }
-
-/* Jimmy's edits start here */
 
 body {
   font-weight: 400;
@@ -113,10 +111,6 @@ border: none;
 .button2:hover {
   background-color: rgb(83, 102, 153);
 
-}
-
-.header {
- /* reserved for future use if needed */
 }
 
 .statscircle {
@@ -297,15 +291,17 @@ body.dark-mode #congratulationsText {
   fill: red;
 }
 
+/* Colours the asterisk to indicate mandatory field */
 .required {
   color: red;
 }
 
+/* Justify right numeric values when it makes sense */
 .right-aligned {
   text-align: right;
 }
 
-
+/* Greys out input fields where we do not want user to actually focus or type in the input field*/
 .grayed-out {
     color: #000000;
     background-color: #cecece;
