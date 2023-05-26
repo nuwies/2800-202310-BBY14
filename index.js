@@ -268,7 +268,7 @@ app.post("/submitUser", async (req, res) => {
   var hashedPassword = await bcrypt.hash(password, saltRounds);
 
   // insert user into database
- const insertResult = await userCollection.insertOne({
+  const insertResult = await userCollection.insertOne({
     name: name,
     email: email,
     password: hashedPassword,
@@ -277,11 +277,11 @@ app.post("/submitUser", async (req, res) => {
   });
 
 
-  
 
-// Store user ID in the session
-const userId = insertResult.insertedId.toString();
-req.session._id = userId;
+
+  // Store user ID in the session
+  const userId = insertResult.insertedId.toString();
+  req.session._id = userId;
 
   // Store age in the session
   req.session.age = age;
@@ -1045,7 +1045,7 @@ async function calculateSleepEfficiencyData(name) {
 function calculateGoalStatus(targetDate, sleepEfficiencyGoal, averageSleepEfficiency) {
   const currentDate = new Date();
   averageSleepEfficiency = Math.round(averageSleepEfficiency);
-  
+
   if (!targetDate || targetDate === '') {
     return 'No goal set. Set a sleep efficiency goal to track your progress!';
   } else if (currentDate > new Date(targetDate)) {
@@ -1067,7 +1067,7 @@ function calculateGoalStatus(targetDate, sleepEfficiencyGoal, averageSleepEffici
 
 app.get("/stats", sessionValidation, async (req, res) => {
   const name = req.session.name;
-  const userId = req.session._id; 
+  const userId = req.session._id;
 
   const sleepEfficiencyData = await calculateSleepEfficiencyData(name);
   const sleepEfficiencies = sleepEfficiencyData.map(data => data.sleepEfficiency);
@@ -1313,10 +1313,37 @@ app.post('/analysis', sessionValidation, async (req, res) => {
   const intercept = matchingRange.Intercept * 100;
   // from body
   // const caffeineCount = req.body.caffeineCount;
+  console.log("req.body.caffeinecount:", req.body.caffeineCount);
+
+  if (req.body.caffeineCount === "25 mg (1/3 cup)") {
+    caffeineCount = 1;
+  } else if (req.body.caffeineCount === "50 mg (2/3 cup)") {
+    caffeineCount = 2;
+  } else if (req.body.caffeineCount === "75 mg (1 cup)") {
+    caffeineCount = 3;
+  } else if (req.body.caffeineCount === "100 mg (1 1/3 cup)") {
+    caffeineCount = 4;
+  } else if (req.body.caffeineCount === "125 mg (1 2/3 cup)") {
+    caffeineCount = 5;
+  } else if (req.body.caffeineCount === "150 mg (2 cup)") {
+    caffeineCount = 6;
+  } else if (req.body.caffeineCount === "175 mg (2 1/3 cup)") {
+    caffeineCount = 7;
+  } else if (req.body.caffeineCount === "200 mg (2 2/3 cup)") {
+    caffeineCount = 8;
+  } else if (req.body.caffeineCount === "225 mg (3 cup)") {
+    caffeineCount = 9;
+  } else if (req.body.caffeineCount === "250+ mg (3 1/3+ cup)") {
+    caffeineCount = 10;
+  } else {
+    caffeineCount = parseInt(req.body.caffeineCount);
+  }
+  console.log("caffeineCount:", caffeineCount);
+
+
   const WakeupCount = parseInt(req.body.wakeupCount);
   const alcoholCount = req.body.alcoholCount;
   const exerciseCount = req.body.exerciseCount;
-  console.log("caffeineCount", caffeineCount);
   console.log(WakeupCount, alcoholCount, exerciseCount);
   // Extract factor values from the MongoDB matching range
   const caffeineFromDB = matchingRange.Caffeine_consumption;
@@ -1425,7 +1452,7 @@ app.post('/analysis', sessionValidation, async (req, res) => {
 
     });
 
-  }else if(sleepEfficiency >= intercept){
+  } else if (sleepEfficiency >= intercept) {
 
     res.render("analysisTwo", {
       Intercept: intercept,
