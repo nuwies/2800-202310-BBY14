@@ -1,30 +1,28 @@
 require("./utils.js");
 require("dotenv").config();
 
-const uuid = require('uuid').v4;
-
 const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+const Joi = require("joi");
 const bcrypt = require("bcrypt");
+
+const uuid = require('uuid').v4;
 const methodOverride = require('method-override');
+const flash = require('connect-flash');
 
 
 // SendGrid email service
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const saltRounds = 12;
-
-const flash = require('connect-flash');
-
 const port = process.env.PORT || 3080;
 
+const saltRounds = 12;
+
+const expireTime = 1000 * 60 * 60 * 24; // 24 hours
+
 const app = express();
-
-const Joi = require("joi");
-const expireTime = 1000 * 60 * 60 * 24; // expires after 24 hours
-
 const { ObjectId } = require('mongodb');
 
 /* --- SECRETS --- */
@@ -38,18 +36,18 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 
 var { database } = include("databaseConnection");
 
-const resetTokenCollection = database.db(mongodb_database).collection("resetTokens");
-
 const userCollection = database.db(mongodb_database).collection("users");
-
 const reportCollection = database.db(mongodb_database).collection("reports");
 const reportProblem = database.db(mongodb_database).collection("reportProblem");
 const analysisCollection = database.db(mongodb_database).collection("analysisCollection");
+const resetTokenCollection = database.db(mongodb_database).collection("resetTokens");
 const goalCollection = database.db(mongodb_database).collection("goals");
 
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: false }));
+
+app.use(flash());
 
 var mongoStore = MongoStore.create({
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/bby14`,
@@ -67,9 +65,11 @@ app.use(
   })
 );
 
-
 app.use(methodOverride('_method'));
 
+app.use(express.static(__dirname + "/public"));
+
+// Checks if the user is authenticated based on the session
 function sessionValidation(req, res, next) {
   if (req.session.authenticated) {
     next();
@@ -78,126 +78,21 @@ function sessionValidation(req, res, next) {
   }
 }
 
-/* --- ADMIN VALIDATION --- 
-function adminValidation(req, res, next) {
-  if (req.session.user_type === "admin") {
-    next();
-  } else {
-    res.status(403);
-    res.render("403", { error: "Not Authorized" });
-  }
-}
- --------- END --------- */
-
-app.use(flash());
-
-// profile page setup
-app.get("/profile", sessionValidation, (req, res) => {
-  const isEditing = (req.query.edit === 'true');
-  //   if (!req.session.authenticated) {
-  //     res.redirect('/login');
-  //     return;
-
-  // }
-  console.log(req.session);
-
-  res.render('profile', {
-    name: req.session.name,
-    email: req.session.email,
-    birthday: req.session.birthday,
-    _id: req.session._id,
-    isEditing: isEditing
-  });
-})
-
-// POST handler for the /profile route
-app.post('/profile', async (req, res) => {
-
-  var name = req.body.name;
-  var birthday = req.body.birthday;
-  const schema = Joi.object({
-    name: Joi.string().alphanum().max(20).required(),
-
-    birthday: Joi.date().required(),
-  }).options({ abortEarly: false });
-
-
-  const validationResult = schema.validate({ name, birthday });
-
-  if (validationResult.error != null) {
-    var errors = validationResult.error.details; // array of error objects from Joi validation
-    var errorMessages = []; // array for error messages
-    for (var i = 0; i < errors.length; i++) {
-      errorMessages.push(errors[i].message);
-    }
-    var errorMessage = errorMessages.join(", ");
-    res.render("profile_error", { error: errorMessage });
-    return;
-  }
-
-  const today = new Date();
-  const minAge = 9;
-  const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
-
-  // Parse the birthday input string into a Date object
-  var birthdayNew = new Date(req.body.birthday);
-
-  // Validate the birthday
-  if (isNaN(birthdayNew.getTime()) || birthdayNew > today) {
-    res.render("profile_error", { error: "Invalid birthday" });
-    return;
-  }
-
-  if (birthdayNew > minDate) {
-    res.render("profile_error", { error: "Invalid birthday" });
-    return;
-  }
-
-
-  await userCollection.updateOne(
-    { email: req.session.email },
-    {
-      $set: {
-        name: req.body.name,
-
-        birthday: req.body.birthday,
-
-
-      }
-    }
-  );
-
-  // Calculate the updated age
-  const currentDate = new Date();
-  const updatedBirthday = new Date(req.body.birthday);
-  const updatedAge = currentDate.getFullYear() - updatedBirthday.getFullYear();
-
-  // Update the age in the session
-  req.session.age = updatedAge;
-
-  req.session.name = req.body.name;
-
-  req.session.birthday = req.body.birthday,
-
-    // Redirect the user back to the profile page, without the "edit" query parameter
-    res.redirect('/profile');
-});
-
-
-app.use(express.static(__dirname + "/public"));
-
+// Render the "index_user" view with the user's name
 app.get("/", sessionValidation, (req, res) => {
   var name = req.session.name;
   res.render("index_user", { name: name });
 });
 
+// Render the "signup" view for the "/signup" endpoint
 app.get("/signup", (req, res) => {
   res.render("signup");
 });
 
+// Handle user sign up form submission and database insertion
 app.post("/submitUser", async (req, res) => {
-  var name = req.body.name;
-  var email = req.body.email;
+  var name = req.body.name.trim();
+  var email = req.body.email.trim();
   var password = req.body.password;
   var confirm_password = req.body.confirm_password;
   var birthday = req.body.birthday;
@@ -215,12 +110,11 @@ app.post("/submitUser", async (req, res) => {
   const birthdayDate = new Date(birthday);
   const age = currentDate.getFullYear() - birthdayDate.getFullYear();
 
-
   const validationResult = schema.validate({ name, email, password, birthday });
 
   if (validationResult.error != null) {
-    var errors = validationResult.error.details; // array of error objects from Joi validation
-    var errorMessages = []; // array for error messages
+    var errors = validationResult.error.details; 
+    var errorMessages = []; 
     for (var i = 0; i < errors.length; i++) {
       errorMessages.push(errors[i].message);
     }
@@ -229,13 +123,13 @@ app.post("/submitUser", async (req, res) => {
     return;
   }
 
-  // check if password matches confirm_password
+  // Confirm that password fields match
   if (password !== confirm_password) {
-    res.render("signup_error", { error: "Passwords do not match" }); // change to display error message under field later
+    res.render("signup_error", { error: "Passwords do not match" }); 
     return;
   }
 
-  // check if email is already in use
+  // Check if email is already in use
   const result = await userCollection
     .find({ email: email })
     .project({ email: email })
@@ -250,42 +144,31 @@ app.post("/submitUser", async (req, res) => {
   const minAge = 9;
   const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
 
-  // Parse the birthday input string into a Date object
+  // Validate the birthday (must be a valid date and at least 9 years old)
   var birthdayNew = new Date(req.body.birthday);
-
-  // Validate the birthday
   if (isNaN(birthdayNew.getTime()) || birthdayNew > today) {
     res.render("signup_error", { error: "Invalid birthday" });
     return;
   }
-
   if (birthdayNew > minDate) {
     res.render("signup_error", { error: "Invalid birthday" });
     return;
   }
 
-  // hash password
+  // Hash the password and insert the user into the database
   var hashedPassword = await bcrypt.hash(password, saltRounds);
-
-  // insert user into database
   const insertResult = await userCollection.insertOne({
     name: name,
     email: email,
     password: hashedPassword,
     birthday: birthday,
-    token: "", // empty field for password reset token
+    token: "", // Empty field reserved for password reset token
   });
 
-
-
-
-  // Store user ID in the session
+  // Set the session variables
   const userId = insertResult.insertedId.toString();
   req.session._id = userId;
-
-  // Store age in the session
   req.session.age = age;
-  // successful signup - log in user and redirect to main page
   req.session.authenticated = true;
   req.session.name = name;
   req.session.email = email;
@@ -293,10 +176,12 @@ app.post("/submitUser", async (req, res) => {
   res.redirect("/main");
 });
 
+// Render the "login" view for the "/login" endpoint
 app.get("/login", (req, res) => {
   res.render("login");
 });
 
+// Handle user login form submission and authentication
 app.post("/loggingin", async (req, res) => {
   var email = req.body.email;
   var password = req.body.password;
@@ -344,31 +229,32 @@ app.post("/loggingin", async (req, res) => {
   }
 });
 
+// Render the "forgotpassword" view for the "/forgotpassword" endpoint
 app.get("/forgotpassword", (req, res) => {
   res.render("forgotpassword");
 });
 
+// Handle password reset email submission, including token generation, database update, and email sending
 app.post("/sendresetemail", async (req, res) => {
   var email = req.body.email;
 
-  // check if the email exists in the database
+  // Check if the email exists in the database
   const user = await userCollection.findOne({ email: email });
   if (user == null) {
     res.render("login-error", { error: "Email not found" });
     return;
   }
 
+  // Update the user's reset token in the database
   const token = uuid().replace(/-/g, "");
-  const resetLink = `https://panicky-lamb-kilt.cyclic.app/resetpassword?token=${token}`;
-
-  // update the user's token in the database
   await resetTokenCollection.insertOne({
     token,
     userId: user._id,
     createdAt: new Date(),
   });
 
-  // send email with the random number
+  // Send the password reset email
+  const resetLink = `https://panicky-lamb-kilt.cyclic.app/resetpassword?token=${token}`;
   const msg = {
     to: email,
     from: "aisleep.bby14@gmail.com",
@@ -381,7 +267,6 @@ app.post("/sendresetemail", async (req, res) => {
 
   try {
     await sgMail.send(msg);
-    // res.status(200).send('Email sent');
     res.render("checkemail");
     return;
   }
@@ -390,8 +275,8 @@ app.post("/sendresetemail", async (req, res) => {
   }
 });
 
+// Handle password reset page rendering, checking token validity and expiration
 app.get("/resetpassword", async (req, res) => {
-  // find user with matching decrypted token in the database
   const token = await resetTokenCollection.findOne({ token: req.query.token });
 
   if (token === null || new Date() - token.createdAt > (1000 * 60 * 15)) {
@@ -403,6 +288,7 @@ app.get("/resetpassword", async (req, res) => {
   res.render("resetpassword");
 });
 
+// Handle password reset form submission, validating token and updating password
 app.post("/resetpassword", async (req, res) => {
   const token = await resetTokenCollection.findOne({ token: req.body.token });
   const password = req.body.password;
@@ -412,39 +298,106 @@ app.post("/resetpassword", async (req, res) => {
     res.render("login-error", { error: "Invalid token" });
     return;
   }
-
-  // check if password matches confirm_password
   if (password !== confirm_password) {
     res.render("reset-error", { error: "Passwords do not match", link: `/resetpassword?email=${email}&token=${token}` });
     return;
   }
 
-  // hash password
   var hashedPassword = await bcrypt.hash(password, saltRounds);
-
-  // update the user's password and token in the database
   await userCollection.updateOne(
     { _id: token.userId },
     { $set: { password: hashedPassword, token: "" } }
   );
-
-  // remove token from resetTokenCollection
   await resetTokenCollection.deleteOne({ _id: token._id });
 
   res.redirect("/login");
 });
 
-// Redirect to main page if user is logged in
+// Redirect the user to the main page if logged in and session is validated
 app.get("/loggedin", sessionValidation, (req, res) => {
   res.redirect("/main");
 });
 
-// End session and redirect to login/signup page
+// Destroy the session and redirect the user to the home page
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
 
+// Renders the "profile" view with user profile information
+app.get("/profile", sessionValidation, (req, res) => {
+  const isEditing = (req.query.edit === 'true');
+
+  res.render('profile', {
+    name: req.session.name,
+    email: req.session.email,
+    birthday: req.session.birthday,
+    _id: req.session._id,
+    isEditing: isEditing
+  });
+})
+
+// Route handler for the "/profile" POST endpoint
+app.post("/profile", async (req, res) => {
+  var name = req.body.name.trim();
+  var birthday = req.body.birthday;
+  const schema = Joi.object({
+    name: Joi.string().alphanum().max(20).required(),
+    birthday: Joi.date().required(),
+  }).options({ abortEarly: false });
+
+  const validationResult = schema.validate({ name, birthday });
+
+  // Create an array of error messages
+  if (validationResult.error != null) {
+    var errors = validationResult.error.details;
+    var errorMessages = [];
+    for (var i = 0; i < errors.length; i++) {
+      errorMessages.push(errors[i].message);
+    }
+    var errorMessage = errorMessages.join(", ");
+    res.render("profile_error", { error: errorMessage });
+    return;
+  }
+
+  const today = new Date();
+  const minAge = 9;
+  const minDate = new Date(
+    today.getFullYear() - minAge,
+    today.getMonth(),
+    today.getDate()
+  );
+
+  var birthdayNew = new Date(req.body.birthday);
+  if (isNaN(birthdayNew.getTime()) || birthdayNew > today) {
+    res.render("profile_error", { error: "Invalid birthday" });
+    return;
+  }
+
+  if (birthdayNew > minDate) {
+    res.render("profile_error", { error: "Invalid birthday" });
+    return;
+  }
+
+  await userCollection.updateOne(
+    { email: req.session.email },
+    { $set: { name: req.body.name, birthday: req.body.birthday } }
+  );
+
+  // Calculate the updated age
+  const currentDate = new Date();
+  const updatedBirthday = new Date(req.body.birthday);
+  const updatedAge = currentDate.getFullYear() - updatedBirthday.getFullYear();
+
+  // Update the age in the session
+  req.session.age = updatedAge;
+  req.session.name = req.body.name.trim();
+  (req.session.birthday = req.body.birthday),
+    // Redirect the user back to the profile page, without the "edit" query parameter
+    res.redirect("/profile");
+});
+
+// Render the "security" template with flash messages for the authenticated user
 app.get("/security", sessionValidation, (req, res) => {
   res.render("security", { messages: req.flash() });
 });
@@ -454,18 +407,15 @@ app.post('/change-password', sessionValidation, async (req, res) => {
   const newPassword = req.body.newPassword;
   const confirmNewPassword = req.body.confirmNewPassword;
 
-  // Validate the input
+  // Validate the password fields 
   if (!currentPassword || !newPassword || !confirmNewPassword) {
-
     req.flash('error', 'All fields are required');
     return res.redirect('/security');
   }
-
   if (currentPassword === newPassword) {
     req.flash('error', 'Current password and New password must not match');
     return res.redirect('/security');
   }
-
   if (newPassword !== confirmNewPassword) {
     req.flash('error', 'New password and confirm password must match');
     return res.redirect('/security');
@@ -481,6 +431,7 @@ app.post('/change-password', sessionValidation, async (req, res) => {
     req.flash('error', 'User not found');
     return res.redirect('/security');
   }
+
   const isMatch = await bcrypt.compare(currentPassword, result[0].password);
   if (!isMatch) {
     req.flash('error', 'Current password is incorrect');
@@ -492,36 +443,28 @@ app.post('/change-password', sessionValidation, async (req, res) => {
   await userCollection.updateOne({ email: email }, { $set: { password: hashedPassword } });
   req.flash('success', 'Password changed successfully!');
   return res.redirect('/security');
-
 });
 
-
-// deleting the user from the database.
-app.delete('/users/:userId', async (req, res) => {
+// Delete a user with the specified userId and redirect to the signup page after successful deletion
+app.delete("/users/:userId", async (req, res) => {
   const userId = req.params.userId;
-
   try {
     const user = await userCollection.deleteOne({ _id: new ObjectId(userId) });
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).send("User not found");
     }
-
-    // End the session
     req.session.destroy((error) => {
       if (error) {
-        console.error('Error destroying session:', error);
-        return res.status(500).send('Server error');
+        return res.status(500).send("Server error");
       }
-
-      res.redirect('/signup');
+      res.redirect("/signup");
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 });
 
-
+// Render the "createreport" page if a report for the current date does not exist, otherwise redirect to the report list page
 app.get("/createreport", sessionValidation, async (req, res) => {
   const email = req.session.email;
 
@@ -550,10 +493,8 @@ app.get("/createreport", sessionValidation, async (req, res) => {
   }
 });
 
-
 var caffeineCount;
 app.post("/submitreport", sessionValidation, async (req, res) => {
-
   const userName = req.session.name;
   const email = req.session.email;
 
@@ -564,17 +505,15 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   const wakeupHour = req.body.wakeupHour;
   const wakeupMinute = req.body.wakeupMinute;
   const wakeupAmPm = req.body.wakeupAmPm;
-
+  
   const takeTimeAsleepHour = req.body.takeTimeAsleepHour;
   const takeTimeAsleepMinute = req.body.takeTimeAsleepMinute;
 
   const wakeupCount = req.body.wakeupcount;
-
   const caffeine = req.body.caffeine;
   const alcohol = req.body.alcohol;
   const exercise = req.body.exercise;
 
-  //convert to int
   const wakeupHourInt = parseInt(wakeupHour);
   const wakeupMinuteInt = parseInt(wakeupMinute);
   const bedtimeHourInt = parseInt(bedtimeHour);
@@ -599,7 +538,6 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     caffeineCount = 0;
     // } else if (req.body.caffeine === "10+ mg") {
     //   caffeineCount = 10;
-
     //store caffeinecount as 10 levels on mongoDB
   } else if (req.body.caffeinecount === "25 mg (1/3 cup)") {
     caffeineCount = 1;
@@ -655,6 +593,10 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   const HoursAsleepMin = sleepDurationMin - (takeTimeAsleepHourInt * 60 + takeTimeAsleepMinuteInt);
   const HoursAsleep = `${Math.floor(HoursAsleepMin / 60)} hrs ${HoursAsleepMin % 60} min`;
 
+  if (sleepDurationMin < 0 || HoursAsleepMin < 0 || HoursAsleepMin > sleepDurationMin) {
+    return res.send('<script>alert("Invalid input."); window.location.href="/createreport";</script>');
+  }
+
   const sleepEfficiency = Math.round((HoursAsleepMin / sleepDurationMin) * 10000) / 100;
 
   function convertTo24HourFormat(hour, minute, amPm) {
@@ -683,7 +625,6 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
       // The wakeup time is before the bedtime, so it's on the next day
       sleepDurationMin = (wakeup.hour * 60 + wakeup.minute) + (24 * 60) - (bedtime.hour * 60 + bedtime.minute);
     }
-
     return sleepDurationMin;
   }
 
@@ -728,7 +669,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   if (reportCount >= reportLimit) {
     // If the limit is reached, you can handle it accordingly
     console.log('Report limit reached');
-    return res.send("<script>alert('The report limit has reached the max amount of 10 reports! Please delete some reports in order to free up space.');window.location.href='/report_list'</script>");
+    return res.send("<script>alert('The report limit has reached the max amount of 7 reports! Please delete some reports in order to free up space.');window.location.href='/report_list'</script>");
   } else {
     // Save the report to the database
     try {
@@ -748,9 +689,9 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   };
 });
 
+// Render the newreport view with the report data
 app.get('/newreport', sessionValidation, (req, res) => {
   const date = req.query.date;
-  // const sleepScore = req.query.sleepScore;
   const bedtime = req.query.bedtime;
   const wakeup = req.query.wakeup;
   const takeTimeAsleep = req.query.takeTimeAsleep;
@@ -763,15 +704,10 @@ app.get('/newreport', sessionValidation, (req, res) => {
   const alcoholCount = req.query.alcoholCount;
   const exercise = req.query.exercise;
   const exerciseCount = req.query.exerciseCount;
-  // const tipsString = req.query.tips;
   const sleepEfficiency = req.query.sleepEfficiency; //
-
-  // Split the tips string into an array of tips
-  // const tips = tipsString.split(/\.|\?|!/);
 
   // Render a new view with the report data
   res.render('newreport', {
-    // sleepScore, 
     bedtime,
     wakeup,
     takeTimeAsleep,
@@ -784,18 +720,18 @@ app.get('/newreport', sessionValidation, (req, res) => {
     alcoholCount,
     exercise,
     exerciseCount,
-    // tips,
     date,
     sleepEfficiency
   });
 });
 
-//display sleepEfficiency in main page
+// Render the main view with the user's name and their latest sleep efficiency value
 app.get("/main", sessionValidation, async (req, res) => {
   const name = req.session.name;
-
-  const latestReport = await reportCollection.findOne({ userName: name }, { sort: { date: -1 } });
-  console.log(latestReport);
+  const latestReport = await reportCollection.findOne(
+    { userName: name },
+    { sort: { date: -1 } }
+  );
 
   let sleepEfficiency = "NA";
   if (latestReport !== null) {
@@ -804,36 +740,32 @@ app.get("/main", sessionValidation, async (req, res) => {
       sleepEfficiency = reportSleepEfficiency;
     }
   }
-
   res.render("main", { name: name, sleepEfficiency: sleepEfficiency });
 });
 
-//for clicking on the button to see the latest report
+// Render the report_list view with the user's name and all of their reports
 app.post("/latestReport", sessionValidation, async (req, res) => {
   const name = req.session.name;
   const latestReport = await reportCollection.findOne({ userName: name }, { sort: { date: -1 } });
-  console.log(latestReport);
 
   if (latestReport === null) {
     return res.send("<script>alert('You don\\'t have any reports! Let\\'s get your first report now!');window.location.href='/createreport'</script>");
   }
 
   const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = latestReport;
-
   const formattedDate = encodeURIComponent(date);
 
-  //convert back for displaying on page
   convertToCaffeineOption(caffeineCount);
 
-  // res.redirect(`/newreport?sleepScore=${sleepScore}&bedtime=${bedtime}&wakeup=${wakeup}&wakeupCount=${wakeupCount}%20times&alcohol=${alcohol}&alcoholCount=${alcoholCount}&tips=${tipsString}&date=${formattedDate}`);
   res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineOption}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
 });
 
-
+// Render the "about" view template to display information about the app
 app.get("/about", (req, res) => {
   res.render("about");
 });
 
+// Redirect the user to the easter egg after 3 clicks
 let clickCount = 0;
 app.post("/about", (req, res) => {
   clickCount++;
@@ -846,27 +778,29 @@ app.post("/about", (req, res) => {
   }
 });
 
+// Render the "easter_egg" view template for displaying a puzzle
 app.get("/easter_egg", (req, res) => {
   res.render("easter_egg");
 });
 
+// Render the "facts" view template for displaying information about sleep
 app.get("/facts", sessionValidation, (req, res) => {
   res.render("facts");
 });
 
-//read the tips data
+// Read the tips data
 app.get('/tips-data', sessionValidation, function (req, res) {
   const tipsData = require('./app/data/tips.json');
   res.json(tipsData);
 });
 
-//read the facts data
+// Read the facts data
 app.get('/facts-data', sessionValidation, function (req, res) {
   const factsData = require('./app/data/facts.json');
   res.json(factsData);
 });
 
-//get currentuser reports from mongodb
+// Get the current user's reports from mongodb
 app.get('/report_list', sessionValidation, async (req, res) => {
   const name = req.session.name;
   const result = await reportCollection.find({ userName: name }).project({ userName: 1, date: 1, sleepEfficiency: 1, _id: 1 }).toArray();
@@ -874,7 +808,7 @@ app.get('/report_list', sessionValidation, async (req, res) => {
   res.render("report_list", { reports: result });
 });
 
-//to see the specific report by doc id 
+// View a specific report by id
 app.post('/report_list/:id', sessionValidation, async (req, res) => {
   const reportId = req.params.id;
   const report = await reportCollection.findOne({ _id: new ObjectId(reportId) }, {
@@ -895,21 +829,17 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
       exerciseCount: 1,
       sleepEfficiency: 1,
       date: 1,
-      // sleepScore: 1
     }
   });
-  console.log(report);
-
   const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = report;
   const formattedDate = encodeURIComponent(date);
 
-  //convert back for displaying on page
   convertToCaffeineOption(caffeineCount);
 
   res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineOption}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
 });
 
-//convert back for displaying on page
+// Convert the caffeine count to a user-friendly option
 let caffeineOption;
 function convertToCaffeineOption(caffeineCount) {
   switch (caffeineCount) {
@@ -952,11 +882,9 @@ function convertToCaffeineOption(caffeineCount) {
   }
 }
 
-
-// delete specific report
+// Delete a specific report by id
 app.post('/report_list/delete/:id', sessionValidation, async (req, res) => {
   const reportId = req.params.id;
-  console.log(reportId);
   if (reportId === 'all') {
     // Handle the case of deleting all reports
     const name = req.session.name;
@@ -968,13 +896,12 @@ app.post('/report_list/delete/:id', sessionValidation, async (req, res) => {
   res.redirect('/report_list');
 });
 
-// delete all reports
+// Delete all reports
 app.post('/report_list/delete/all', sessionValidation, async (req, res) => {
   const name = req.session.name;
   await reportCollection.deleteMany({ userName: name });
   res.redirect('/report_list');
 });
-
 
 app.get('/settings', sessionValidation, function (req, res) {
   res.render("settings", { name: req.session.name });
@@ -991,11 +918,10 @@ app.get("/problem", sessionValidation, (req, res) => {
 app.post('/reportProblem', sessionValidation, async (req, res) => {
   const name = req.session.name;
   const email = req.session.email;
-  const problemText = req.body.problemText; // extract problem text from request body
-  const date = new Date(); // get current date and time
+  const problemText = req.body.problemText.trim();
+  const date = new Date();
 
   const schema = Joi.object({
-
     problemText: Joi.string().max(300).required(),
   }).options({ abortEarly: false });
 
@@ -1022,7 +948,6 @@ app.post('/reportProblem', sessionValidation, async (req, res) => {
   try {
     const result = await reportProblem.insertOne(report);
     console.log(`Inserted problem reported ${result}`);
-
     res.send("<script>alert('Problem reported succesfully.');window.location.href='/problem'</script>")
   } catch (error) {
     console.error(error);
@@ -1037,7 +962,6 @@ async function calculateSleepEfficiencyData(name) {
     .project({ userName: 1, date: 1, sleepEfficiency: 1, _id: 0 })
     .sort({ date: 1 }) // Sort the reports in ascending order by date
     .toArray();
-
   return reports.map(report => ({ date: report.date, sleepEfficiency: report.sleepEfficiency }));
 }
 
@@ -1046,19 +970,19 @@ function calculateGoalStatus(targetDate, sleepEfficiencyGoal, averageSleepEffici
   const currentDate = new Date();
   averageSleepEfficiency = Math.round(averageSleepEfficiency);
 
-  if (!targetDate || targetDate === '') {
-    return 'No goal set. Set a sleep efficiency goal to track your progress!';
+  if (!targetDate || targetDate === "") {
+    return "No goal set. Set a sleep efficiency goal to track your progress!";
   } else if (currentDate > new Date(targetDate)) {
     if (averageSleepEfficiency >= sleepEfficiencyGoal) {
-      return 'Congratulations! You achieved your sleep efficiency goal in time!';
+      return "Congratulations! You achieved your sleep efficiency goal in time!";
     } else {
       return "You didn't reach your sleep efficiency goal in time. Keep going!";
     }
   } else if (currentDate < new Date(targetDate)) {
-    return 'Keep going! You are still working towards your sleep efficiency goal.';
+    return "Keep going! You are still working towards your sleep efficiency goal.";
   } else {
     if (averageSleepEfficiency >= sleepEfficiencyGoal) {
-      return 'Congratulations! You achieved your sleep efficiency goal!';
+      return "Congratulations! You achieved your sleep efficiency goal!";
     } else {
       return "You didn't reach your sleep efficiency goal. Keep going!";
     }
@@ -1073,8 +997,6 @@ app.get("/stats", sessionValidation, async (req, res) => {
   const sleepEfficiencies = sleepEfficiencyData.map(data => data.sleepEfficiency);
   const dates = sleepEfficiencyData.map(data => data.date);
   const averageSleepEfficiency = sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
-
-  // Retrieve the sleep efficiency goal and target date from the 'goals' collection
   const goalDocument = await goalCollection.findOne({ userId: userId });
 
   let sleepEfficiencyGoal = '';
@@ -1097,7 +1019,7 @@ app.get("/stats", sessionValidation, async (req, res) => {
     sleepEfficiencies: JSON.stringify(sleepEfficiencies),
     dates: JSON.stringify(dates),
     targetDate: targetDate,
-    goalMessage: goalMessage // Add the goal message as a rendering variable
+    goalMessage: goalMessage
   });
 });
 
@@ -1114,7 +1036,6 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
     if (!isNaN(sleepEfficiencyGoalNumber) && sleepEfficiencyGoalNumber >= 0 && sleepEfficiencyGoalNumber <= 100) {
       // Check if a goal document already exists for the user
       const existingGoal = await goalCollection.findOne({ userId: userId });
-
       if (existingGoal) {
         // Update the existing goal document
         await goalCollection.updateOne(
@@ -1137,15 +1058,12 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
       return;
     }
   }
-
   sleepEfficiencyGoal = req.session.sleepEfficiencyGoal || '';
 
   const sleepEfficiencyData = await calculateSleepEfficiencyData(name);
   const sleepEfficiencies = sleepEfficiencyData.map(data => data.sleepEfficiency);
   const dates = sleepEfficiencyData.map(data => data.date);
-
   const averageSleepEfficiency = sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
-
   let goalMessage = '';
 
   if (targetDate) {
@@ -1162,12 +1080,11 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
     updatedSleepEfficiencyGoal: '',
     sleepEfficiencies: JSON.stringify(sleepEfficiencies),
     dates: JSON.stringify(dates),
-    goalMessage: goalMessage // Add the goal message as a rendering variable
+    goalMessage: goalMessage 
   });
 });
 
 //STORING DATA OF ANALYSIS IN MONGODB
-
 const data = [
   {
     "age_range": "9-12",
@@ -1241,13 +1158,11 @@ const data = [
     "Intercept": 0.96,
 
   }
-
 ]
 
 async function updateData() {
   try {
     // Assuming you have established a connection to your MongoDB database
-
     // Define the update operation for each data object
     const updateOperations = data.map((obj) => ({
       updateOne: {
@@ -1259,7 +1174,6 @@ async function updateData() {
 
     // Perform the update operation
     await analysisCollection.bulkWrite(updateOperations, { ordered: false });
-
     console.log("Data inserted or updated successfully.");
   } catch (error) {
     console.error("Error inserting or updating data:", error);
@@ -1340,7 +1254,6 @@ app.post('/analysis', sessionValidation, async (req, res) => {
   }
   console.log("caffeineCount:", caffeineCount);
 
-
   const WakeupCount = parseInt(req.body.wakeupCount);
   const alcoholCount = req.body.alcoholCount;
   const exerciseCount = req.body.exerciseCount;
@@ -1356,7 +1269,6 @@ app.post('/analysis', sessionValidation, async (req, res) => {
   const awakeningProduct = WakeupCount * awakeningsFromDB;
   const alcoholProduct = alcoholCount * alcoholFromDB;
   const exerciseProduct = exerciseCount * exerciseFromDB;
-
 
   // Determine which product is more negative
   let mostNegativeFactor;
@@ -1379,7 +1291,6 @@ app.post('/analysis', sessionValidation, async (req, res) => {
     factor = exerciseProduct;
   }
   const finalFactor = Math.abs(factor) * 100;
-
 
   console.log('Caffeine product:', caffeineProduct);
   console.log('Awakening product:', awakeningProduct);
@@ -1420,16 +1331,10 @@ app.post('/analysis', sessionValidation, async (req, res) => {
     explanation: fact.explanation,
   }));
 
-
   const sleepEfficiency = req.body.sleepEfficiency;
   const difference = Math.round(intercept - sleepEfficiency);
 
-  if (
-    caffeineCount == 0 &&
-    WakeupCount == 0 &&
-    alcoholCount == 0 &&
-    exerciseCount == 0 && sleepEfficiency < intercept
-  ) {
+  if (caffeineCount == 0 && WakeupCount == 0 && alcoholCount == 0 && exerciseCount == 0 && sleepEfficiency < intercept) {
     // Render a different page when all factor values are zero
     res.render("analysisThree", {
       Intercept: intercept,
@@ -1439,33 +1344,23 @@ app.post('/analysis', sessionValidation, async (req, res) => {
       Difference: difference
     });
   }
-
   else if (matchingRange.age_range === '9-12' && sleepEfficiency < intercept) {
-
     res.render("analysisOne", {
-
       Intercept: intercept,
       SleepEfficiency: sleepEfficiency,
       MostNegativeFactor: mostNegativeFactor,
       RelevantFacts: relevantFacts,
       Difference: difference
-
     });
-
   } else if (sleepEfficiency >= intercept) {
-
     res.render("analysisTwo", {
       Intercept: intercept,
       SleepEfficiency: sleepEfficiency,
       MostNegativeFactor: mostNegativeFactorFromDB,
       RelevantFacts: relevantFacts
     });
-
-
   }
   else {
-
-
     // Render the analysis template with the calculated sleep efficiency, intercept value, most negative factor, and relevant facts
     res.render("analysis", {
       Intercept: intercept,
@@ -1477,7 +1372,6 @@ app.post('/analysis', sessionValidation, async (req, res) => {
     });
   }
 });
-
 
 //The route for public folder
 app.use(express.static(__dirname + "/public"));
