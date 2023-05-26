@@ -1,44 +1,38 @@
 <%- include("templates/header_main") %>
-
-    <div class="px-4 mb-4 text-center">
-        
-        <img class="d-block mx-auto mb-4" src="images/logo.png" alt="" width="300">
-
-        <div class="transparentbox col-lg-6 px-auto py-1 mx-auto">
-
-            <p class="lead mb-2">
-                Hello, <span class="colored-text"><%- name %></span>!
-              </p>
-
-              <img id="mypic-goes-here" src="profile_dummy.png" width="100" height="100" class="mb-4" />
-            <p class="lead">Your most recent sleep efficiency: </p>
-            <div class="infobox" id="sleepEfficiencyBox">
-            <p class="lead mb-2">
-                <span class="colored-text"><%- sleepEfficiency %> / 100</span>
-              </p>
-            </div>
-            <form action="/latestReport" method="post" class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-2 mx-2">
-                <button type="submit" class="btn btn-outline-secondary btn-lg px-4 buttondefault button1">
-                    <h5>See my latest report</h5>
-                </button>
-            </form>
-            <form class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-2 mx-2">
-                <a href="/report_list" type="button" class="btn btn-outline-secondary btn-lg px-4 buttondefault button1">
-                    <h5>View reports list</h5>
-                </a>
-            </form>
-
-        </div>
-        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-            <a href="/createreport" type="button" class="btn btn-primary btn-lg px-4 gap-3 my-3 button2" >Get Started</a>
-        </div>
+<div class="px-4 mb-4 text-center">
+  <img class="d-block mx-auto mb-4" src="images/logo.png" alt="" width="300">
+  <div class="transparentbox col-lg-6 px-auto py-1 mx-auto">
+    <p class="lead mb-2">
+      Hello, <span class="colored-text"><%- name %></span>!
+    </p>
+    <img id="mypic-goes-here" src="/images/profileImages/default.png" width="100" height="100" class="mb-4" />
+    <p class="lead">Your most recent sleep efficiency: </p>
+    <div class="infobox" id="sleepEfficiencyBox">
+      <p class="lead mb-2">
+        <span class="colored-text"><%- sleepEfficiency %> / 100</span>
+      </p>
     </div>
-    <br>
-    <br>
-    
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <form action="/latestReport" method="post" class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-2 mx-2">
+      <button type="submit" class="btn btn-outline-secondary btn-lg px-4 buttondefault button1">
+        <h5>See my latest report</h5>
+      </button>
+    </form>
+    <form class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-2 mx-2">
+      <a href="/report_list" type="button" class="btn btn-outline-secondary btn-lg px-4 buttondefault button1">
+        <h5>View reports list</h5>
+      </a>
+    </form>
+  </div>
+  <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+    <a href="/createreport" type="button" class="btn btn-primary btn-lg px-4 gap-3 my-3 button2">Get Started</a>
+  </div>
+</div>
+<br><br>
+<%- include("templates/footer") %>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-  $(function () {
+  $(function() {
     var storedImage = localStorage.getItem('profileImage');
 
     // If a profile image is stored, set it as the source for the profile image on the settings page
@@ -48,5 +42,3 @@
     }
   });
 </script>
-
-<%- include("templates/footer") %>

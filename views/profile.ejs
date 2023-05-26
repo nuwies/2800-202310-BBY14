@@ -1,176 +1,123 @@
 <%- include('templates/header_goback', { path: '/settings' }) %>
-    <div class="container justify-content-center mb-5 pb-5">
-        <div class="col-md-9">
-            <div class="tab-content">
-                <div class="tab-pane fade active show" id="account-general">
-
-                    <div class="card-body media align-items-center">
-                        <img id="mypic-goes-here" src="profile_dummy.png" width="100" height="100" />
-                        <br><br>
-
-                        <div class="media-body ml-4">
-
-
-                            <button type="button" class="btn btn-primary button2" onclick="showProfileImages()">Choose
-                                Image</button>
-                            <br>
-
-                            <!-- Profile image options -->
-                            <div id="profile-images" style="display:none;margin-top: 20px;">
-                                <img src="/profileImages/profilepic1.png" width="50" height="50"
-                                    onclick="setProfileImage('/profileImages/profilepic1.png')" />
-                                <img src="/profileImages/profilepic2.png" width="50" height="50"
-                                    onclick="setProfileImage('/profileImages/profilepic2.png')" />
-                                <img src="/profileImages/profilepic3.png" width="50" height="50"
-                                    onclick="setProfileImage('/profileImages/profilepic3.png')" />
-                                <img src="/profileImages/profilepic4.png" width="50" height="50"
-                                    onclick="setProfileImage('/profileImages/profilepic4.png')" />
-                                <img src="/profileImages/profilepic5.png" width="50" height="50"
-                                    onclick="setProfileImage('/profileImages/profilepic5.png')" />
-                                <img src="profile_dummy.png" width="50" height="50"
-                                    onclick="setProfileImage('profile_dummy.png')" />
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <br>
-                <hr class="border-light m-0">
-                <!-- <fieldset class="mb-3" id="personalInfoFields" disabled> -->
-                <form id="profileForm" method="POST" action="/profile">
-
-
-
-                    <div class="card-body">
-
-                        <div class="form-group">
-                            <label class="form-label">Name</label>
-                            <input id="nameInput" type="text" class="form-control" placeholder="enter your name"
-                                name="name" value="<%= name%>" <% if (!isEditing) { %>disabled<% } %>
-                                <% if (!isEditing) { %>style="background-color: rgb(206, 204, 204);"<% } %>>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Email</label>
-                            <input style="background-color: rgb(206, 204, 204);" id="bioInput" type="text" class="form-control mb-1" placeholder="enter email"
-                                value="<%= email%>" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Date of Birth</label>
-                            <input id="dateInput" type="date" class="form-control" placeholder="enter DOB"
-                                name="birthday" value="<%= birthday%>" <% if (!isEditing) { %>disabled<% } %>
-                                <% if (!isEditing) { %>style="background-color: rgb(206, 204, 204);"<% } %>>
-                        </div>
-                        <br>
-
-                        <% if (!isEditing) { %>
-
-                            <button type="button" class="btn btn-outline-primary button1"
-                                onclick="window.location.href='/profile?edit=true'">Edit Profile</button>
-                            <% } else { %>
-                                <button type="submit" class="btn btn-primary button1">Update Profile</button>&nbsp;
-                                <button type="button" class="btn btn-outline-primary button2"
-                                    onclick="window.location.href='/profile'">Cancel</button>
-                                <% } %>
-
-                    </div>
-
+<div class="container justify-content-center mb-5 pb-5">
+  <div class="col-md-9">
+    <div class="tab-content">
+      <div class="tab-pane fade active show" id="account-general">
+        <div class="card-body media align-items-center">
+          <img id="mypic-goes-here" src="/images/profileImages/default.png" width="100" height="100" />
+          <br><br>
+          <div class="media-body ml-4">
+            <button type="button" class="btn btn-primary button2" onclick="showProfileImages()">Choose Image</button>
+            <br>
+            <!-- Profile image options -->
+            <div id="profile-images" style="display:none;margin-top: 20px;">
+              <img src="/images/profileImages/profilepic1.png" width="50" height="50" onclick="setProfileImage('/images/profileImages/profilepic1.png')" />
+              <img src="/images/profileImages/profilepic2.png" width="50" height="50" onclick="setProfileImage('/images/profileImages/profilepic2.png')" />
+              <img src="/images/profileImages/profilepic3.png" width="50" height="50" onclick="setProfileImage('/images/profileImages/profilepic3.png')" />
+              <img src="/images/profileImages/profilepic4.png" width="50" height="50" onclick="setProfileImage('/images/profileImages/profilepic4.png')" />
+              <img src="/images/profileImages/profilepic5.png" width="50" height="50" onclick="setProfileImage('/images/profileImages/profilepic5.png')" />
+              <img src="/images/profileImages/default.png" width="50" height="50" onclick="setProfileImage('/images/profileImages/default.png')" />
             </div>
-            </form>
+          </div>
         </div>
+      </div>
+      <br>
+      <hr class="border-light m-0">
+      <!-- <fieldset class="mb-3" id="personalInfoFields" disabled> -->
+      <form id="profileForm" method="POST" action="/profile">
+        <div class="card-body">
 
-
-        <!-- <button type="submit" class="btn btn-primary">Save Profile</button>&nbsp; -->
-        <form id="delete-form" action="/users/<%= _id %>?_method=DELETE" method="post">
-            <!-- form fields  -->
-            <div class="form-group">
-                <br>
-                <label class="d-block text-danger">Delete Account</label>
-                <p class="font-size-sm" id="deleteacc">Once you delete your account, there is no going back. Please be
-                    certain.
-                </p>
-            </div>
-            <button id="delete-btn" type="button" class="btn btn-danger" data-toggle="modal"
-                data-target="#confirm-delete">Delete Account</button>
-        </form>
-
-        <!-- Confirmation modal -->
-        <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="deleteModal"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModal">Confirm Account Deletion</h5>
-
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to delete your account? This action cannot be undone.
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                            id="cancel-delete">Cancel</button>
-                        <button id="confirm-delete-btn" type="submit" form="delete-form" class="btn btn-danger">Delete
-                            Account</button>
-                    </div>
-                </div>
-            </div>
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input id="nameInput" type="text" class="form-control" placeholder="enter your name" name="name" value="<%= name%>" <% if (!isEditing) { %>disabled<% } %> <% if (!isEditing) { %>style="background-color: rgb(206, 204, 204);" <% } %>>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input style="background-color: rgb(206, 204, 204);" id="bioInput" type="text" class="form-control mb-1" placeholder="enter email" value="<%= email%>" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date of Birth</label>
+            <input id="dateInput" type="date" class="form-control" placeholder="enter DOB" name="birthday" value="<%= birthday%>" <% if (!isEditing) { %>disabled<% } %> <% if (!isEditing) { %>style="background-color: rgb(206, 204, 204);" <% } %>>
+          </div>
+          <br>
+          <% if (!isEditing) { %>
+          <button type="button" class="btn btn-outline-primary button1" onclick="window.location.href='/profile?edit=true'">Edit Profile</button>
+          <% } else { %>
+          <button type="submit" class="btn btn-primary button1">Update Profile</button>&nbsp;
+          <button type="button" class="btn btn-outline-primary button2" onclick="window.location.href='/profile'">Cancel</button>
+          <% } %>
         </div>
     </div>
+    </form>
+  </div>
+  <form id="delete-form" action="/users/<%= _id %>?_method=DELETE" method="post">
+    <!-- form fields  -->
+    <div class="form-group">
+      <br>
+      <label class="d-block text-danger">Delete Account</label>
+      <p class="font-size-sm" id="deleteacc">Once you delete your account, there is no going back. Please be certain.</p>
+    </div>
+    <button id="delete-btn" type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirm-delete">Delete Account</button>
+  </form>
+  <!-- Confirmation modal -->
+  <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModal">Confirm Account Deletion</h5>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete your account? This action cannot be undone.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancel-delete">Cancel</button>
+          <button id="confirm-delete-btn" type="submit" form="delete-form" class="btn btn-danger">Delete Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include("templates/footer") %>
 
-    <!-- JavaScript code -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-    <script>
-        $(function () {
-            $('#delete-btn').click(function () {
-                $('#confirm-delete').modal('show');
-            });
+<!-- JavaScript code -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script>
+  $(function() {
+    $('#delete-btn').click(function() {
+      $('#confirm-delete').modal('show');
+    });
 
-            $('#confirm-delete-btn').click(function () {
-                $('#delete-form').submit();
-            });
-            $('#cancel-delete').click(function () {
-                $('#confirm-delete').modal('hide');
-            });
-            $('#confirm-delete').on('hidden.bs.modal', function () {
-                // Clear the form data when the modal is closed
-                $('#delete-form')[0].reset();
-            });
-        });
+    $('#confirm-delete-btn').click(function() {
+      $('#delete-form').submit();
+    });
+    $('#cancel-delete').click(function() {
+      $('#confirm-delete').modal('hide');
+    });
+    $('#confirm-delete').on('hidden.bs.modal', function() {
+      // Clear the form data when the modal is closed
+      $('#delete-form')[0].reset();
+    });
+  });
+  
+  var storedImage = localStorage.getItem('profileImage');
+  // If a profile image is stored, set it as the source for the placeholder image
+  if (storedImage) {
+    var profileImage = document.getElementById('mypic-goes-here');
+    profileImage.src = storedImage;
+  }
 
-        var storedImage = localStorage.getItem('profileImage');
+  function showProfileImages() {
+    var profileImages = document.getElementById('profile-images');
+    profileImages.style.display = 'block';
+  }
 
-
-        // If a profile image is stored, set it as the source for the placeholder image
-        if (storedImage) {
-            var profileImage = document.getElementById('mypic-goes-here');
-            profileImage.src = storedImage;
-        }
-
-        function showProfileImages() {
-            var profileImages = document.getElementById('profile-images');
-            profileImages.style.display = 'block';
-        }
-
-        function setProfileImage(imageUrl) {
-            var profileImage = document.getElementById('mypic-goes-here');
-            profileImage.src = imageUrl;
-
-            // Store the selected image URL in the local storage
-            localStorage.setItem('profileImage', imageUrl);
-
-            var profileImages = document.getElementById('profile-images');
-            profileImages.style.display = 'none';
-        }
-
-
-    </script>
-
-
-
-
-
-
-
-
-
-    <%- include("templates/footer") %>
+  function setProfileImage(imageUrl) {
+    var profileImage = document.getElementById('mypic-goes-here');
+    profileImage.src = imageUrl;
+    // Store the selected image URL in the local storage
+    localStorage.setItem('profileImage', imageUrl);
+    var profileImages = document.getElementById('profile-images');
+    profileImages.style.display = 'none';
+  }
+</script>

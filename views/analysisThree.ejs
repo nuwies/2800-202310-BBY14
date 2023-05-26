@@ -1,49 +1,35 @@
 <%- include('templates/header_goback', { path: 'javascript:history.back()' }) %>
-
-    <div class="card mb-5 transparentbox">
-        <div class="card-header">
-            More Sleep Analysis
-          </div>
-        <div class="card-body mb-5">
-            <!-- <p class="card-text">Sleep Score: = sleepScore </p> -->
-            <div class="alert alert-warning" role="alert">
-                It is recommended that individuals in your age group strive for a sleep efficiency of at least <%=
-                    Intercept %>%. However, our analysis indicates that your current sleep efficiency falls below this
-                    target.(i.e <%=Difference%> % less than required.)
-            </div>
-
-            <!-- <div class="alert alert-danger" role="alert">
-        The most important factor affecting your sleep is <%= MostNegativeFactor%>
-       </div> -->
-
-            <div class="alert alert-success" role="alert">
-                <h2>Relevant Facts:</h2>
-                <h4>While it's great that none of the factors analyzed are currently affecting your sleep efficiency,
-                    there are still some tips you can follow to further improve your sleep efficiency.
-                </h4>
-                <ol>
-                    <li>Maintain a consistent sleep schedule.</li>
-                    <li>Create a calming bedtime routine.</li>
-                    <li>Ensure a comfortable sleep environment.</li>
-                    <li>Avoid electronic devices before bed.</li>
-                    <li>Limit caffeine and sugar intake in the evening.</li>
-                    <br>
-                    <br>
-
-
-                    <h4>However, it's important for individuals in this age group to keep paying attention to factors
-                        like <%= MostNegativeFactor %>, as this can have a significant impact on sleep efficiency.</h4>
-                    <% for (const fact of RelevantFacts) { %>
-                        <h5>Reason: <%= fact.reason %>
-                        </h5>
-                        <p>Explanation: <%= fact.explanation %>
-                        </p>
-                        <% } %>
-            </div>
-        </div>
+<div class="card mb-5 transparentbox">
+  <div class="card-header">More Sleep Analysis</div>
+  <div class="card-body mb-5">
+    <!-- <p class="card-text">Sleep Score: = sleepScore </p> -->
+    <div class="alert alert-warning" role="alert">
+      It is recommended that individuals in your age group strive for a sleep efficiency of at least 
+      <%=Intercept %>%. However, our analysis indicates that your current sleep efficiency falls below 
+      this target.(i.e <%=Difference%> % less than required.)
     </div>
-
-
-    <br><br><br>
-
-    <%- include("templates/footer") %>
+    <div class="alert alert-success" role="alert">
+      <h2>Relevant Facts:</h2>
+      <h4>While it's great that none of the factors analyzed are currently affecting your sleep efficiency,
+        there are still some tips you can follow to further improve your sleep efficiency.
+      </h4>
+      <ol>
+        <li>Maintain a consistent sleep schedule.</li>
+        <li>Create a calming bedtime routine.</li>
+        <li>Ensure a comfortable sleep environment.</li>
+        <li>Avoid electronic devices before bed.</li>
+        <li>Limit caffeine and sugar intake in the evening.</li>
+        <br><br>
+        <h4>However, it's important for individuals in this age group to keep paying attention to factors
+          like <%= MostNegativeFactor %>, as this can have a significant impact on sleep efficiency.</h4>
+        <% for (const fact of RelevantFacts) { %>
+        <h5>Reason: <%= fact.reason %>
+        </h5>
+        <p>Explanation: <%= fact.explanation %>
+        </p>
+        <% } %>
+    </div>
+  </div>
+</div>
+<br><br><br>
+<%- include("templates/footer") %>
