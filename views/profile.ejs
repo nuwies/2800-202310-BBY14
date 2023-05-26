@@ -46,18 +46,19 @@
                         <div class="form-group">
                             <label class="form-label">Name</label>
                             <input id="nameInput" type="text" class="form-control" placeholder="enter your name"
-                                name="name" value="<%= name%>" <% if (!isEditing) { %>disabled<% } %>>
+                                name="name" value="<%= name%>" <% if (!isEditing) { %>disabled<% } %>
+                                <% if (!isEditing) { %>style="background-color: rgb(206, 204, 204);"<% } %>>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Email</label>
-                            <input id="bioInput" type="text" class="form-control mb-1" placeholder="enter email"
+                            <input style="background-color: rgb(206, 204, 204);" id="bioInput" type="text" class="form-control mb-1" placeholder="enter email"
                                 value="<%= email%>" disabled>
-
                         </div>
                         <div class="form-group">
                             <label class="form-label">Date of Birth</label>
                             <input id="dateInput" type="date" class="form-control" placeholder="enter DOB"
-                                name="birthday" value="<%= birthday%>" <% if (!isEditing) { %>disabled<% } %>>
+                                name="birthday" value="<%= birthday%>" <% if (!isEditing) { %>disabled<% } %>
+                                <% if (!isEditing) { %>style="background-color: rgb(206, 204, 204);"<% } %>>
                         </div>
                         <br>
 
