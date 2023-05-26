@@ -249,7 +249,10 @@ app.post("/sendresetemail", async (req, res) => {
   const resetLink = `https://panicky-lamb-kilt.cyclic.app/resetpassword?token=${token}`;
   const msg = {
     to: email,
-    from: "aisleep.bby14@gmail.com",
+    from: {
+      email: "aisleep.bby14@gmail.com",
+      name: "AISleep"
+    },
     templateId: "d-8165dda8d38d4a059e436d812148a15a",
     dynamicTemplateData: {
       subject: "AISleep Password Reset",
