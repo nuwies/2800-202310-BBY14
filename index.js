@@ -116,7 +116,7 @@ app.post('/profile', async (req, res) => {
   var name = req.body.name;
   var birthday = req.body.birthday;
   const schema = Joi.object({
-    name: Joi.string().max(20).required(),
+    name: Joi.string().alphanum().max(20).required(),
 
     birthday: Joi.date().required(),
   }).options({ abortEarly: false });
