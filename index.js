@@ -551,19 +551,9 @@ app.get("/createreport", sessionValidation, async (req, res) => {
 });
 
 
-let isSubmitting = false; // Flag variable to track submission status
 var caffeineCount;
 app.post("/submitreport", sessionValidation, async (req, res) => {
-
-  if (isSubmitting) {
-    // If submission is already in progress, prevent further submissions
-    return res.send('<script>alert("Submission in progress. Please wait."); window.location.href="/report_list";</script>');
-    
-  }
-  // Set the flag to indicate that submission is in progress
-  isSubmitting = true;
-
-
+  
   const userName = req.session.name;
   const email = req.session.email;
 
@@ -664,6 +654,10 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
 
   const HoursAsleepMin = sleepDurationMin - (takeTimeAsleepHourInt * 60 + takeTimeAsleepMinuteInt);
   const HoursAsleep = `${Math.floor(HoursAsleepMin / 60)} hrs ${HoursAsleepMin % 60} min`;
+
+  if (sleepDurationMin < 0 || HoursAsleepMin < 0 || HoursAsleepMin > sleepDurationMin) {
+    return res.send('<script>alert("Invalid input."); window.location.href="/createreport";</script>');
+  }
 
   const sleepEfficiency = Math.round((HoursAsleepMin / sleepDurationMin) * 10000) / 100;
 
@@ -778,10 +772,6 @@ app.get('/newreport', sessionValidation, (req, res) => {
 
   // Split the tips string into an array of tips
   // const tips = tipsString.split(/\.|\?|!/);
-
-
-    // Reset the flag when the new report page is rendered
-    isSubmitting = false;
 
   // Render a new view with the report data
   res.render('newreport', {
