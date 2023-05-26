@@ -305,3 +305,15 @@ body.dark-mode #congratulationsText {
   text-align: right;
 }
 
+
+.grayed-out {
+    color: #000000;
+    background-color: #cecece;
+    pointer-events: none;
+  }
+
+body.dark-mode .grayed-out {
+    color: #dfdfdf;
+    background-color: #636262;
+    pointer-events: none;
+  }
