@@ -551,8 +551,18 @@ app.get("/createreport", sessionValidation, async (req, res) => {
 });
 
 
+let isSubmitting = false; // Flag variable to track submission status
 var caffeineCount;
 app.post("/submitreport", sessionValidation, async (req, res) => {
+
+  if (isSubmitting) {
+    // If submission is already in progress, prevent further submissions
+    return res.send('<script>alert("Submission in progress. Please wait."); window.location.href="/report_list";</script>');
+    
+  }
+  // Set the flag to indicate that submission is in progress
+  isSubmitting = true;
+
 
   const userName = req.session.name;
   const email = req.session.email;
@@ -728,7 +738,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   if (reportCount >= reportLimit) {
     // If the limit is reached, you can handle it accordingly
     console.log('Report limit reached');
-    return res.send("<script>alert('The report limit has reached the max amount of 10 reports! Please delete some reports in order to free up space.');window.location.href='/report_list'</script>");
+    return res.send("<script>alert('The report limit has reached the max amount of 7 reports! Please delete some reports in order to free up space.');window.location.href='/report_list'</script>");
   } else {
     // Save the report to the database
     try {
@@ -768,6 +778,10 @@ app.get('/newreport', sessionValidation, (req, res) => {
 
   // Split the tips string into an array of tips
   // const tips = tipsString.split(/\.|\?|!/);
+
+
+    // Reset the flag when the new report page is rendered
+    isSubmitting = false;
 
   // Render a new view with the report data
   res.render('newreport', {
