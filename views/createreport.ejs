@@ -1,6 +1,6 @@
 <%- include('templates/header_goback', { path: '/main' }) %>
   <div class="m-5 mb-5 pb-5">
-    <form action="/submitreport" method="post">
+    <form action="/submitreport" method="post" onsubmit="disableSubmitButton()">
 
       <!-- What time did you go to bed? -->
       <div class="form-group">
@@ -210,10 +210,19 @@
       </div>
 
       <div class="centeredbutton">
-        <button type="submit" class="btn btn-primary button1" id="submitBtn">Submit</button>
+        <button type="submit" id="submitBtn" class="btn btn-primary button1">Submit</button>
       </div>
     </form>
   </div>
 
 
   <%- include('templates/footer') %>
+
+  <script>
+    function disableSubmitButton() {
+      // Disable the submit button
+      document.getElementById("submitBtn").disabled = true;
+      // Change the text of the submit button to indicate processing
+      document.getElementById("submitBtn").innerHTML = "Submitting...";
+    }
+  </script>
