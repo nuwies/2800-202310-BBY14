@@ -1,4 +1,4 @@
-<%- include('templates/header_goback') %>
+<%- include('templates/header_goback', { path: '/settings' }) %>
 
 <br><br>
 <h2>Change password</h2>
@@ -12,11 +12,12 @@
                 class="form-control" name="newPassword"></div>
         <div class="form-group"> <label class="form-label">Confirm password</label> <input type="password"
                 class="form-control" name="confirmNewPassword"></div>
-              </form>
+             
     </div>
     <div class="centeredbutton">
       <button type="submit" class="btn btn-primary button1">Save</button>
     </div>
+  </form>
     
 
 <br><br>
@@ -32,6 +33,6 @@
       <%= messages.success %>
     </div>
     <% } %>
-</div>
+<br><br><br>
 
     <%- include('templates/footer') %>

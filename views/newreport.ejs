@@ -1,4 +1,4 @@
-<%- include("templates/header_goback") %>
+<%- include('templates/header_goback', { path: '/createreport' }) %>
 
 <div class="container mb-5 pb-5">
   <h1 class="my-4">My Report for <%= date %> </h1>
@@ -16,10 +16,10 @@
       <p class="card-text"><strong>Sleep Duration:</strong>  <%= sleepDuration %></p>
       <p class="card-text"><strong>Hours Asleep:</strong> <%= HoursAsleep %></p>
 
-      <p class="card-text"><strong>Number of Wakeups:</strong> <input type="text" name="wakeupCount" value="<%= wakeupCount %>"  readonly ></p>
-      <p class="card-text"><strong>Caffeine Consumption:</strong> <%= caffeine %> <input type="text" name="caffeineCount" value="<%= caffeineCount %>"  readonly >mg</p>
-      <p class="card-text"><strong>Alcohol Consumption: </strong><%= alcohol %> <input type="text" name="alcoholCount" value="<%= alcoholCount %>"  readonly > oz</p>
-      <p class="card-text"><strong>Exercise Frequency:</strong> <%= exercise %> <input type="text" name="exerciseCount" value="<%= exerciseCount %>"  readonly > times</p>
+      <p class="card-text"><strong>Number of Wakeups:</strong> <input type="text" name="wakeupCount" value="<%= wakeupCount %>"  readonly class="right-aligned grayed-out"></p>
+      <p class="card-text"><strong>Caffeine Consumption:</strong> <%= caffeine %> <input type="text" name="caffeineCount" value="<%= caffeineCount %>"  readonly class="right-aligned grayed-out"></p>
+      <p class="card-text"><strong>Alcohol Consumption: </strong><%= alcohol %> <input type="text" name="alcoholCount" value="<%= alcoholCount %>"  readonly class="right-aligned grayed-out"> oz</p>
+      <p class="card-text"><strong>Exercise Frequency:</strong> <%= exercise %> <input type="text" name="exerciseCount" value="<%= exerciseCount %>"  readonly class="right-aligned grayed-out"> times</p>
     </div>
   </div>
 
@@ -29,7 +29,7 @@
         Analysis
       </div>
       <div class="card-body">
-        <p class="card-text"><strong>Sleep Efficiency:</strong><input type="text" name="sleepEfficiency" value="<%= sleepEfficiency %>"  readonly >  /100</p>
+        <p class="card-text"><strong>Sleep Efficiency:</strong><input class="right-aligned grayed-out mx-2" type="text" name="sleepEfficiency" value="<%= sleepEfficiency %>"  readonly >  /100</p>
       </div>
       
     </div>

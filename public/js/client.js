@@ -1,3 +1,40 @@
+//report_list select and unselect all items
+const checkbox = document.getElementById('selectAll');
+if (checkbox) {
+  function selectAllReports() {
+    const submitButton = document.getElementById('submitButton');
+    const label = document.querySelector('label[for="selectAll"]');
+    submitButton.disabled = !checkbox.checked;
+  }
+}
+
+//report_list
+const deleteReport = document.getElementById("deleteReport");
+if (deleteReport) {
+  function confirmDelete() {
+    return confirm("Are you sure you want to delete this report?");
+  }
+}
+
+
+//easter egg page music
+const audio = document.getElementById("myAudio");
+if (audio) {
+  window.addEventListener('DOMContentLoaded', function () {
+    var muteButton = document.getElementById("muteButton");
+    muteButton.addEventListener('click', function () {
+      if (audio.muted) {
+        audio.muted = false;
+        muteButton.innerHTML = '<svg class="bi" width="24" height="24"><use xlink:href="#unmute"></use></svg>';
+      } else {
+        audio.muted = true;
+        muteButton.innerHTML = '<svg class="bi" width="24" height="24"><use xlink:href="#mute"></use></svg>';
+      }
+    });
+  });
+}
+
+
 // facts_page random tips
 function getRandomTip() {
   fetch('/tips-data')
@@ -103,20 +140,42 @@ if (puzzle) {
   puzzle.width = "250";
   var gap = 5;
   var row = 3;
-  var pieceWidth = (puzzle.width - (gap * (row + 1))) / row;
+  var eachPicWidth = (puzzle.width - (gap * (row + 1))) / row;
   var lastIndex = (row * row - 1);
-  var positionIndex = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  var randomPositionArray = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
-  // initial random position
-  var lists = [
-    [4, 3, 2, 8, 0, 7, 5, 6, 1],
-    [2, 0, 5, 6, 8, 7, 3, 1, 4],
-    [3, 7, 2, 4, 1, 6, 8, 0, 5],
-    [3, 2, 4, 1, 7, 6, 5, 0, 8]
-  ];
+  var solvable = false;
+  while (!solvable) {
+    // Shuffle the array
+    for (var i = randomPositionArray.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = randomPositionArray[i];
+      randomPositionArray[i] = randomPositionArray[j];
+      randomPositionArray[j] = temp;
+    }
+    console.log("randomPositionArray: " + randomPositionArray);
 
-  positionIndex = lists[Math.floor(Math.random() * 4)];
-  var emptyPosition = positionIndex.indexOf(lastIndex);
+    // Check if the array has an even number of inversions
+    var inversions = 0;
+    var emptyPosition = randomPositionArray.indexOf(lastIndex);
+    console.log("emptyPosition: " + emptyPosition);
+    var emptyRowFromBottom = Math.floor(emptyPosition / row) + 1;
+
+    for (var i = 0; i < randomPositionArray.length - 1; i++) {
+      for (var j = i + 1; j < randomPositionArray.length; j++) {
+        if (randomPositionArray[i] > randomPositionArray[j] && randomPositionArray[i] !== lastIndex && randomPositionArray[j] !== lastIndex) {
+          inversions++;
+        }
+      }
+    }
+    console.log("inversions: " + inversions);
+
+    // Determine solvability based on inversions and empty position
+    if ((row % 2 === 1 && inversions % 2 === 0) || (row % 2 === 0 && ((emptyRowFromBottom % 2 === 0) === (inversions % 2 === 1)))) {
+      solvable = true;
+    }
+    console.log("solvable: " + solvable);
+  }
 
   var times = 10;
   while (times--) {
@@ -125,21 +184,21 @@ if (puzzle) {
 
     switch (direction) {
       case 0:
-        target = topOfPosition(emptyPosition);
+        target = topPosition(emptyPosition);
         break;
       case 1:
-        target = leftOfPosition(emptyPosition);
+        target = leftPosition(emptyPosition);
         break;
       case 2:
-        target = rightOfPosition(emptyPosition);
+        target = rightPosition(emptyPosition);
         break;
       case 3:
-        target = bottomOfPosition(emptyPosition);
+        target = bottomPosition(emptyPosition);
         break;
     }
 
     if (target >= 0 && target <= lastIndex) {
-      var result = moveImageIfCanAtPosition(target);
+      var result = movePic(target);
       if (result >= 0) {
         emptyPosition = target;
       }
@@ -147,11 +206,11 @@ if (puzzle) {
   }
 
   for (var position = 0; position < row * row; position++) {
-    var index = positionIndex[position];
+    var index = randomPositionArray[position];
     if (index == lastIndex) {
       continue;
     }
-    drawImageItem(index, position);
+    drawEachPic(index, position);
   }
 
   puzzle.onclick = function (e) {
@@ -159,45 +218,45 @@ if (puzzle) {
       return; // Puzzle is already solved, return without doing anything
     }
 
-    var x = Math.floor(e.offsetX / (gap + pieceWidth));
-    var y = Math.floor(e.offsetY / (gap + pieceWidth));
+    var x = Math.floor(e.offsetX / (gap + eachPicWidth));
+    var y = Math.floor(e.offsetY / (gap + eachPicWidth));
     var position = y * row + x;
-    var target = moveImageIfCanAtPosition(position);
+    var target = movePic(position);
 
     //refresh
     if (target >= 0) {
-      var rect = rectForPosition(position);
+      var rect = rectPosition(position);
       context.clearRect(rect[0], rect[1], rect[2], rect[3]);
-      drawImageItem(positionIndex[target], target);
+      drawEachPic(randomPositionArray[target], target);
     }
 
     if (ifFinish()) {
-      drawImageItem(positionIndex[lastIndex], lastIndex);
+      drawEachPic(randomPositionArray[lastIndex], lastIndex);
       congratulationsText.style.display = "block";
       return;
     }
   };
 
   function ifFinish() {
-    return positionIndex.every(function (value, index) {
+    return randomPositionArray.every(function (value, index) {
       return value === index;
     });
   }
 
-  function drawImageItem(index, position) {
+  function drawEachPic(index, position) {
     var img = new Image();
     img.src = `./images/logo_0${index + 1}.png`;
     img.onload = () => {
-      var rect = rectForPosition(position);
+      var rect = rectPosition(position);
       context.drawImage(img, rect[0], rect[1], rect[2], rect[3]);
     }
   }
 
-  function moveImageIfCanAtPosition(position) {
-    var top = topOfPosition(position);
-    var left = leftOfPosition(position);
-    var bottom = bottomOfPosition(position);
-    var right = rightOfPosition(position);
+  function movePic(position) {
+    var top = topPosition(position);
+    var left = leftPosition(position);
+    var bottom = bottomPosition(position);
+    var right = rightPosition(position);
     var targetPosition = -1;
 
     if (isPositionEmpty(top)) {
@@ -211,8 +270,8 @@ if (puzzle) {
     }
 
     if (targetPosition >= 0) {
-      positionIndex[targetPosition] = positionIndex[position];
-      positionIndex[position] = lastIndex;
+      randomPositionArray[targetPosition] = randomPositionArray[position];
+      randomPositionArray[position] = lastIndex;
       puzzle.emptyPosition = position;
       return targetPosition;
     }
@@ -223,31 +282,31 @@ if (puzzle) {
     if (position < 0 || position > lastIndex) {
       return false;
     }
-    return positionIndex[position] === lastIndex;
+    return randomPositionArray[position] === lastIndex;
   }
 
-  function rectForPosition(position) {
+  function rectPosition(position) {
     if (position < 0 || position > lastIndex) {
       return [0, 0, 0, 0];
     }
-    var x = (position % row) * (gap + pieceWidth) + gap;
-    var y = Math.floor(position / row) * (gap + pieceWidth) + gap;
-    return [x, y, pieceWidth, pieceWidth];
+    var x = (position % row) * (gap + eachPicWidth) + gap;
+    var y = Math.floor(position / row) * (gap + eachPicWidth) + gap;
+    return [x, y, eachPicWidth, eachPicWidth];
   }
 
-  function leftOfPosition(position) {
+  function leftPosition(position) {
     return (position % row) === 0 ? -1 : position - 1;
   }
 
-  function rightOfPosition(position) {
+  function rightPosition(position) {
     return (position % row) === (row - 1) ? -1 : position + 1;
   }
 
-  function topOfPosition(position) {
+  function topPosition(position) {
     return position - row;
   }
 
-  function bottomOfPosition(position) {
+  function bottomPosition(position) {
     return position + row;
   }
 }
