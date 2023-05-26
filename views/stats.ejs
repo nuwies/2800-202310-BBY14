@@ -19,7 +19,7 @@
               <form action="/updateGoal" method="POST" class="col-md-4">
                 <div class="form-group mt-4">
                   <label for="goal">Sleep Efficiency Goal:</label>
-                  <input type="number" id="goal" name="goal" placeholder="%" class="form-control my-4" min="0" max="100" value="<%= sleepEfficiencyGoal %>">
+                  <input type="number" id="goal" name="goal" placeholder="%" class="form-control my-4" min="0" max="100" value="<%= sleepEfficiencyGoal %>" required>
                 </div>
                 <div class="form-group mt-4">
                   <label for="targetDate">Target Date:</label>
@@ -29,7 +29,7 @@
               </form>              
             </div> 
             <% if (error === "InvalidDate") { %>
-              <p class="my-4 mx-2 error-message">Error: The target date must be at least one day ahead of the current day.</p>
+              <p class="my-4 mx-2 error-message">Error: Invalid date.</p>
             <% } else { %>
               <h5 class="my-4"><%- goalMessage %></h5>
             <% } %>  
