@@ -301,3 +301,7 @@ body.dark-mode #congratulationsText {
   color: red;
 }
 
+.right-aligned {
+  text-align: right;
+}
+
