@@ -593,6 +593,10 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   const HoursAsleepMin = sleepDurationMin - (takeTimeAsleepHourInt * 60 + takeTimeAsleepMinuteInt);
   const HoursAsleep = `${Math.floor(HoursAsleepMin / 60)} hrs ${HoursAsleepMin % 60} min`;
 
+  if (sleepDurationMin < 0 || HoursAsleepMin < 0 || HoursAsleepMin > sleepDurationMin) {
+    return res.send('<script>alert("Invalid input."); window.location.href="/createreport";</script>');
+  }
+
   const sleepEfficiency = Math.round((HoursAsleepMin / sleepDurationMin) * 10000) / 100;
 
   function convertTo24HourFormat(hour, minute, amPm) {
@@ -665,7 +669,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   if (reportCount >= reportLimit) {
     // If the limit is reached, you can handle it accordingly
     console.log('Report limit reached');
-    return res.send("<script>alert('The report limit has reached the max amount of 10 reports! Please delete some reports in order to free up space.');window.location.href='/report_list'</script>");
+    return res.send("<script>alert('The report limit has reached the max amount of 7 reports! Please delete some reports in order to free up space.');window.location.href='/report_list'</script>");
   } else {
     // Save the report to the database
     try {
