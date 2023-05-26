@@ -1,24 +1,23 @@
 <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-    <div>
-        <form method="post" action="/report_list/<%= report._id %>">
-            <button type="submit" style="text-decoration: none; background-color: transparent; border: none;">
-                <h5>
-                    <%= report.date %>
-                </h5>
-            </button>
-        </form>
-    </div>
-    <div style="display: flex; align-items: center;">
-        <span style="background-color: #a6cdf0; width: 80px;" class="badge badge-primary badge-pill ml-auto">
-            <%= report.sleepEfficiency %> %
-        </span>
-        <form id="deleteReport" method="post" action="/report_list/delete/<%= report._id %>" onsubmit="return confirmDelete();">
-            <button style="text-decoration: none;" class="btn btn-link btn-floating text-dark m-2"
-                    role="button" data-mdb-ripple-color="dark" type="submit">
-                <svg class="bi" width="20" height="20">
-                    <use xlink:href="#trash"></use>
-                </svg>
-            </button>
-        </form>
-    </div>
+  <div>
+    <form method="post" action="/report_list/<%= report._id %>">
+      <button type="submit" style="text-decoration: none; background-color: transparent; border: none;">
+        <h5>
+          <%= report.date %>
+        </h5>
+      </button>
+    </form>
+  </div>
+  <div style="display: flex; align-items: center;">
+    <span style="background-color: #a6cdf0; width: 80px;" class="badge badge-primary badge-pill ml-auto">
+      <%= report.sleepEfficiency %> %
+    </span>
+    <form id="deleteReport" method="post" action="/report_list/delete/<%= report._id %>" onsubmit="return confirmDelete();">
+      <button style="text-decoration: none;" class="btn btn-link btn-floating text-dark m-2" role="button" data-mdb-ripple-color="dark" type="submit">
+        <svg class="bi" width="20" height="20">
+          <use xlink:href="#trash"></use>
+        </svg>
+      </button>
+    </form>
+  </div>
 </li>

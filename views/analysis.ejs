@@ -1,32 +1,26 @@
 <%- include('templates/header_goback', { path: 'javascript:history.back()' }) %>
-
 <div class="card mb-4 transparentbox">
-    <div class="card-header">
-      More Sleep Analysis
-    </div>
-    <div class="card-body">
-      <!-- <p class="card-text">Sleep Score: = sleepScore </p> -->
-      <div class="alert alert-warning" role="alert">
-        It is recommended that individuals in your age group strive for a sleep efficiency of at least <%=
+  <div class="card-header">
+    More Sleep Analysis
+  </div>
+  <div class="card-body">
+    <!-- <p class="card-text">Sleep Score: = sleepScore </p> -->
+    <div class="alert alert-warning" role="alert">
+      It is recommended that individuals in your age group strive for a sleep efficiency of at least <%=
         Intercept %>%. However, our analysis indicates that your current sleep efficiency falls below this
-        target.(i.e <%=Difference%> % less than required.)
-      </div>
-
-      <div class="alert alert-danger" role="alert">
-        The most important factor that can possibly affect your sleep and others of your age  is <%= MostNegativeFactor%>, and a decrease in this can improve your sleep efficiency.
-       </div>
-
-       <div class="alert alert-success" role="alert">
-        <h2>Relevant Facts:</h2>
-        <% for (const fact of RelevantFacts) { %>
-          <h3>Reason: <%= fact.reason %></h3>
-          <p>Explanation: <%= fact.explanation %></p>
-        <% } %>
-       </div>
-      
+      target.(i.e <%=Difference%> % less than required.)
+    </div>
+    <div class="alert alert-danger" role="alert">
+      The most important factor that can possibly affect your sleep and others of your age is <%= MostNegativeFactor%>, and a decrease in this can improve your sleep efficiency.
+    </div>
+    <div class="alert alert-success" role="alert">
+      <h2>Relevant Facts:</h2>
+      <% for (const fact of RelevantFacts) { %>
+      <h3>Reason: <%= fact.reason %></h3>
+      <p>Explanation: <%= fact.explanation %></p>
+      <% } %>
     </div>
   </div>
-
-  <br><br><br>
-
-<%- include("templates/footer") %> 
+</div>
+<br><br><br>
+<%- include("templates/footer") %>

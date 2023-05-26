@@ -6,11 +6,9 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
-
 const uuid = require('uuid').v4;
 const methodOverride = require('method-override');
 const flash = require('connect-flash');
-
 
 // SendGrid email service
 const sgMail = require("@sendgrid/mail");
@@ -49,6 +47,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(flash());
 
+// Session store using MongoDB
 var mongoStore = MongoStore.create({
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/bby14`,
   crypto: {
@@ -66,7 +65,6 @@ app.use(
 );
 
 app.use(methodOverride('_method'));
-
 app.use(express.static(__dirname + "/public"));
 
 // Checks if the user is authenticated based on the session
@@ -394,6 +392,8 @@ app.get("/security", sessionValidation, (req, res) => {
   res.render("security", { messages: req.flash() });
 });
 
+// Handles the POST request for changing the password and updating the database
+// Redirects the user to the "security" page with flash messages
 app.post('/change-password', sessionValidation, async (req, res) => {
   const currentPassword = req.body.currentPassword;
   const newPassword = req.body.newPassword;
@@ -528,9 +528,6 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
 
   if (caffeine === "No") {
     caffeineCount = 0;
-    // } else if (req.body.caffeine === "10+ mg") {
-    //   caffeineCount = 10;
-    //store caffeinecount as 10 levels on mongoDB
   } else if (req.body.caffeinecount === "25 mg (1/3 cup)") {
     caffeineCount = 1;
   } else if (req.body.caffeinecount === "50 mg (2/3 cup)") {
@@ -571,12 +568,12 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     exerciseCount = parseInt(req.body.exercisecount);
   }
 
-  // convert to string stored on database
+  // Convert to string stored on database
   // Combine the bedtime hour, minute, and AM/PM into a single string in the format "8:30 AM"
   const bedtime = `${bedtimeHour}:${bedtimeMinute} ${bedtimeAmPm}`;
   // Combine the wakeup hour, minute, and AM/PM into a single string in the format "8:30 AM"
   const wakeup = `${wakeupHour}:${wakeupMinute} ${wakeupAmPm}`;
-  //format "5+ hrs 40 min"
+  // Format Example "5+ hrs 40 min"
   const takeTimeAsleep = `${takeTimeAsleepHour} ${takeTimeAsleepMinute}`;
 
   const sleepDurationMin = calculateSleepDuration(bedtimeHourInt, bedtimeMinuteInt, bedtimeAmPm, wakeupHourInt, wakeupMinuteInt, wakeupAmPm);
@@ -637,8 +634,8 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     bedtime,
     wakeup,
     takeTimeAsleep,
-    sleepDuration, //
-    HoursAsleep, //
+    sleepDuration, 
+    HoursAsleep, 
     wakeupCount: wakeupCountInt,
     caffeine,
     caffeineCount,
@@ -646,10 +643,8 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     alcoholCount,
     exercise,
     exerciseCount,
-    // sleepScore,
-    sleepEfficiency, //
-    date: formattedDate, // use formatted date
-    // tips: tipsString // add the tips array as a string
+    sleepEfficiency, 
+    date: formattedDate,
   };
 
   // Check the number of existing reports
@@ -667,13 +662,10 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
     try {
       const result = await reportCollection.insertOne(report);
       console.log(`Inserted report with ID ${result.insertedId}`);
-
-      //convert back for displaying on page
+      // Convert back for displaying on page
       convertToCaffeineOption(caffeineCount);
-
       // Redirect the user to the newreport route with the report data in the query parameters, including the tips string
       res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineOption}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${encodeURIComponent(formattedDate)}`);
-
     } catch (error) {
       console.error(error);
       res.status(500).send('Error submitting report');
@@ -825,9 +817,7 @@ app.post('/report_list/:id', sessionValidation, async (req, res) => {
   });
   const { bedtime, wakeup, takeTimeAsleep, sleepDuration, HoursAsleep, wakeupCount, caffeine, caffeineCount, alcohol, alcoholCount, exercise, exerciseCount, sleepEfficiency, date } = report;
   const formattedDate = encodeURIComponent(date);
-
   convertToCaffeineOption(caffeineCount);
-
   res.redirect(`/newreport?bedtime=${bedtime}&wakeup=${wakeup}&takeTimeAsleep=${takeTimeAsleep}&sleepDuration=${sleepDuration}&HoursAsleep=${HoursAsleep}&wakeupCount=${wakeupCount}&caffeine=${caffeine}&caffeineCount=${caffeineOption}&alcohol=${alcohol}&alcoholCount=${alcoholCount}&exercise=${exercise}&exerciseCount=${exerciseCount}&sleepEfficiency=${sleepEfficiency}&date=${formattedDate}`);
 });
 
@@ -895,18 +885,22 @@ app.post('/report_list/delete/all', sessionValidation, async (req, res) => {
   res.redirect('/report_list');
 });
 
+// Renders the "settings" page with the user's name from the session
 app.get('/settings', sessionValidation, function (req, res) {
   res.render("settings", { name: req.session.name });
 })
 
+// Renders the "preferences" page
 app.get('/preferences', sessionValidation, function (req, res) {
   res.render("preferences");
 })
 
+// Renders the "problem" page
 app.get("/problem", sessionValidation, (req, res) => {
   res.render("problem");
 });
 
+// Handles the POST request for reporting a problem and saves it to mongodb
 app.post('/reportProblem', sessionValidation, async (req, res) => {
   const name = req.session.name;
   const email = req.session.email;
@@ -985,6 +979,7 @@ function calculateGoalStatus(targetDate, sleepEfficiencyGoal, averageSleepEffici
   }
 }
 
+// Uses report data to render the "stats" page with a graph of sleep efficiency over time
 app.get("/stats", sessionValidation, async (req, res) => {
   const name = req.session.name;
   const userId = req.session._id;
@@ -992,14 +987,13 @@ app.get("/stats", sessionValidation, async (req, res) => {
   const sleepEfficiencyData = await calculateSleepEfficiencyData(name);
   const sleepEfficiencies = sleepEfficiencyData.map((data) => data.sleepEfficiency);
   const dates = sleepEfficiencyData.map((data) => data.date);
-  const averageSleepEfficiency =
-    sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
+  const averageSleepEfficiency = sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
   const goalDocument = await goalCollection.findOne({ userId: userId });
 
   let sleepEfficiencyGoal = "";
   let targetDate = "";
   let goalMessage = "";
-  let error = req.query.error; // Get the error message from the query parameter
+  let error = req.query.error;
 
   if (goalDocument) {
     sleepEfficiencyGoal = goalDocument.sleepEfficiencyGoal || "";
@@ -1018,10 +1012,11 @@ app.get("/stats", sessionValidation, async (req, res) => {
     dates: JSON.stringify(dates),
     targetDate: targetDate,
     goalMessage: goalMessage,
-    error: error, // Pass the error variable to the template
+    error: error, 
   });
 });
 
+// Handles the POST request for updating the sleep efficiency goal
 app.post("/updateGoal", sessionValidation, async (req, res) => {
   const name = req.session.name;
   const userId = req.session._id;
@@ -1037,15 +1032,12 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
       if (targetDate) {
         const currentDate = new Date();
         const selectedDate = new Date(targetDate);
-
         // Calculate the maximum allowed date
         const maxDate = new Date();
         maxDate.setFullYear(maxDate.getFullYear() + 100);
-
         // Set the time to 0:00:00 to compare only the date
         selectedDate.setHours(0, 0, 0, 0);
         currentDate.setHours(0, 0, 0, 0);
-
         if (selectedDate >= currentDate && selectedDate <= maxDate) {
           // Check if a goal document already exists for the user
           const existingGoal = await goalCollection.findOne({ userId: userId });
@@ -1063,11 +1055,8 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
               targetDate: targetDate,
             });
           }
-
-          // Update the session variables
           req.session.sleepEfficiencyGoal = sleepEfficiencyGoalNumber;
           req.session.targetDate = targetDate;
-
           res.redirect("/stats?sleepEfficiencyGoal=" + sleepEfficiencyGoalNumber);
           return;
         } else {
@@ -1078,14 +1067,12 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
       }
     }
   }
-
   sleepEfficiencyGoal = req.session.sleepEfficiencyGoal || "";
 
   const sleepEfficiencyData = await calculateSleepEfficiencyData(name);
   const sleepEfficiencies = sleepEfficiencyData.map((data) => data.sleepEfficiency);
   const dates = sleepEfficiencyData.map((data) => data.date);
-  const averageSleepEfficiency =
-    sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
+  const averageSleepEfficiency = sleepEfficiencies.reduce((acc, efficiency) => acc + efficiency, 0) / sleepEfficiencies.length;
   let goalMessage = "";
 
   if (targetDate) {
@@ -1107,7 +1094,7 @@ app.post("/updateGoal", sessionValidation, async (req, res) => {
   });
 });
 
-// STORING DATA OF ANALYSIS IN MONGODB
+// Dataset analysis results to store in the database
 const data = [
   {
     "age_range": "9-12",
@@ -1116,7 +1103,6 @@ const data = [
     "Alcohol_consumption": 0.00,
     "Exercise_frequency": 0.00,
     "Intercept": 0.86,
-
   },
   {
     "age_range": "13-18",
@@ -1125,7 +1111,6 @@ const data = [
     "Alcohol_consumption": 0.00,
     "Exercise_frequency": 0.06,
     "Intercept": 0.90,
-
   },
   {
     "age_range": "19-25",
@@ -1134,7 +1119,6 @@ const data = [
     "Alcohol_consumption": -0.02,
     "Exercise_frequency": -0.01,
     "Intercept": 0.91,
-
   },
   {
     "age_range": "26-35",
@@ -1143,7 +1127,6 @@ const data = [
     "Alcohol_consumption": -0.03,
     "Exercise_frequency": 0.00,
     "Intercept": 0.93,
-
   },
   {
     "age_range": "36-45",
@@ -1152,7 +1135,6 @@ const data = [
     "Alcohol_consumption": -0.04,
     "Exercise_frequency": -0.00,
     "Intercept": 0.95,
-
   },
   {
     "age_range": "46-55",
@@ -1161,7 +1143,6 @@ const data = [
     "Alcohol_consumption": -0.02,
     "Exercise_frequency": 0.01,
     "Intercept": 0.89,
-
   },
   {
     "age_range": "56-64",
@@ -1170,7 +1151,6 @@ const data = [
     "Alcohol_consumption": -0.02,
     "Exercise_frequency": 0.01,
     "Intercept": 0.94,
-
   },
   {
     "age_range": "65+",
@@ -1179,10 +1159,10 @@ const data = [
     "Alcohol_consumption": -0.02,
     "Exercise_frequency": 0.00,
     "Intercept": 0.96,
-
   }
 ]
 
+// Used to update the database with the analysis results
 async function updateData() {
   try {
     // Assuming you have established a connection to your MongoDB database
@@ -1194,7 +1174,6 @@ async function updateData() {
         upsert: true,
       },
     }));
-
     // Perform the update operation
     await analysisCollection.bulkWrite(updateOperations, { ordered: false });
     console.log("Data inserted or updated successfully.");
@@ -1204,15 +1183,15 @@ async function updateData() {
     // Close the database connection or perform any cleanup tasks if necessary
   }
 }
-
-// Call the async function to update the data
 updateData();
 
+// Helper function to calculate the age of the user
 function calculateAge(birthday) {
   const currentDate = new Date();
   const age = currentDate.getFullYear() - birthday.getFullYear();
   return age;
 }
+
 
 const factorsData = require('./app/data/facts.json');
 app.post('/analysis', sessionValidation, async (req, res) => {
@@ -1222,9 +1201,7 @@ app.post('/analysis', sessionValidation, async (req, res) => {
     .find({ $or: [{ age_range: { $regex: new RegExp(`^(\\d+)-`) } }, { age_range: { $eq: '65+' } }] })
     .project({ age_range: 1, Awakenings: 1, Caffeine_consumption: 1, Alcohol_consumption: 1, Exercise_frequency: 1, Intercept: 1 })
     .toArray();
-
   if (results.length === 0) {
-    console.error('No matching age category found');
     return res.status(400).send('No matching age category found');
   }
 
@@ -1238,19 +1215,13 @@ app.post('/analysis', sessionValidation, async (req, res) => {
   });
 
   if (!matchingRange) {
-    console.error('No matching age range found');
     return res.status(400).send('No matching age range found');
   }
-
-  console.log('Matching age range:', matchingRange);
-
+  
   // Perform further analysis or calculations based on the matching range
-
   // Respond with the matching range
+  console.log('Matching age range:', matchingRange);
   const intercept = matchingRange.Intercept * 100;
-  // from body
-  // const caffeineCount = req.body.caffeineCount;
-  console.log("req.body.caffeinecount:", req.body.caffeineCount);
 
   if (req.body.caffeineCount === "25 mg (1/3 cup)") {
     caffeineCount = 1;
@@ -1275,25 +1246,21 @@ app.post('/analysis', sessionValidation, async (req, res) => {
   } else {
     caffeineCount = parseInt(req.body.caffeineCount);
   }
-  console.log("caffeineCount:", caffeineCount);
-
   const WakeupCount = parseInt(req.body.wakeupCount);
   const alcoholCount = req.body.alcoholCount;
   const exerciseCount = req.body.exerciseCount;
-  console.log(WakeupCount, alcoholCount, exerciseCount);
-  // Extract factor values from the MongoDB matching range
+
   const caffeineFromDB = matchingRange.Caffeine_consumption;
   const awakeningsFromDB = matchingRange.Awakenings;
   const alcoholFromDB = matchingRange.Alcohol_consumption;
   const exerciseFromDB = matchingRange.Exercise_frequency;
 
-  // Calculate the products
   const caffeineProduct = caffeineCount * caffeineFromDB;
   const awakeningProduct = WakeupCount * awakeningsFromDB;
   const alcoholProduct = alcoholCount * alcoholFromDB;
   const exerciseProduct = exerciseCount * exerciseFromDB;
 
-  // Determine which product is more negative
+  // Determine most negative factor from calculations
   let mostNegativeFactor;
   let factor;
   if (caffeineProduct <= awakeningProduct && caffeineProduct <= alcoholProduct && caffeineProduct <= exerciseProduct) {
@@ -1315,17 +1282,9 @@ app.post('/analysis', sessionValidation, async (req, res) => {
   }
   const finalFactor = Math.abs(factor) * 100;
 
-  console.log('Caffeine product:', caffeineProduct);
-  console.log('Awakening product:', awakeningProduct);
-  console.log('Alcohol product:', alcoholProduct);
-  console.log('Exercise product:', exerciseProduct);
-  console.log('Most negative factor:', mostNegativeFactor);
-  console.log(caffeineCount);
-
-  // most negative factor from from database
+  // Determine most negative factor from DB
   let mostNegativeFactorFromDB;
   let factorFromDB;
-
   if (caffeineFromDB <= awakeningsFromDB && caffeineFromDB <= alcoholFromDB && caffeineFromDB <= exerciseFromDB) {
     mostNegativeFactorFromDB = 'Caffeine';
     factorFromDB = caffeineFromDB;
@@ -1344,7 +1303,6 @@ app.post('/analysis', sessionValidation, async (req, res) => {
     facts = factorsData.exercise;
   }
 
-  console.log('Most negative factor from db :', mostNegativeFactorFromDB);
   // Shuffle the facts array
   const shuffledFacts = facts.sort(() => Math.random() - 0.5);
 
