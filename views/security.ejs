@@ -1,16 +1,16 @@
 <%- include('templates/header_goback', { path: '/settings' }) %>
 
 <br><br>
-<h2>Change password</h2>
+<h2>Change Password</h2>
 <br><br>
     <div class="card-body pb-2">
         <form action="/change-password" method="POST">
         <div class="form-group">
-             <label class="form-label">Current password</label>
+             <label class="form-label">Current Password</label>
               <input type="password" class="form-control" name="currentPassword"></div>
-        <div class="form-group"> <label class="form-label">New password</label> <input type="password"
+        <div class="form-group"> <label class="form-label">New Password</label> <input type="password"
                 class="form-control" name="newPassword"></div>
-        <div class="form-group"> <label class="form-label">Confirm password</label> <input type="password"
+        <div class="form-group"> <label class="form-label">Confirm Password</label> <input type="password"
                 class="form-control" name="confirmNewPassword"></div>
              
     </div>
