@@ -4,12 +4,6 @@ if (checkbox) {
   function selectAllReports() {
     const submitButton = document.getElementById('submitButton');
     const label = document.querySelector('label[for="selectAll"]');
-
-    if (checkbox.checked) {
-      label.textContent = "Select all reports";
-    } else {
-      label.textContent = "Unselect all reports";
-    }
     submitButton.disabled = !checkbox.checked;
   }
 }
