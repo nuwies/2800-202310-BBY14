@@ -3,7 +3,7 @@
   <div class="alert alert-primary text-center" role="alert">
     <h2>Sign Up</h2>
   </div>
-  <form action="/submitUser" method="post">
+  <form action="/submitUser" method="post" onsubmit="disableSubmitButton()">
     <div class="form-group mb-2">
       <label for="name">Name <span class="required">*</span></label>
       <input type="text" class="form-control" id="name" name="name" placeholder="Enter name" required>
@@ -25,8 +25,14 @@
       <input type="date" class="form-control" id="birthday" name="birthday" required>
     </div>    
     <div class="centeredbutton">
-      <button type="submit" class="btn btn-primary button1">Submit</button>
+      <button type="submit" id="submitBtn" class="btn btn-primary button1" >Submit</button>
     </div>
   </form>
 </div>
 <%- include('templates/footer') %>
+
+<script>
+  function disableSubmitButton() {
+    document.getElementById('submitBtn').disabled = true;
+  }
+</script>
