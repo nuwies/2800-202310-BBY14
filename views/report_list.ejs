@@ -13,8 +13,8 @@
             </ul>
         </div>
 
-
-        <form class="mt-2" action="/report_list/delete/all" method="post" style="display: flex; align-items: center;"
+        <div class="col-lg-6 px-2 py-3 mx-auto">
+        <form class="d-flex" action="/report_list/delete/all" method="post"
             onsubmit="return confirm('Are you sure you want to delete all reports?');">
             <div class="form-check m-auto">
                 <input class="form-check-input" type="checkbox" value="all" id="selectAll" name="selectAll"
@@ -23,8 +23,9 @@
                     Unselect all reports
                 </label>
             </div>
-            <button type="submit" id="submitButton" class="btn btn-danger mt-2 mx-5" disabled>Delete</button>
+            <button type="submit" id="submitButton" class="btn btn-danger mt-2 mx-auto" disabled>Delete</button>
         </form>
+    </div>
 
     </div>
 
