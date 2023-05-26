@@ -1,3 +1,19 @@
+//report_list select and unselect all items
+const checkbox = document.getElementById('selectAll');
+if (checkbox) {
+  function selectAllReports() {
+    const submitButton = document.getElementById('submitButton');
+    const label = document.querySelector('label[for="selectAll"]');
+
+    if (checkbox.checked) {
+      label.textContent = "Select all reports";
+    } else {
+      label.textContent = "Unselect all reports";
+    }
+    submitButton.disabled = !checkbox.checked;
+  }
+}
+
 //report_list
 const deleteReport = document.getElementById("deleteReport");
 if (deleteReport) {

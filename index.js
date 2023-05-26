@@ -523,31 +523,31 @@ app.delete('/users/:userId', async (req, res) => {
 
 
 app.get("/createreport", sessionValidation, async (req, res) => {
-  const email = req.session.email;
+  // const email = req.session.email;
 
-  // Get today's date
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.toLocaleString('en-US', { month: 'long' });
-  const day = today.getDate();
+  // // Get today's date
+  // const today = new Date();
+  // const year = today.getFullYear();
+  // const month = today.toLocaleString('en-US', { month: 'long' });
+  // const day = today.getDate();
 
-  // Format today's date as a string to match the stored format
-  const formattedTodayString = `${month} ${day}, ${year}`;
+  // // Format today's date as a string to match the stored format
+  // const formattedTodayString = `${month} ${day}, ${year}`;
 
-  // Check if a report exists for the current date (ignoring time)
-  const existingReport = await reportCollection.findOne({
-    email: email,
-    date: { $regex: `^${formattedTodayString}` }
-  });
+  // // Check if a report exists for the current date (ignoring time)
+  // const existingReport = await reportCollection.findOne({
+  //   email: email,
+  //   date: { $regex: `^${formattedTodayString}` }
+  // });
 
-  if (existingReport) {
-    // Report for today already exists
-    res.send("<script>alert('A report already exists for today.'); window.location.href = '/report_list';</script>");
-    return;
-  } else {
+  // if (existingReport) {
+  //   // Report for today already exists
+  //   res.send("<script>alert('A report already exists for today.'); window.location.href = '/report_list';</script>");
+  //   return;
+  // } else {
     // No report exists for today
     res.render("createreport");
-  }
+  // }
 });
 
 
@@ -724,7 +724,7 @@ app.post("/submitreport", sessionValidation, async (req, res) => {
   const reportCount = await reportCollection.countDocuments({ userName });
   console.log(`Report count: ${reportCount}`);
   // Set the maximum limit for reports
-  const reportLimit = 10;
+  const reportLimit = 7;
 
   if (reportCount >= reportLimit) {
     // If the limit is reached, you can handle it accordingly
@@ -953,11 +953,26 @@ function convertToCaffeineOption(caffeineCount) {
   }
 }
 
-//delete report
+
+// delete specific report
 app.post('/report_list/delete/:id', sessionValidation, async (req, res) => {
   const reportId = req.params.id;
   console.log(reportId);
-  await reportCollection.deleteOne({ _id: new ObjectId(reportId) });
+  if (reportId === 'all') {
+    // Handle the case of deleting all reports
+    const name = req.session.name;
+    await reportCollection.deleteMany({ userName: name });
+  } else {
+    // Handle the case of deleting a specific report
+    await reportCollection.deleteOne({ _id: new ObjectId(reportId) });
+  }
+  res.redirect('/report_list');
+});
+
+// delete all reports
+app.post('/report_list/delete/all', sessionValidation, async (req, res) => {
+  const name = req.session.name;
+  await reportCollection.deleteMany({ userName: name });
   res.redirect('/report_list');
 });
 
