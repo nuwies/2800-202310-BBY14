@@ -18,18 +18,20 @@
             <div class="row justify-content-center">
               <form action="/updateGoal" method="POST" class="col-md-4">
                 <div class="form-group mt-4">
-                  <label for="goal">Sleep Efficiency Goal:</label>
+                  <label for="goal">Sleep Efficiency Goal:<span class="required">*</span></label>
                   <input type="number" id="goal" name="goal" placeholder="%" class="form-control my-4" min="0" max="100" value="<%= sleepEfficiencyGoal %>" required>
                 </div>
                 <div class="form-group mt-4">
-                  <label for="targetDate">Target Date:</label>
+                  <label for="targetDate">Target Date:<span class="required">*</span></label>
                   <input type="date" id="targetDate" name="targetDate" class="form-control my-4" value="<%= targetDate %>" required>
                 </div>
                 <button type="submit" class="btn btn-primary button1">Update Goal</button>
               </form>              
             </div> 
             <% if (error === "InvalidDate") { %>
-              <p class="my-4 mx-2 error-message">Error: Invalid date.</p>
+              <div class="alert alert-danger text-center mt-4" role="alert">
+              <p class="my-2 mx-2 mt-2 error-message">Error: Invalid date.</p>
+            </div>
             <% } else { %>
               <h5 class="my-4"><%- goalMessage %></h5>
             <% } %>  
