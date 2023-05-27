@@ -158,15 +158,20 @@ As a new developer, it is important to have access to our GitHub repository and 
 * Music: https://www.youtube.com/watch?v=HGMQbVfYVmI&list=PL-iKWhQU41oOHDfz1I3tHA9xvNWmd35zY&index=8
 * Profile Banner: https://www.freepik.com/free-vector/night-african-savannah-landscape-wild-nature-africa-twilight-view-cartoon-background-with-road-trees-rocks-birds-flying-starry-sky-with-full-moon-kenya-nighttime-vector-illustration_21994618.htm#query=night%20landscape&position=3&from_view=search&track=ais Image by upklyak on Freepik
 * Profile Banner 2: https://www.freepik.com/free-photo/sunset-silhouettes-trees-mountains-generative-ai_39657505.htm#query=sunrise%20vector%20illustration&position=4&from_view=search&track=ais Image by pvproductions on Freepik
+* Default Profile Picture: https://www.flaticon.com/free-icon/profile_3135715 User icons created by Freepik - Flaticon
+* Profile Picture 1: https://www.youtube.com/watch?v=Ecm6v8-pkrg Created by Shreyansh Kotak
+* Profile Picture 2: https://www.istockphoto.com/vector/woman-sleeping-at-night-in-his-bed-and-sees-dream-in-speech-bubble-gm1153827147-313510918 Image by Ponomariova Maria on iStock
+* Profile Picture 3: https://www.freepik.com/free-vector/card-asleep-man-dog_28807566.htm#query=sleeping%20man&position=29&from_view=keyword&track=ais Image by gstudioimagen1 on Freepik
+* Profile Picture 4: https://www.freepik.com/premium-vector/coffee-vector-art-flat-design-adobe-illustrator_31597265.htm Image by cherrybeecheng on Freepik
+* Profile Picture 5: https://www.istockphoto.com/vector/wooden-bed-for-one-person-in-an-isometric-view-gm898206528-247795954 Image by Ponomariova Maria on iStock
+* Logo images, Welldone.png, 404.png: Designed in Adobe Illustrator by Jimmy Tsang
 
 ### Licenses:
 * None
 
 ## 8. How We Used AI
 
-
 ## 9. Contact Information
-
 
 ## 5. Complete setup/installion/usage
 State what a user needs to do when they come to your project.  How do others start using your code or application?
@@ -176,13 +181,13 @@ Here are the steps
 * ...
 
 ## 5. Known Bugs and Limitations
-Here are some known bugs:
-* ...
-* ...
-* ...
+Here are some known bugs and limitations:
+* In rare instances, it is possible to get the alert of having already made the day's report even when you have deleted all reports.
+* You can only choose from a select number of profile pictures.
+* The stats page graph does not have a dark mode friendly colour scheme.
 
 ## 6. Features for Future
 What we'd like to build in the future:
-* ...
-* ...
-* ...
+* We would like to build a more comprehensive music function that would connect with the Spotify API, and allow users to search for, favourite, and play music that helps them sleep.
+* We would like to find more habits that affect sleep efficiency, and include them in our report as well.
+* We would like to expand on the stats page so that users can see a day by day breakdown of their sleep efficiency score (i.e, a user would be able to see stats for each day of the week).
