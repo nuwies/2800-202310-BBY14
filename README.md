@@ -10,9 +10,9 @@ Our team, Burnaby 14, is developing AISleep to help tired workers and students g
 * Emily Lin
 	
 ## 3. Technologies  Used
-* FrontEnd :  HTML, Bootstrap, and CSS
-* BackEnd : Javascript, Jquery, EJS, and NodeJS
-* Database : MongoDB
+* FrontEnd:  HTML, Bootstrap, and CSS
+* BackEnd: SourceTree, Javascript, Jquery, EJS, and NodeJS
+* Database: MongoDB
 * icons: https://icons.getbootstrap.com/
 
 ## 4. Contents of Folder
@@ -122,9 +122,6 @@ As a new developer, it is important to have access to our GitHub repository and 
 
 * In order to perform analysis on sleep data and provide recommendations, it is necessary to have access to the Python script generated for the Kaggle datasets related to sleep. This access will enable  to make any necessary amendments or modifications to the script as needed. Having control over the Python script allows  to conduct the analysis effectively and tailor it according to the specific requirements of the sleep data analysis.
 
-* 
-
-
 ## 6.  Features
 * As a user, you can begin by opening the app using the link: https://extinct-red-betta.cyclic.app/ in any search engine. Sign up to initiate the process of tracking your sleeping habits.
 
@@ -153,6 +150,7 @@ As a new developer, it is important to have access to our GitHub repository and 
 * Sarah played a crucial role in the project as she initiated the repository and provided valuable assistance in resolving git conflicts, ensuring smooth collaboration among team members. She was responsible for developing the login and signup pages, incorporating essential authentication features. Additionally, Sarah implemented sleep efficiency statistics with visually appealing graphs. Her editing skills came to the fore as she dedicated her efforts to polishing the final presentation Her expertise in front-end and back-end development greatly contributed to the project's functionality and overall success.
 
 ### References:
+* Dataset: https://www.kaggle.com/datasets/equilibriumm/sleep-efficiency
 * Tips resource 1: https://www.cdc.gov/sleep/about_sleep/sleep_hygiene.html
 * Tips resource 2: https://www.healthline.com/nutrition/ways-to-fall-asleep#The-bottom-line
 * Music: https://www.youtube.com/watch?v=HGMQbVfYVmI&list=PL-iKWhQU41oOHDfz1I3tHA9xvNWmd35zY&index=8
@@ -167,27 +165,30 @@ As a new developer, it is important to have access to our GitHub repository and 
 * Logo images, Welldone.png, 404.png: Designed in Adobe Illustrator by Jimmy Tsang
 
 ### Licenses:
-* None
+* Freepik Free License
 
 ## 8. How We Used AI
+* We used ChatGPT to create our app by asking it to help us code certain features, such as the create report and view list of reports. We needed GPT to assist us because of the complexity of the create report function, such as having trouble with the way the tips were being stored all as one big string in mongoDB. With GPT, we were able to not have to split strings of data since the tips array now stored objects instead of strings.
+
+* We used ChatGPT to process a dataset we found on Kaggle.com. How we processed it is we asked it to create python scripts to process and clean the data set, getting rid of the columns for Light sleep, Deep sleep, as well as smoking status. We then asked GPT  to create a linear regression script to find how much each column affected the sleep efficiency column, and based our algorithm on that.
+
+* Our app does not incorporate AI, but AI was used during the development process. More specifically, we utilized AI to process and analyze our Kaggle dataset, allowing us to gain insights and understand the results better. This helped us in calculating sleep efficiency and provided valuable information for our app's functionality. While AI was not directly integrated into our app, it played a crucial role in assisting us during the development phase.
+
+* The main limitation that we encountered was the need to provide detailed and specific information if we wanted to receive better and more accurate responses. If not enough information was given, the AI would often give inaccurate results leading to small errors throughout our code. Due to this, we ended up having to invest additional time and effort to clean up the results which often caused errors.
 
 ## 9. Contact Information
+AISleep Team:   aisleep.bby14@gmail.com
+Jimmy Tsang:    jimmytsang42@gmail.com
+Emily Lin:      emilysmileee@gmail.com
+Gurpinder Kaur: gurpinderk714@gmail.com
+Sarah Liu:      sarahliu1998@gmail.com
 
-## 5. Complete setup/installion/usage
-State what a user needs to do when they come to your project.  How do others start using your code or application?
-Here are the steps
-*  
-* ...
-* ...
-
-## 5. Known Bugs and Limitations
-Here are some known bugs and limitations:
+## Known Bugs and Limitations
 * In rare instances, it is possible to get the alert of having already made the day's report even when you have deleted all reports.
 * You can only choose from a select number of profile pictures.
 * The stats page graph does not have a dark mode friendly colour scheme.
 
-## 6. Features for Future
-What we'd like to build in the future:
+## Features for Future
 * We would like to build a more comprehensive music function that would connect with the Spotify API, and allow users to search for, favourite, and play music that helps them sleep.
 * We would like to find more habits that affect sleep efficiency, and include them in our report as well.
 * We would like to expand on the stats page so that users can see a day by day breakdown of their sleep efficiency score (i.e, a user would be able to see stats for each day of the week).
