@@ -177,11 +177,11 @@ As a new developer, it is important to have access to our GitHub repository and 
 * The main limitation that we encountered was the need to provide detailed and specific information if we wanted to receive better and more accurate responses. If not enough information was given, the AI would often give inaccurate results leading to small errors throughout our code. Due to this, we ended up having to invest additional time and effort to clean up the results which often caused errors.
 
 ## 9. Contact Information
-AISleep Team:   aisleep.bby14@gmail.com
-Jimmy Tsang:    jimmytsang42@gmail.com
-Emily Lin:      emilysmileee@gmail.com
-Gurpinder Kaur: gurpinderk714@gmail.com
-Sarah Liu:      sarahliu1998@gmail.com
+* AISleep Team:   aisleep.bby14@gmail.com
+* Jimmy Tsang:    jimmytsang42@gmail.com
+* Emily Lin:      emilysmileee@gmail.com
+* Gurpinder Kaur: gurpinderk714@gmail.com
+* Sarah Liu:      sarahliu1998@gmail.com
 
 ## Known Bugs and Limitations
 * In rare instances, it is possible to get the alert of having already made the day's report even when you have deleted all reports.
