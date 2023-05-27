@@ -1,38 +1,30 @@
 <%- include('templates/header_goback', { path: '/settings' }) %>
-
 <br><br>
 <h2>Change Password</h2>
 <br><br>
-    <div class="card-body pb-2">
-        <form action="/change-password" method="POST">
-        <div class="form-group">
-             <label class="form-label">Current Password</label>
-              <input type="password" class="form-control" name="currentPassword"></div>
-        <div class="form-group"> <label class="form-label">New Password</label> <input type="password"
-                class="form-control" name="newPassword"></div>
-        <div class="form-group"> <label class="form-label">Confirm Password</label> <input type="password"
-                class="form-control" name="confirmNewPassword"></div>
-             
+<div class="card-body pb-2">
+  <form action="/change-password" method="POST">
+    <div class="form-group">
+      <label class="form-label">Current Password</label>
+      <input type="password" class="form-control" name="currentPassword">
     </div>
+    <div class="form-group"> <label class="form-label">New Password</label> <input type="password" class="form-control" name="newPassword"></div>
+    <div class="form-group"> <label class="form-label">Confirm Password</label> <input type="password" class="form-control" name="confirmNewPassword"></div>
     <div class="centeredbutton">
       <button type="submit" class="btn btn-primary button1">Save</button>
     </div>
   </form>
-    
-
+</div>
 <br><br>
-
 <% if (messages.error) { %>
-    <div class="alert alert-danger" role="alert">
-      <%= messages.error %>
-    </div>
-  <% } %>
-
-  <% if (messages.success) { %>
-    <div class="alert alert-success" role="alert">
-      <%= messages.success %>
-    </div>
-    <% } %>
+<div class="alert alert-danger" role="alert">
+  <%= messages.error %>
+</div>
+<% } %>
+<% if (messages.success) { %>
+<div class="alert alert-success" role="alert">
+  <%= messages.success %>
+</div>
+<% } %>
 <br><br><br>
-
-    <%- include('templates/footer') %>
+<%- include('templates/footer') %>

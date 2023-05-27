@@ -3,14 +3,14 @@
   <div class="row">
     <div class="col-md-8 mx-auto">
       <div class="card transparentbox">
-          <h1 class="text-center mb-0 mt-4">Hello, <span class="colored-text"><%- name %></span>!</h1>
+        <h1 class="text-center mb-0 mt-4">Hello, <span class="colored-text"><%- name %></span>!</h1>
         <div class="card-body">
           <div class="text-center">
             <h3 class="text-center m-4">Your average sleep efficiency is:</h3>
             <div class="d-flex align-items-center justify-content-center" style="height: 200px;">
               <div class="rounded-circle d-flex align-items-center justify-content-center border border-4 statscircle">
                 <span class="display-4 m-2" style="font-size: 3rem;"><%= Math.round(averageSleepEfficiency) %> %</span>
-            </div>    
+              </div>
             </div>
             <h5 class="text-center m-4">Recent sleep efficiency trend</h5>
             <!-- Add a canvas element to render the graph -->
@@ -26,15 +26,15 @@
                   <input type="date" id="targetDate" name="targetDate" class="form-control my-4" value="<%= targetDate %>" required>
                 </div>
                 <button type="submit" class="btn btn-primary button1">Update Goal</button>
-              </form>              
-            </div> 
+              </form>
+            </div>
             <% if (error === "InvalidDate") { %>
-              <div class="alert alert-danger text-center mt-4" role="alert">
+            <div class="alert alert-danger text-center mt-4" role="alert">
               <p class="my-2 mx-2 mt-2 error-message">Error: Invalid date.</p>
             </div>
             <% } else { %>
-              <h5 class="my-4"><%- goalMessage %></h5>
-            <% } %>  
+            <h5 class="my-4"><%- goalMessage %></h5>
+            <% } %>
           </div>
         </div>
       </div>
@@ -53,17 +53,11 @@
   document.addEventListener('DOMContentLoaded', function() {
     // Retrieve the sleepEfficiencies data from the data attribute
     var sleepEfficiencies = JSON.parse(document.getElementById('sleepEfficiencies').dataset.values);
-
     // Retrieve the dates data from the data attribute
     var dates = JSON.parse(document.getElementById('dates').dataset.values);
-
     // Create a new array with only the data for the most recent 7 days
     var chartData = sleepEfficiencies.slice(-7);
     var chartLabels = dates.slice(-7);
-
-    console.log(chartData);
-    console.log(chartLabels);
-
     // Convert dates to the desired format (mm/dd/yyyy)
     var formattedDates = chartLabels.map(function(date) {
       return moment(date, 'MMM DD, YYYY [at] hh:mm A').format('MM/DD/YYYY');

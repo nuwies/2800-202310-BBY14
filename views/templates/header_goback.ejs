@@ -2,45 +2,39 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AISleep</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.3.2/dist/chart.min.css">
-    <link href="styles/style.css" rel="stylesheet">
-    <script src="/public/js/client.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AISleep</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.3.2/dist/chart.min.css">
+  <link href="styles/style.css" rel="stylesheet">
+  <script src="/public/js/client.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
-    <%- include("svg") %>
+  <%- include("svg") %>
+  <div class="container header">
+    <header class="d-flex flex-wrap justify-content-center py-2 mb-4 border-bottom">
+      <div class="container">
+        <section class="d-flex justify-content-between">
+          <!-- go back -->
+          <a style="text-decoration: none;" class="btn btn-link btn-floating text-dark m-2" href="<%= path %>" role="button" data-mdb-ripple-color="dark">
+            <svg class="bi" width="24" height="24">
+              <use xlink:href="#goback"></use>
+            </svg>
+          </a>
 
-        <div class="container header">
-            <header class="d-flex flex-wrap justify-content-center py-2 mb-4 border-bottom">
-                <div class="container">
-                    <section class="d-flex justify-content-between">
-                        <!-- go back -->
-                        <a style="text-decoration: none;" class="btn btn-link btn-floating text-dark m-2"
-                            href="<%= path %>" role="button" data-mdb-ripple-color="dark">
-                            <svg class="bi" width="24" height="24">
-                                <use xlink:href="#goback"></use>
-                            </svg>
-                        </a>
-
-                        <!-- Setting -->
-                        <a style="text-decoration: none;" class="btn btn-link btn-floating text-dark m-2"
-                            href="/settings" role="button" data-mdb-ripple-color="dark">
-                            <svg class="bi" width="24" height="24">
-                                <use xlink:href="#setting"></use>
-                            </svg>
-                        </a>
-                    </section>
-                </div>
-            </header>
-        </div>
-
-
-        <!--main content container-->
-        <div class="container">
+          <!-- Setting -->
+          <a style="text-decoration: none;" class="btn btn-link btn-floating text-dark m-2" href="/settings" role="button" data-mdb-ripple-color="dark">
+            <svg class="bi" width="24" height="24">
+              <use xlink:href="#setting"></use>
+            </svg>
+          </a>
+        </section>
+      </div>
+    </header>
+  </div>
+  <!--main content container-->
+  <div class="container">

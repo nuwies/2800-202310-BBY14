@@ -1,30 +1,22 @@
 <%- include('templates/header_goback', { path: 'javascript:history.back()' }) %>
-
 <div class="card mb-4 transparentbox">
-    <div class="card-header">
-        More Sleep Analysis
-      </div>
-    <div class="card-body">
-        <img class="d-block mx-auto mb-4" src="images/welldone.png" alt="" width="120">
-        <div class="alert alert-success" role="alert">
-            Your sleeping efficiency is good, as the minimum efficiency required for people of your age is <%=Intercept%> %. <br> Keep it up!
-        </div>
-
-        <div class="alert alert-warning" role="alert">
-            <h3>However, the factor that can most effect the sleep efficiency of your age group is <%=MostNegativeFactor%>.</h3>
-            <% for (const fact of RelevantFacts) { %>
-                <h4>Reason: <%= fact.reason %>
-                </h4>
-                <p>Explanation: <%= fact.explanation %>
-                </p>
-                <% } %>
-        </div>
-       
-       
-      
+  <div class="card-header">More Sleep Analysis</div>
+  <div class="card-body">
+    <img class="d-block mx-auto mb-4" src="images/welldone.png" alt="" width="120">
+    <div class="alert alert-success" role="alert">
+      Your sleeping efficiency is good, as the minimum efficiency required for people of your age is 
+      <%=Intercept%> %. <br> Keep it up!
+    </div>
+    <div class="alert alert-warning" role="alert">
+      <h3>However, the factor that can most effect the sleep efficiency of your age group is <%=MostNegativeFactor%>.</h3>
+      <% for (const fact of RelevantFacts) { %>
+      <h4>Reason: <%= fact.reason %>
+      </h4>
+      <p>Explanation: <%= fact.explanation %>
+      </p>
+      <% } %>
     </div>
   </div>
-
-  <br><br><br>
-
-<%- include("templates/footer") %> 
+</div>
+<br><br><br>
+<%- include("templates/footer") %>
